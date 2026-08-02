@@ -1,0 +1,35 @@
+# CNPI RAG - Production Dependencies
+
+# Core Framework
+langgraph>=0.2.0
+langchain>=0.3.0
+langchain-community>=0.3.0
+
+# LLM
+langchain-google-genai>=2.0.0
+google-generativeai>=0.8.0
+
+# Database
+psycopg2-binary>=2.9.9
+pgvector>=0.3.0
+
+# Embeddings
+sentence-transformers>=2.3.0
+
+# Search
+scikit-learn>=1.4.0
+duckduckgo-search>=4.2.0
+
+# Utilities
+python-dotenv>=1.0.0
+PyYAML>=6.0.1
+rapidfuzz>=3.0.0
+
+# Web Server (Django API)
+django>=5.0,<6.1
+djangorestframework>=3.14.0
+django-cors-headers>=4.3.0
+gunicorn>=21.2.0
+
+# LangSmith (optional tracing)
+langchain-core>=0.3.0

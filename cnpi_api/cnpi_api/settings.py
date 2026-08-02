@@ -46,12 +46,19 @@ load_dotenv(PROJECT_ROOT / ".env")
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "django-insecure-yw12itr_$^6n-d+gw+r-fkzm(+l_okm*_69gv4%q4!djm=%mhh")
+SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", os.getenv("SECRET_KEY", "django-insecure-fallback-key-change-me"))
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("DEBUG", "True").lower() in ("true", "1", "yes")
 
-ALLOWED_HOSTS = ["*"]
+# ALLOWED_HOSTS — production: add your HuggingFace Space URL
+HF_SPACE_HOST = os.getenv("SPACE_HOST", "")
+ALLOWED_HOSTS = ["*"] if DEBUG else [
+    "localhost",
+    "127.0.0.1",
+    ".hf.space",
+    HF_SPACE_HOST,
+] if HF_SPACE_HOST else [".hf.space"]
 
 
 # Application definition
@@ -149,6 +156,9 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+
+# Collect static files to a single directory (needed for production)
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 
 # ---------------------------------------------------------------------------

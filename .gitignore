@@ -26,7 +26,7 @@ ENV/
 # Environment variables / secrets
 .env
 .env.*
-!env.example
+!.env.example
 
 # =============================================================
 # Node.js / Next.js (cnpichat-next)
@@ -80,3 +80,6 @@ coverage.xml
 *.sqlite3
 *.sqlite
 db.sqlite3
+# SQL dump files (contain data, do not commit)
+*.dump.sql
+cnpi_rag_dump.sql

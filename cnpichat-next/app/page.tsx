@@ -3,6 +3,9 @@
 import React, { useState, useRef, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
 
+// API base URL — local dev uses localhost, production uses HuggingFace Space URL
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
+
 // Types
 type Role = "human" | "ai" | "system";
 
@@ -57,7 +60,7 @@ export default function Home() {
 
     try {
       // API call to Django backend
-      const res = await fetch("http://127.0.0.1:8000/api/chat/", {
+      const res = await fetch(`${API_BASE_URL}/api/chat/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -1,0 +1,14 @@
+venv/
+.env
+*.pyc
+__pycache__/
+.git/
+.gitignore
+*.md
+!DEPLOYMENT.md
+cnpichat-next/
+frontend/
+*.ipynb
+scripts/cnpi_rag_dump.sql
+*.log
+.ipynb_checkpoints/
