@@ -1,0 +1,965 @@
+{
+  "version": "30.3.13",
+  "pages": [
+    {
+      "id": "C5RBs43oDa-KdzZeNtuy",
+      "name": "Page-1",
+      "cells": [
+        {
+          "id": "WIyWlLk6GJQsqaUBKTNV-1",
+          "type": "layer"
+        },
+        {
+          "id": "BlYBjDXocRZz1vztzSN9-2",
+          "type": "edge",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "source": "BlYBjDXocRZz1vztzSN9-0",
+          "target": "IRTYR5KuOunGfTz5kpvn-66"
+        },
+        {
+          "id": "BlYBjDXocRZz1vztzSN9-0",
+          "type": "node",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "label": "User Input"
+        },
+        {
+          "id": "BlYBjDXocRZz1vztzSN9-10",
+          "type": "edge",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "source": "IRTYR5KuOunGfTz5kpvn-69",
+          "target": "BlYBjDXocRZz1vztzSN9-9"
+        },
+        {
+          "id": "BlYBjDXocRZz1vztzSN9-16",
+          "type": "edge",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "source": "IRTYR5KuOunGfTz5kpvn-2",
+          "target": "BlYBjDXocRZz1vztzSN9-17"
+        },
+        {
+          "id": "IRTYR5KuOunGfTz5kpvn-4",
+          "type": "edge",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "source": "BlYBjDXocRZz1vztzSN9-7",
+          "target": "IRTYR5KuOunGfTz5kpvn-2"
+        },
+        {
+          "id": "BlYBjDXocRZz1vztzSN9-7",
+          "type": "node",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "label": "SQL Query path"
+        },
+        {
+          "id": "BlYBjDXocRZz1vztzSN9-24",
+          "type": "edge",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "source": "BlYBjDXocRZz1vztzSN9-9",
+          "target": "IRTYR5KuOunGfTz5kpvn-22"
+        },
+        {
+          "id": "BlYBjDXocRZz1vztzSN9-9",
+          "type": "node",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "label": "SQL retrieve path"
+        },
+        {
+          "id": "fwlsiyQ5baG3xYCTXDvv-89",
+          "type": "edge",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "source": "BlYBjDXocRZz1vztzSN9-11",
+          "target": "fwlsiyQ5baG3xYCTXDvv-88"
+        },
+        {
+          "id": "BlYBjDXocRZz1vztzSN9-11",
+          "type": "node",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "label": "Web search"
+        },
+        {
+          "id": "IRTYR5KuOunGfTz5kpvn-59",
+          "type": "edge",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "source": "BlYBjDXocRZz1vztzSN9-17",
+          "target": "IRTYR5KuOunGfTz5kpvn-56"
+        },
+        {
+          "id": "BlYBjDXocRZz1vztzSN9-17",
+          "type": "node",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "label": "Create query by llm\nwith metadata search \nreturn optimized details context with date for every rows \nsql_query_str:str",
+          "html": "Create query by llm<div>with&nbsp;<span style=\"background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));\">metadata search</span><span style=\"background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));\">&nbsp;</span></div><div><span style=\"background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));\">return optimized details context with date for every rows&nbsp;<br>sql_query_str:str</span></div>"
+        },
+        {
+          "id": "BlYBjDXocRZz1vztzSN9-19",
+          "type": "node",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "label": "Print final response"
+        },
+        {
+          "id": "fwlsiyQ5baG3xYCTXDvv-26",
+          "type": "edge",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "source": "BlYBjDXocRZz1vztzSN9-0",
+          "target": "BlYBjDXocRZz1vztzSN9-0"
+        },
+        {
+          "id": "fwlsiyQ5baG3xYCTXDvv-29",
+          "type": "edge",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1"
+        },
+        {
+          "id": "fwlsiyQ5baG3xYCTXDvv-46",
+          "type": "edge",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "source": "fwlsiyQ5baG3xYCTXDvv-43",
+          "target": "fwlsiyQ5baG3xYCTXDvv-45"
+        },
+        {
+          "id": "fwlsiyQ5baG3xYCTXDvv-43",
+          "type": "node",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "label": "LLM response\nsql_final_answer:str",
+          "html": "LLM response<div>sql_final_answer:str</div>"
+        },
+        {
+          "id": "fwlsiyQ5baG3xYCTXDvv-52",
+          "type": "edge",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "source": "fwlsiyQ5baG3xYCTXDvv-45",
+          "target": "fwlsiyQ5baG3xYCTXDvv-51"
+        },
+        {
+          "id": "fwlsiyQ5baG3xYCTXDvv-45",
+          "type": "node",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "label": "check  response by llm  suported or not supported on context\nsql_query_retry_count =+1",
+          "html": "check&nbsp; response by llm&nbsp; suported or not supported on context<div>sql_query_retry_count =+1</div>"
+        },
+        {
+          "id": "fwlsiyQ5baG3xYCTXDvv-51",
+          "type": "node",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "label": "if  suppurted\nmax retries 3",
+          "html": "<div>if&nbsp; suppurted<br>max retries 3</div>"
+        },
+        {
+          "id": "fwlsiyQ5baG3xYCTXDvv-91",
+          "type": "edge",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "source": "fwlsiyQ5baG3xYCTXDvv-88",
+          "target": "fwlsiyQ5baG3xYCTXDvv-90"
+        },
+        {
+          "id": "fwlsiyQ5baG3xYCTXDvv-88",
+          "type": "node",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "label": "Rewrite query by llm for web search"
+        },
+        {
+          "id": "TJdD_RTAwayc87jwSL3q-27",
+          "type": "edge",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "source": "fwlsiyQ5baG3xYCTXDvv-90",
+          "target": "IRTYR5KuOunGfTz5kpvn-106"
+        },
+        {
+          "id": "fwlsiyQ5baG3xYCTXDvv-90",
+          "type": "node",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "label": "Ready docs\nweb_context:str",
+          "html": "Ready docs<div>web_context:str</div>"
+        },
+        {
+          "id": "fwlsiyQ5baG3xYCTXDvv-95",
+          "type": "edge",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "source": "fwlsiyQ5baG3xYCTXDvv-92",
+          "target": "fwlsiyQ5baG3xYCTXDvv-94"
+        },
+        {
+          "id": "fwlsiyQ5baG3xYCTXDvv-92",
+          "type": "node",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "label": "check response suported or not supported on context by llm\nweb_search_retry_count =+1",
+          "html": "check response suported or not supported on context by llm<div>web_search_retry_count =+1</div>"
+        },
+        {
+          "id": "fwlsiyQ5baG3xYCTXDvv-97",
+          "type": "edge",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "source": "fwlsiyQ5baG3xYCTXDvv-94",
+          "target": "fwlsiyQ5baG3xYCTXDvv-96"
+        },
+        {
+          "id": "TJdD_RTAwayc87jwSL3q-47",
+          "type": "node",
+          "parent": "fwlsiyQ5baG3xYCTXDvv-97",
+          "label": "Yes"
+        },
+        {
+          "id": "fwlsiyQ5baG3xYCTXDvv-99",
+          "type": "edge",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "source": "fwlsiyQ5baG3xYCTXDvv-94",
+          "target": "TJdD_RTAwayc87jwSL3q-29"
+        },
+        {
+          "id": "TJdD_RTAwayc87jwSL3q-48",
+          "type": "node",
+          "parent": "fwlsiyQ5baG3xYCTXDvv-99",
+          "label": "NO"
+        },
+        {
+          "id": "fwlsiyQ5baG3xYCTXDvv-94",
+          "type": "node",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "label": "if  suppurted\nmax retries 3",
+          "html": "<div>if&nbsp; suppurted<br>max retries 3</div>"
+        },
+        {
+          "id": "fwlsiyQ5baG3xYCTXDvv-96",
+          "type": "node",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "label": "Print final response"
+        },
+        {
+          "id": "IRTYR5KuOunGfTz5kpvn-6",
+          "type": "edge",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "source": "IRTYR5KuOunGfTz5kpvn-2",
+          "target": "IRTYR5KuOunGfTz5kpvn-8",
+          "label": "Short info"
+        },
+        {
+          "id": "IRTYR5KuOunGfTz5kpvn-2",
+          "type": "node",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "label": "check\nuser  query \nfor sql query\n info by LLM\nreturn:\nsql_short_info = Bool,\nsql_not_possible = bool",
+          "html": "check<div>user&nbsp; query&nbsp;</div><div>for sql<span style=\"background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));\">&nbsp;query</span></div><div><div>&nbsp;info by LLM</div><div>return:</div><div>sql_short_info = Bool,</div><div>sql_not_possible = bool</div></div>"
+        },
+        {
+          "id": "IRTYR5KuOunGfTz5kpvn-10",
+          "type": "edge",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "source": "IRTYR5KuOunGfTz5kpvn-22",
+          "target": "IRTYR5KuOunGfTz5kpvn-12"
+        },
+        {
+          "id": "IRTYR5KuOunGfTz5kpvn-52",
+          "type": "edge",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "source": "IRTYR5KuOunGfTz5kpvn-12",
+          "target": "IRTYR5KuOunGfTz5kpvn-51"
+        },
+        {
+          "id": "IRTYR5KuOunGfTz5kpvn-12",
+          "type": "node",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "label": "Create query by llm:\nmetadata search-> embedd and BM25 search ->,,and return context and date.",
+          "html": "Create query by llm:<div>metadata search-&gt; embedd and&nbsp;BM25 search -&gt;,,and return context and date.&nbsp;</div>"
+        },
+        {
+          "id": "IRTYR5KuOunGfTz5kpvn-13",
+          "type": "node",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "label": "Print final response"
+        },
+        {
+          "id": "IRTYR5KuOunGfTz5kpvn-14",
+          "type": "edge",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "source": "IRTYR5KuOunGfTz5kpvn-15",
+          "target": "IRTYR5KuOunGfTz5kpvn-17"
+        },
+        {
+          "id": "IRTYR5KuOunGfTz5kpvn-15",
+          "type": "node",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "label": "create\nLLM response",
+          "html": "create<div>LLM response</div>"
+        },
+        {
+          "id": "IRTYR5KuOunGfTz5kpvn-16",
+          "type": "edge",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "source": "IRTYR5KuOunGfTz5kpvn-17",
+          "target": "IRTYR5KuOunGfTz5kpvn-26"
+        },
+        {
+          "id": "IRTYR5KuOunGfTz5kpvn-17",
+          "type": "node",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "label": "check response suported or not supported on context by llm\nsql_retrieve_retry_count =+1",
+          "html": "check response suported or not supported on context by llm<div>sql_retrieve_retry_count =+1</div>"
+        },
+        {
+          "id": "IRTYR5KuOunGfTz5kpvn-19",
+          "type": "edge",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "source": "IRTYR5KuOunGfTz5kpvn-26",
+          "target": "IRTYR5KuOunGfTz5kpvn-15",
+          "label": "No"
+        },
+        {
+          "id": "IRTYR5KuOunGfTz5kpvn-21",
+          "type": "edge",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "source": "IRTYR5KuOunGfTz5kpvn-22",
+          "target": "IRTYR5KuOunGfTz5kpvn-24"
+        },
+        {
+          "id": "IRTYR5KuOunGfTz5kpvn-22",
+          "type": "node",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "label": "check\nuser  query\n info for best ans\n by LLM",
+          "html": "check<div>user&nbsp; query<div>&nbsp;info for best ans</div><div>&nbsp;by LLM</div></div>"
+        },
+        {
+          "id": "IRTYR5KuOunGfTz5kpvn-23",
+          "type": "edge",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "source": "IRTYR5KuOunGfTz5kpvn-24",
+          "target": "IRTYR5KuOunGfTz5kpvn-25"
+        },
+        {
+          "id": "IRTYR5KuOunGfTz5kpvn-24",
+          "type": "node",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "label": "Need more info"
+        },
+        {
+          "id": "TJdD_RTAwayc87jwSL3q-18",
+          "type": "edge",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "source": "IRTYR5KuOunGfTz5kpvn-25",
+          "target": "TJdD_RTAwayc87jwSL3q-17"
+        },
+        {
+          "id": "IRTYR5KuOunGfTz5kpvn-29",
+          "type": "edge",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "source": "IRTYR5KuOunGfTz5kpvn-26",
+          "target": "TJdD_RTAwayc87jwSL3q-35",
+          "label": "else"
+        },
+        {
+          "id": "TJdD_RTAwayc87jwSL3q-26",
+          "type": "edge",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "source": "IRTYR5KuOunGfTz5kpvn-26",
+          "target": "IRTYR5KuOunGfTz5kpvn-13",
+          "label": "Yes"
+        },
+        {
+          "id": "IRTYR5KuOunGfTz5kpvn-26",
+          "type": "node",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "label": "if  suppurted\nmax retries 3",
+          "html": "<div>if&nbsp; suppurted<br>max retries 3</div>"
+        },
+        {
+          "id": "TJdD_RTAwayc87jwSL3q-37",
+          "type": "edge",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "source": "IRTYR5KuOunGfTz5kpvn-28",
+          "target": "IRTYR5KuOunGfTz5kpvn-13"
+        },
+        {
+          "id": "IRTYR5KuOunGfTz5kpvn-28",
+          "type": "node",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "label": "return response for ans not found by LLM"
+        },
+        {
+          "id": "TJdD_RTAwayc87jwSL3q-42",
+          "type": "edge",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "source": "IRTYR5KuOunGfTz5kpvn-30",
+          "target": "BlYBjDXocRZz1vztzSN9-19"
+        },
+        {
+          "id": "IRTYR5KuOunGfTz5kpvn-30",
+          "type": "node",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "label": "return response for ans not found by LLM"
+        },
+        {
+          "id": "IRTYR5KuOunGfTz5kpvn-32",
+          "type": "edge",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "source": "fwlsiyQ5baG3xYCTXDvv-51",
+          "target": "TJdD_RTAwayc87jwSL3q-39",
+          "label": "Else"
+        },
+        {
+          "id": "IRTYR5KuOunGfTz5kpvn-33",
+          "type": "edge",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "source": "fwlsiyQ5baG3xYCTXDvv-51",
+          "target": "fwlsiyQ5baG3xYCTXDvv-43",
+          "label": "no"
+        },
+        {
+          "id": "IRTYR5KuOunGfTz5kpvn-35",
+          "type": "edge",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "source": "fwlsiyQ5baG3xYCTXDvv-51",
+          "target": "BlYBjDXocRZz1vztzSN9-19",
+          "label": "yes"
+        },
+        {
+          "id": "IRTYR5KuOunGfTz5kpvn-38",
+          "type": "edge",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "source": "IRTYR5KuOunGfTz5kpvn-36",
+          "target": "TJdD_RTAwayc87jwSL3q-11",
+          "label": "Row = 1"
+        },
+        {
+          "id": "IRTYR5KuOunGfTz5kpvn-43",
+          "type": "edge",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "source": "IRTYR5KuOunGfTz5kpvn-36",
+          "target": "IRTYR5KuOunGfTz5kpvn-42",
+          "label": "Row = 1+&nbsp;"
+        },
+        {
+          "id": "ofSP5Uz8rBHcs3gyVBSO-3",
+          "type": "edge",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "source": "IRTYR5KuOunGfTz5kpvn-36",
+          "target": "ofSP5Uz8rBHcs3gyVBSO-2"
+        },
+        {
+          "id": "ofSP5Uz8rBHcs3gyVBSO-4",
+          "type": "node",
+          "parent": "ofSP5Uz8rBHcs3gyVBSO-3",
+          "label": "Row = 0"
+        },
+        {
+          "id": "IRTYR5KuOunGfTz5kpvn-36",
+          "type": "node",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "label": "row check"
+        },
+        {
+          "id": "TJdD_RTAwayc87jwSL3q-12",
+          "type": "edge",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "source": "IRTYR5KuOunGfTz5kpvn-42",
+          "target": "TJdD_RTAwayc87jwSL3q-11"
+        },
+        {
+          "id": "IRTYR5KuOunGfTz5kpvn-42",
+          "type": "node",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "label": "optmezed  context with y funtion:\npriyoriti  and date added in context\nsql_optimized_context:str",
+          "html": "optmezed&nbsp; context with y funtion:<div>priyoriti&nbsp; and date added in context<br>sql_optimized_context:str</div>"
+        },
+        {
+          "id": "TJdD_RTAwayc87jwSL3q-23",
+          "type": "edge",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "source": "IRTYR5KuOunGfTz5kpvn-51",
+          "target": "TJdD_RTAwayc87jwSL3q-17"
+        },
+        {
+          "id": "IRTYR5KuOunGfTz5kpvn-51",
+          "type": "node",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "label": "makup context with date and priyority in python funtion\nretrieve_context_with_meta:str",
+          "html": "makup context with date and priyority in python funtion<br>retrieve_context_with_meta:str"
+        },
+        {
+          "id": "IRTYR5KuOunGfTz5kpvn-58",
+          "type": "edge",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "source": "IRTYR5KuOunGfTz5kpvn-56",
+          "target": "IRTYR5KuOunGfTz5kpvn-36"
+        },
+        {
+          "id": "IRTYR5KuOunGfTz5kpvn-56",
+          "type": "node",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "label": "Call database with py funtion\nsql_raw_context:str",
+          "html": "Call database with py funtion<br>sql_raw_context:str"
+        },
+        {
+          "id": "IRTYR5KuOunGfTz5kpvn-63",
+          "type": "edge",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "source": "IRTYR5KuOunGfTz5kpvn-2",
+          "target": "IRTYR5KuOunGfTz5kpvn-12"
+        },
+        {
+          "id": "IRTYR5KuOunGfTz5kpvn-64",
+          "type": "edge",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "source": "IRTYR5KuOunGfTz5kpvn-56",
+          "target": "IRTYR5KuOunGfTz5kpvn-56"
+        },
+        {
+          "id": "IRTYR5KuOunGfTz5kpvn-72",
+          "type": "edge",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "source": "IRTYR5KuOunGfTz5kpvn-65",
+          "target": "IRTYR5KuOunGfTz5kpvn-71"
+        },
+        {
+          "id": "IRTYR5KuOunGfTz5kpvn-65",
+          "type": "node",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "label": "LLM decied Path\nand  return \nconfidence_score: float\npath : str",
+          "html": "LLM decied Path<br>and&nbsp; return&nbsp;<div>confidence_score: float</div><div>path : str</div>"
+        },
+        {
+          "id": "IRTYR5KuOunGfTz5kpvn-68",
+          "type": "edge",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "source": "IRTYR5KuOunGfTz5kpvn-66",
+          "target": "IRTYR5KuOunGfTz5kpvn-65"
+        },
+        {
+          "id": "IRTYR5KuOunGfTz5kpvn-66",
+          "type": "node",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "label": "LLM rewrite querry&nbsp;"
+        },
+        {
+          "id": "IRTYR5KuOunGfTz5kpvn-76",
+          "type": "edge",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "source": "IRTYR5KuOunGfTz5kpvn-69",
+          "target": "BlYBjDXocRZz1vztzSN9-7"
+        },
+        {
+          "id": "IRTYR5KuOunGfTz5kpvn-78",
+          "type": "edge",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "source": "IRTYR5KuOunGfTz5kpvn-69",
+          "target": "BlYBjDXocRZz1vztzSN9-9"
+        },
+        {
+          "id": "IRTYR5KuOunGfTz5kpvn-81",
+          "type": "edge",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "source": "IRTYR5KuOunGfTz5kpvn-69",
+          "target": "BlYBjDXocRZz1vztzSN9-11"
+        },
+        {
+          "id": "IRTYR5KuOunGfTz5kpvn-82",
+          "type": "edge",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "source": "IRTYR5KuOunGfTz5kpvn-69"
+        },
+        {
+          "id": "IRTYR5KuOunGfTz5kpvn-69",
+          "type": "node",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "label": "LLM decied Path"
+        },
+        {
+          "id": "IRTYR5KuOunGfTz5kpvn-73",
+          "type": "edge",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "source": "IRTYR5KuOunGfTz5kpvn-71",
+          "target": "IRTYR5KuOunGfTz5kpvn-65"
+        },
+        {
+          "id": "IRTYR5KuOunGfTz5kpvn-74",
+          "type": "edge",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "source": "IRTYR5KuOunGfTz5kpvn-71",
+          "target": "IRTYR5KuOunGfTz5kpvn-69",
+          "label": "Yes"
+        },
+        {
+          "id": "IRTYR5KuOunGfTz5kpvn-75",
+          "type": "edge",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "source": "IRTYR5KuOunGfTz5kpvn-71",
+          "target": "HOeSl_oKG3yTSqaj7ThK-0",
+          "label": "No"
+        },
+        {
+          "id": "IRTYR5KuOunGfTz5kpvn-71",
+          "type": "node",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "label": "confidence_score &gt; 0.7"
+        },
+        {
+          "id": "IRTYR5KuOunGfTz5kpvn-86",
+          "type": "edge",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "source": "IRTYR5KuOunGfTz5kpvn-83",
+          "target": "IRTYR5KuOunGfTz5kpvn-85"
+        },
+        {
+          "id": "IRTYR5KuOunGfTz5kpvn-83",
+          "type": "node",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "label": "Create sub \nquestion by llm and \ntotal_sub_q:int\nsub_query_list:list = [all_query],\nsub_query_ans:list = []\nsub_ans_count = 0",
+          "html": "Create sub&nbsp;<div>question by llm and <br>total_sub_q:int<br>sub_query_list:list = [all_query],</div><div>sub_query_ans:list = []</div><div>sub_ans_count = 0</div>"
+        },
+        {
+          "id": "IRTYR5KuOunGfTz5kpvn-87",
+          "type": "edge",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "source": "IRTYR5KuOunGfTz5kpvn-85",
+          "target": "IRTYR5KuOunGfTz5kpvn-69"
+        },
+        {
+          "id": "IRTYR5KuOunGfTz5kpvn-85",
+          "type": "node",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "label": "all sub_quer sent to \nllm decied path paralally\nand",
+          "html": "all sub_quer sent to&nbsp;<div>llm decied path paralally</div><div>and&nbsp;</div>"
+        },
+        {
+          "id": "IRTYR5KuOunGfTz5kpvn-95",
+          "type": "edge",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "source": "IRTYR5KuOunGfTz5kpvn-93",
+          "target": "IRTYR5KuOunGfTz5kpvn-94"
+        },
+        {
+          "id": "IRTYR5KuOunGfTz5kpvn-93",
+          "type": "node",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "label": "append sub_query_ans:\n{Query: context ,dont context then final_answer}\ncheck total_sub_q == sub_ans_count",
+          "html": "append sub_query_ans:<div>{Query: context ,dont context then final_answer}</div><div>check total_sub_q == sub_ans_count</div>"
+        },
+        {
+          "id": "TJdD_RTAwayc87jwSL3q-51",
+          "type": "edge",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "source": "IRTYR5KuOunGfTz5kpvn-94",
+          "target": "TJdD_RTAwayc87jwSL3q-50"
+        },
+        {
+          "id": "IRTYR5KuOunGfTz5kpvn-94",
+          "type": "node",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "label": "Merge sub ans by LLM  for sub_query_ans and return Response\nmerge_retries =+ 1",
+          "html": "Merge sub ans by LLM&nbsp; for sub_query_ans and return Response<br>merge_retries =+ 1"
+        },
+        {
+          "id": "TJdD_RTAwayc87jwSL3q-30",
+          "type": "edge",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "source": "IRTYR5KuOunGfTz5kpvn-106",
+          "target": "TJdD_RTAwayc87jwSL3q-29"
+        },
+        {
+          "id": "ofSP5Uz8rBHcs3gyVBSO-1",
+          "type": "node",
+          "parent": "TJdD_RTAwayc87jwSL3q-30",
+          "label": "No"
+        },
+        {
+          "id": "TJdD_RTAwayc87jwSL3q-32",
+          "type": "edge",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "source": "IRTYR5KuOunGfTz5kpvn-106"
+        },
+        {
+          "id": "ofSP5Uz8rBHcs3gyVBSO-0",
+          "type": "node",
+          "parent": "TJdD_RTAwayc87jwSL3q-32",
+          "label": "Yes"
+        },
+        {
+          "id": "IRTYR5KuOunGfTz5kpvn-106",
+          "type": "node",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "label": "is_sub_query_call == True?"
+        },
+        {
+          "id": "TJdD_RTAwayc87jwSL3q-7",
+          "type": "edge",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "source": "TJdD_RTAwayc87jwSL3q-2",
+          "target": "TJdD_RTAwayc87jwSL3q-6",
+          "label": "No"
+        },
+        {
+          "id": "GIafaSP0_lQdhS2U533F-2",
+          "type": "edge",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "source": "TJdD_RTAwayc87jwSL3q-2"
+        },
+        {
+          "id": "GIafaSP0_lQdhS2U533F-3",
+          "type": "node",
+          "parent": "GIafaSP0_lQdhS2U533F-2",
+          "label": "Yes"
+        },
+        {
+          "id": "TJdD_RTAwayc87jwSL3q-2",
+          "type": "node",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "label": "is_sub_query_call == True?"
+        },
+        {
+          "id": "TJdD_RTAwayc87jwSL3q-6",
+          "type": "node",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "label": "Print final response"
+        },
+        {
+          "id": "TJdD_RTAwayc87jwSL3q-13",
+          "type": "edge",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "source": "TJdD_RTAwayc87jwSL3q-11"
+        },
+        {
+          "id": "TJdD_RTAwayc87jwSL3q-14",
+          "type": "edge",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "source": "TJdD_RTAwayc87jwSL3q-11",
+          "target": "IRTYR5KuOunGfTz5kpvn-93"
+        },
+        {
+          "id": "TJdD_RTAwayc87jwSL3q-11",
+          "type": "node",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "label": "is_sub_query_call == True?"
+        },
+        {
+          "id": "TJdD_RTAwayc87jwSL3q-19",
+          "type": "edge",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "source": "TJdD_RTAwayc87jwSL3q-17",
+          "label": "Yes"
+        },
+        {
+          "id": "TJdD_RTAwayc87jwSL3q-21",
+          "type": "edge",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "source": "TJdD_RTAwayc87jwSL3q-17",
+          "target": "TJdD_RTAwayc87jwSL3q-20",
+          "label": "No and context = False"
+        },
+        {
+          "id": "TJdD_RTAwayc87jwSL3q-25",
+          "type": "edge",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "source": "TJdD_RTAwayc87jwSL3q-17",
+          "target": "IRTYR5KuOunGfTz5kpvn-15",
+          "label": "No,context=true"
+        },
+        {
+          "id": "TJdD_RTAwayc87jwSL3q-17",
+          "type": "node",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "label": "is_sub_query_call == True?"
+        },
+        {
+          "id": "TJdD_RTAwayc87jwSL3q-20",
+          "type": "node",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "label": "Print final response"
+        },
+        {
+          "id": "TJdD_RTAwayc87jwSL3q-22",
+          "type": "node",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1"
+        },
+        {
+          "id": "TJdD_RTAwayc87jwSL3q-31",
+          "type": "edge",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "source": "TJdD_RTAwayc87jwSL3q-29",
+          "target": "fwlsiyQ5baG3xYCTXDvv-92"
+        },
+        {
+          "id": "TJdD_RTAwayc87jwSL3q-29",
+          "type": "node",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "label": "Create response by llm&nbsp;"
+        },
+        {
+          "id": "TJdD_RTAwayc87jwSL3q-33",
+          "type": "node",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "label": "Print final response"
+        },
+        {
+          "id": "TJdD_RTAwayc87jwSL3q-36",
+          "type": "edge",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "source": "TJdD_RTAwayc87jwSL3q-35",
+          "target": "IRTYR5KuOunGfTz5kpvn-28"
+        },
+        {
+          "id": "TJdD_RTAwayc87jwSL3q-45",
+          "type": "node",
+          "parent": "TJdD_RTAwayc87jwSL3q-36",
+          "label": "No"
+        },
+        {
+          "id": "TJdD_RTAwayc87jwSL3q-38",
+          "type": "edge",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "source": "TJdD_RTAwayc87jwSL3q-35"
+        },
+        {
+          "id": "TJdD_RTAwayc87jwSL3q-44",
+          "type": "node",
+          "parent": "TJdD_RTAwayc87jwSL3q-38",
+          "label": "Yes"
+        },
+        {
+          "id": "TJdD_RTAwayc87jwSL3q-35",
+          "type": "node",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "label": "is_sub_query_call == True?"
+        },
+        {
+          "id": "TJdD_RTAwayc87jwSL3q-41",
+          "type": "edge",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "source": "TJdD_RTAwayc87jwSL3q-39",
+          "target": "IRTYR5KuOunGfTz5kpvn-30"
+        },
+        {
+          "id": "TJdD_RTAwayc87jwSL3q-46",
+          "type": "node",
+          "parent": "TJdD_RTAwayc87jwSL3q-41",
+          "label": "yes"
+        },
+        {
+          "id": "TJdD_RTAwayc87jwSL3q-39",
+          "type": "node",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "label": "is_sub_query_call == True?"
+        },
+        {
+          "id": "TJdD_RTAwayc87jwSL3q-52",
+          "type": "edge",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "source": "TJdD_RTAwayc87jwSL3q-50",
+          "target": "TJdD_RTAwayc87jwSL3q-33"
+        },
+        {
+          "id": "TJdD_RTAwayc87jwSL3q-53",
+          "type": "node",
+          "parent": "TJdD_RTAwayc87jwSL3q-52",
+          "label": "Yes"
+        },
+        {
+          "id": "TJdD_RTAwayc87jwSL3q-57",
+          "type": "edge",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "source": "TJdD_RTAwayc87jwSL3q-50",
+          "target": "TJdD_RTAwayc87jwSL3q-56"
+        },
+        {
+          "id": "TJdD_RTAwayc87jwSL3q-59",
+          "type": "node",
+          "parent": "TJdD_RTAwayc87jwSL3q-57",
+          "label": "No"
+        },
+        {
+          "id": "TJdD_RTAwayc87jwSL3q-58",
+          "type": "edge",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "source": "TJdD_RTAwayc87jwSL3q-50"
+        },
+        {
+          "id": "TJdD_RTAwayc87jwSL3q-50",
+          "type": "node",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "label": "if  suppurted\nmax merge_retries 3",
+          "html": "<div>if&nbsp; suppurted<br>max merge_retries 3</div>"
+        },
+        {
+          "id": "TJdD_RTAwayc87jwSL3q-56",
+          "type": "node",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "label": "return response for ans not found by LLM"
+        },
+        {
+          "id": "HOeSl_oKG3yTSqaj7ThK-1",
+          "type": "edge",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "source": "HOeSl_oKG3yTSqaj7ThK-0",
+          "target": "IRTYR5KuOunGfTz5kpvn-83"
+        },
+        {
+          "id": "HOeSl_oKG3yTSqaj7ThK-4",
+          "type": "node",
+          "parent": "HOeSl_oKG3yTSqaj7ThK-1",
+          "label": "Yes"
+        },
+        {
+          "id": "HOeSl_oKG3yTSqaj7ThK-2",
+          "type": "edge",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "source": "HOeSl_oKG3yTSqaj7ThK-0",
+          "target": "BlYBjDXocRZz1vztzSN9-9"
+        },
+        {
+          "id": "HOeSl_oKG3yTSqaj7ThK-3",
+          "type": "node",
+          "parent": "HOeSl_oKG3yTSqaj7ThK-2",
+          "label": "No"
+        },
+        {
+          "id": "HOeSl_oKG3yTSqaj7ThK-0",
+          "type": "node",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "label": "hb_path_depth < 1Hybrid path\nhb_path_depth =+1",
+          "html": "<br><div style=\"forced-color-adjust: none; color: rgb(0, 0, 0); font-family: Helvetica; font-size: 12px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: center; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: normal; background-color: rgb(236, 236, 236); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial;\">hb_path_depth &lt; 1</div><span style=\"color: rgb(0, 0, 0); font-family: Helvetica; font-size: 12px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: center; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: normal; background-color: rgb(236, 236, 236); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial; float: none; display: inline !important;\">Hybrid path</span><br style=\"forced-color-adjust: none; color: rgb(0, 0, 0); font-family: Helvetica; font-size: 12px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: center; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: normal; background-color: rgb(236, 236, 236); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial;\"><span style=\"color: rgb(0, 0, 0); font-family: Helvetica; font-size: 12px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: center; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: normal; background-color: rgb(236, 236, 236); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial; float: none; display: inline !important;\">hb_path_depth =+1</span>"
+        },
+        {
+          "id": "GIafaSP0_lQdhS2U533F-0",
+          "type": "edge",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "target": "IRTYR5KuOunGfTz5kpvn-8"
+        },
+        {
+          "id": "GIafaSP0_lQdhS2U533F-1",
+          "type": "edge",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "source": "IRTYR5KuOunGfTz5kpvn-8",
+          "target": "TJdD_RTAwayc87jwSL3q-2"
+        },
+        {
+          "id": "IRTYR5KuOunGfTz5kpvn-8",
+          "type": "node",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "label": "Response create by llm user for need more info",
+          "html": "Response create by llm user for need more info<div><br></div>"
+        },
+        {
+          "id": "ofSP5Uz8rBHcs3gyVBSO-5",
+          "type": "edge",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "source": "IRTYR5KuOunGfTz5kpvn-25",
+          "target": "IRTYR5KuOunGfTz5kpvn-12"
+        },
+        {
+          "id": "ofSP5Uz8rBHcs3gyVBSO-2",
+          "type": "node",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "label": "Fallback Dispatcher\n<div>Update: decided_path = \"sql_retrieve\"</div>\n<div>Reset \"sql_retrieve\" nested state</div>\n<div>(No LLM Call - Direct routing)</div>",
+          "html": "<p dir=\"ltr\"><span style=\"white-space: pre-wrap;\">Fallback Dispatcher</span></p><p dir=\"ltr\"><span style=\"white-space: pre-wrap;\">&lt;div&gt;Update: decided_path = \"sql_retrieve\"&lt;/div&gt;</span></p><p dir=\"ltr\"><span style=\"white-space: pre-wrap;\">&lt;div&gt;Reset \"sql_retrieve\" nested state&lt;/div&gt;</span></p><p dir=\"ltr\"><span style=\"white-space: pre-wrap;\">&lt;div&gt;(No LLM Call - Direct routing)&lt;/div&gt;</span></p>"
+        },
+        {
+          "id": "LcBExloPxHTYj8rfWgRT-0",
+          "type": "edge",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "source": "ofSP5Uz8rBHcs3gyVBSO-2",
+          "target": "IRTYR5KuOunGfTz5kpvn-25"
+        },
+        {
+          "id": "IRTYR5KuOunGfTz5kpvn-25",
+          "type": "node",
+          "parent": "WIyWlLk6GJQsqaUBKTNV-1",
+          "label": "Response by llm user for need more info"
+        }
+      ]
+    }
+  ]
+}

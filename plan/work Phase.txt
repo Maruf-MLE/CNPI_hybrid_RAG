@@ -1,0 +1,186 @@
+work Phase
+
+┌─────────────────────────────────────────────────────────────┐
+│  PHASE 1: Foundation + Entry + Router (4-5 দিন)             │
+│  ┌─────────────┐      ┌─────────────┐      ┌─────────────┐ │
+│  │ 📦 node:    │ ──→  │ 📦 node:    │ ──→  │ 🔀 edge:   │ │
+│  │ rewrite_query│      │ llm_decide_  │      │ confidence_ │ │
+│  │             │      │ path        │      │ check       │ │
+│  │ - user_input│      │ - path str  │      │ >0.7?      │ │
+│  │ - output:   │      │ - confidence│      └─────┬───┬───┘ │
+│  │   rewritten │      │   score     │           │   │     │
+│  │   query:str │      └─────────────┘     ┌─────┘   └────┐│
+│  └─────────────┘                         │        │     ││
+│                                   YES → paths│  NO  │  │
+│                                 ↓        ↓     │    │
+│                              ┌────────┐┌────────┐ │
+│                              │sql_q   ││sql_ret │ │
+│                              │sql_rt  ││web     │ │
+│                              │web     ││        │ │
+│                              └────────┘└────────┘ │
+│                                                    │
+│  কি লাগবে:                                         │
+│  ✅ state.py (ইয়া আছে)                            │
+│  ✅ LLM wrapper function                           │
+│  ✅ LangGraph graph তৈরি                            │
+│  ✅ 2 Node + 1 Edge routing                        │
+└───────────────────────────────────────────────────────┘
+
+
+┌──────────────────────────────────────────────────────────────┐
+│  PHASE 2: SQL Query Path (5-6 দিন)                          │
+│                                                               │
+│  flow:                                                       │
+│                                                               │
+│  ┌──────────────────┐                                       │
+│  │ sql_query_info  ─┼── short_info?  ─→ need_more_info_resp │
+│  │ _check        ──┼── not_possible?→ answer_not_found     │
+│  │             ────┤                                     │
+│  └────────┬─────────┘                                     │
+│           ↓ True (continue)                               │
+│  ┌────────┴─────────┐                                     │
+│  │ sql_query_create │ → LLM: SQL string তৈরি              │
+│  └────────┬─────────┘                                     │
+│           ↓                                               │
+│  ┌────────┴─────────┐                                     │
+│  │ sql_query_db_call│ → Python: DB কল                      │
+│  └────────┬─────────┘                                     │
+│           ↓                                               │
+│  ┌────────┴─────────┐             ┌────────────────────┐  │
+│  │ sql_query_row    │ Row=0 ──→   │ fallback_dispatch  │  │
+│  │ _check           │ Row=1 ──→   │ → sql_retrieve     │  │
+│  │                  │ Row=1+ ──→  └────────────────────┘  │
+│  └────────┬─────────┘                                      │
+│           ↓Row=1+                                         │
+│  ┌────────┴──────────┐                                   │
+│  │ sql_query_optimized│ → Python: priority + date        │
+│  └────────┬──────────┘                                   │
+│           ↓                                              │
+│  ┌────────┴──────────┐                                  │
+│  │ sql_query_response │ → LLM: final_answer              │
+│  └────────┬──────────┘                                   │
+│           ↓                                              │
+│  ┌────────┴───────────┐                                 │
+│  │ sql_query_support  │ → LLM: supported?               │
+│  │                    │   ┌── Yes → print_final          │
+│  │                    │   └── No ─→ retry (max 3)        │
+│  └────────────────────┘                                 │
+│                                                          │
+│  কি লাগবে:                                              │
+│  ⬜ 7 টা Node function                                    │
+│  ⬜ 1 টা Conditional Edge (row check)                      │
+│  ⬜ Database connection function                            │
+│  ⬜ SQL query generation prompt                            │
+│  ⬜ Support check LLM prompt                               │
+└────────────────────────────────────────────────────────────┘
+
+
+
+┌─────────────────────────────────────────────────────────────┐
+│  PHASE 3: SQL Retrieve Path (3-4 দিন)                       │
+│                                                              │
+│  ┌────────────────┐                                         │
+│  │ sql_retrieve_  │ → LLM: query info check                 │
+│  │ check          │   ┌── Need more info ─→ need_more_info  │
+│  │                │   └── Else continue                     │
+│  └────────┬───────┘                                         │
+│           ↓                                                 │
+│  ┌────────┴───────────┐                                    │
+│  │ sql_retrieve_create│ → LLM: metadata search              │
+│  │                    │   → Embedding + BM25                │
+│  └────────┬───────────┘                                     │
+│           ↓                                                 │
+│  ┌────────┴───────────┐                                    │
+│  │ sql_retrieve_context│ → Python: date + priority         │
+│  └────────┬───────────┘                                     │
+│           ↓                                                 │
+│  ┌────────┴────────────┐                                   │
+│  │ sql_retrieve_response│→ LLM: response                   │
+│  └────────┬────────────┘                                   │
+│           ↓                                                │
+│  ┌────────┴─────────────┐⎯→ same as sql_query             │
+│  │ sql_retrieve_support │                                 │
+│  └──────────────────────⎯→ same retry/print flow          │
+│                                                              │
+│  কি লাগবে:                                                   │
+│  ⬜ 6 টা Node function                                      │
+│  ⬜ Embedding model integration                              │
+│  ⬜ BM25 search function                                     │
+└───────────────────────────────────────────────────────────────┘
+
+┌───────────────────────────────────────────────────────────────┐
+│  PHASE 4: Web Search Path (2-3 দিন)                            │
+│                                                                │
+│  ┌──────────────────────┐                                    │
+│  │ web_search_rewrite   │ → LLM: query rewrite for web      │
+│  └────────┬─────────────┘                                    │
+│           ↓                                                  │
+│  ┌────────┴─────────────┐                                   │
+│  │ web_search_docs      │ → Web search → context collect    │
+│  └────────┬─────────────┘                                    │
+│           ↓                                                  │
+│  ┌────────┴─────────────┐                                   │
+│  │ web_search_response  │ → LLM: response                   │
+│  └────────┬─────────────┘                                    │ |
+│           ↓                                                  │
+│  ┌────────┴──────────────┐→ same support/retry flow          │
+│  │ web_search_support    │                                  │
+│  └───────────────────────┘                                  │
+│                                                               │
+│  কি লাগবে:                                                    │
+│  ⬜ 4 টা Node function                                       │
+│  ⬜ Web search tool (SerpAPI / DuckDuckGo)                    │
+│  ⬜ Document parser                                           │
+└───────────────────────────────────────────────────────────────┘
+
+
+┌───────────────────────────────────────────────────────────────┐
+│  PHASE 5: Hybrid / Sub-Query System (5-6 দিন)                 │
+│  (সবচেয়ে জটিল — শেষে করো)                                     │
+│                                                                │
+│  ┌─────────────────────┐                                     │
+│  │ hybrid_depth_check   │ hb < 1?                             │
+│  │                     │  ┌── Yes → sub-questions            │
+│  │                     │  └── No  → sql_retrieve (direct)    │
+│  └────────┬────────────┘                                     │
+│           ↓ Yes                                              │
+│  ┌────────┴───────────────┐                                   │
+│  │ create_sub_questions   │ → LLM: sub-questions তৈরি        │
+│  │                        │ total_sub_q, sub_query_list       │
+│  └────────┬───────────────┘                                    │
+│           ↓                                                   │
+│  ┌────────┴───────────┐                                      │
+│  │ parallel_dispatch  │ → সব sub-query parallel তে             │
+│  │                    │    → লিপ করবে Entry → Decide Path     │
+│  └────────┬───────────┘                                       │
+│           ↓                                                  │
+│  ┌────────┴───────────┐                                     │
+│  │ append_sub_answer  │ → sub_query_ans collect              │
+│  │                    │ → total == count?                    │
+│  └────────┬───────────┘                                       │
+│           ↓ All collected                                    │
+│  ┌────────┴───────────┐                                      │
+│  │ merge_sub_answers  │ → LLM: merge all results             │
+│  └────────┬───────────┘                                       │
+│           ↓                                                   │
+│  ┌────────┴─────────────┐                                   │
+│  │ merge_retry_check    │ max merge_retries = 3              │
+│  │                      │ Yes → print_final                  │
+│  │                      │ No  → answer_not_found             │
+│  └──────────────────────┘                                    │
+│                                                               │
+│  কি লাগবে:                                                    │
+│  ⬜ 7 টা Node function                                       │
+│  ⬜ LangGraph Send API (Parallel execution)                    │
+│  ⬜ operator.add reducer (state.py এ ইয়া আছে ✅)              │
+└───────────────────────────────────────────────────────────────┘
+
+
+| Phase | কাজ | নোড সংখ্যা | সময় |
+| --- | --- | --- | --- |
+| 1 | Entry + Router | 2 + 1 edge | 4-5 দিন |
+| 2 | SQL Query Path | 7 + 1 edge | 5-6 দিন |
+| 3 | SQL Retrieve Path | 6 | 3-4 দিন |
+| 4 | Web Search Path | 4 | 2-3 দিন |
+| 5 | Hybrid Sub-Query | 7 + 2 edge | 5-6 দিন |
+| Total | পুরো সিস্টেম | 26 nodes + 6 edges | ~3-4 সপ্তাহ |

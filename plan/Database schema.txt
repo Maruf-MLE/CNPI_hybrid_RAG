@@ -1,0 +1,297 @@
+CREATE TABLE buildings(
+     building_id SERIAL NOT NULL,
+    building_code varchar(10) NOT NULL,
+    building_name_bn text NOT NULL,
+    direction varchar(20),
+    total_floors integer ,
+    PRIMARY KEY(building_id) 
+); 
+CREATE UNIQUE INDEX buildings_building_code_key ON public.buildings USING btree (building_code); 
+COMMENT ON TABLE buildings IS '??? ??????? ????????? (S-/N-) ???????? ???/??? ?????';
+
+
+CREATE TABLE departments(
+     department_id SERIAL NOT NULL,
+    institution_id integer NOT NULL,
+    name_en varchar(150) NOT NULL,
+    name_bn text,
+    short_code varchar(20) NOT NULL,
+    shift_info varchar(60),
+    total_teachers integer,
+    total_labs integer,
+    description_bn text,
+    created_at timestamp with time zone DEFAULT now() ,
+    PRIMARY KEY(department_id) ,
+    CONSTRAINT departments_institution_id_fkey FOREIGN key(institution_id) REFERENCES institutions(institution_id) 
+); 
+CREATE UNIQUE INDEX departments_short_code_key ON public.departments USING btree (short_code);
+CREATE INDEX idx_departments_short_code ON public.departments USING btree (short_code); 
+COMMENT ON TABLE departments IS '????? ??????? short_code ?????? ?? ???????? ????? ????? ??? ??? (CST/ET/ENT/RAC/FT/MT/Non-Tech/General)?'; 
+COMMENT ON COLUMN departments.short_code IS '????? lookup/join-?? ???? ????? ???? ??????: "CST ?????? ???? ???????" -> WHERE short_code = 'CST'';
+COMMENT ON COLUMN departments.shift_info IS '??????? ??? ????? ??????: 1st Shift (Morning) / 2nd Shift (Day) / Both Shifts';
+
+CREATE TABLE designations(
+     designation_id SERIAL NOT NULL,
+    title_bn text NOT NULL,
+    title_en varchar(150),
+    category varchar(40) NOT NULL,
+    rank_level integer ,
+    PRIMARY KEY(designation_id) ,
+    CONSTRAINT designations_category_check CHECK (((category)::text = ANY ((ARRAY['Academic Leadership'::character varying, 'Teacher'::character varying, 'Craft Instructor'::character varying, 'Lab Staff'::character varying, 'Administrative'::character varying, 'Library'::character varying, 'Support Staff'::character varying])::text[]))) 
+); 
+CREATE UNIQUE INDEX designations_title_bn_key ON public.designations USING btree (title_bn);
+CREATE INDEX idx_designations_category ON public.designations USING btree (category); 
+COMMENT ON TABLE designations IS '?? ????? ????/???? master list, category ? rank_level ??, ???? "??????? ??????? ??" ?????? ???????? ????? ???? ??? ??? ?????'; 
+COMMENT ON COLUMN designations.rank_level IS '?????????? ????: 1=Principal, 2=Vice Principal, 3=Chief Instructor, 4=Instructor, 5=Junior Instructor, ???????? ??? ?????? = ???? ???';
+
+CREATE TABLE exam_routines(
+     exam_id SERIAL NOT NULL,
+    department_id integer NOT NULL,
+    semester varchar(30) NOT NULL,
+    session varchar(20) NOT NULL,
+    group_name varchar(30),
+    subject_id integer,
+    exam_date date,
+    start_time time without time zone,
+    end_time time without time zone,
+    room_id integer,
+    invigilator_person_id integer,
+    created_at timestamp with time zone DEFAULT now() ,
+    PRIMARY KEY(exam_id) ,
+    CONSTRAINT exam_routines_department_id_fkey FOREIGN key(department_id) REFERENCES departments(department_id),
+    CONSTRAINT exam_routines_subject_id_fkey FOREIGN key(subject_id) REFERENCES subjects(subject_id),
+    CONSTRAINT exam_routines_room_id_fkey FOREIGN key(room_id) REFERENCES rooms(room_id),
+    CONSTRAINT exam_routines_invigilator_person_id_fkey FOREIGN key(invigilator_person_id) REFERENCES people(person_id) 
+); 
+COMMENT ON TABLE exam_routines IS '???????? ???????? ???????? ??? ???? ???? ???????? ????? (structure routines-?? ????, ?????? exam-specific ???? ??? ???)? ???????? ???? ???? ????';
+
+CREATE TABLE facilities(
+     facility_id SERIAL NOT NULL,
+    institution_id integer NOT NULL,
+    category varchar(60),
+    title_bn text NOT NULL,
+    description_bn text,
+    quantity numeric,
+    unit varchar(50),
+    status varchar(20) DEFAULT 'completed'::character varying,
+    recorded_year varchar(20) ,
+    PRIMARY KEY(facility_id) ,
+    CONSTRAINT facilities_institution_id_fkey FOREIGN key(institution_id) REFERENCES institutions(institution_id) ,
+    CONSTRAINT facilities_status_check CHECK (((status)::text = ANY ((ARRAY['completed'::character varying, 'ongoing'::character varying])::text[]))) 
+); 
+CREATE INDEX idx_facilities_category ON public.facilities USING btree (category); 
+COMMENT ON TABLE facilities IS '???????? ??????? ????? ??????? ??? ? ?????? (????: ???? CC ????????, ???? ?????????, ???? WiFi)?'; 
+COMMENT ON COLUMN facilities.quantity IS '???????? ???? ????? (???? ?????? ????????/?????????) ????? ?????, ????? NULL?';
+
+CREATE TABLE future_plans(
+     plan_id SERIAL NOT NULL,
+    institution_id integer NOT NULL,
+    category varchar(60),
+    title_bn text NOT NULL,
+    description_bn text,
+    target_year varchar(20),
+    target_quantity numeric,
+    unit varchar(50) ,
+    PRIMARY KEY(plan_id) ,
+    CONSTRAINT future_plans_institution_id_fkey FOREIGN key(institution_id) REFERENCES institutions(institution_id) 
+); 
+CREATE INDEX idx_future_plans_category ON public.future_plans USING btree (category); 
+COMMENT ON TABLE future_plans IS '????-?? ????????? ???????????? ? ??????? ????????? (?????? ?????, ??????? ????????, ???????? ???????)?';
+
+CREATE TABLE institutions(
+     institution_id SERIAL NOT NULL,
+    name_bn text NOT NULL,
+    short_name varchar(20) NOT NULL,
+    board_name_bn text,
+    total_students integer,
+    total_teachers integer,
+    total_staff integer,
+    total_workforce integer,
+    total_departments integer,
+    total_shifts integer,
+    total_labs integer,
+    created_at timestamp with time zone DEFAULT now() ,
+    PRIMARY KEY(institution_id) 
+); 
+CREATE UNIQUE INDEX institutions_short_name_key ON public.institutions USING btree (short_name); 
+COMMENT ON TABLE institutions IS 'রুট টেবিল: প্রতিষ্ঠানের সামগ্রিক পরিসংখ্যান (aggregate stats)। এখন কেবল CNPI-এর ১টি রো আছে।'; 
+COMMENT ON COLUMN institutions.short_name IS '????????? ???, ???? CNPI? ?? child ????? ????? FK ????';
+COMMENT ON COLUMN institutions.total_workforce IS '??? ???????? = teachers + staff + essential staff?';
+
+CREATE TABLE lab_assignments(
+     assignment_id SERIAL NOT NULL,
+    lab_id integer NOT NULL,
+    person_id integer NOT NULL,
+    role_in_lab varchar(100),
+    created_at timestamp with time zone DEFAULT now() ,
+    PRIMARY KEY(assignment_id) ,
+    CONSTRAINT lab_assignments_lab_id_fkey FOREIGN key(lab_id) REFERENCES labs(lab_id),
+    CONSTRAINT lab_assignments_person_id_fkey FOREIGN key(person_id) REFERENCES people(person_id) 
+); 
+CREATE UNIQUE INDEX lab_assignments_lab_id_person_id_key ON public.lab_assignments USING btree (lab_id, person_id); 
+COMMENT ON TABLE lab_assignments IS 'many-to-many: ???? ?????? ?????? ????? ????????? ????? ?????, ??? ???? ????? ?????? ??????? ????? ??????';
+
+
+CREATE TABLE labs(
+     lab_id SERIAL NOT NULL,
+    department_id integer,
+    lab_name_bn text NOT NULL,
+    lab_name_en varchar(150),
+    shortcode varchar(10),
+    room_id integer,
+    description_bn text ,
+    PRIMARY KEY(lab_id) ,
+    CONSTRAINT labs_department_id_fkey FOREIGN key(department_id) REFERENCES departments(department_id),
+    CONSTRAINT labs_room_id_fkey FOREIGN key(room_id) REFERENCES rooms(room_id) 
+); 
+CREATE INDEX idx_labs_department ON public.labs USING btree (department_id); 
+COMMENT ON TABLE labs IS 'CNPI-?? ???? ??????? ??????, ??????? ????????? ????? ? ????? ???? ??????'; 
+COMMENT ON COLUMN labs.shortcode IS '??????? ???????, ???? BEL=Basic Electronics Lab, SWL=Software Lab?';
+
+CREATE TABLE notices(
+     notice_id SERIAL NOT NULL,
+    institution_id integer NOT NULL,
+    category varchar(60),
+    title_bn text NOT NULL,
+    content_bn text NOT NULL,
+    faq_bn text,
+    created_at timestamp with time zone DEFAULT now() ,
+    PRIMARY KEY(notice_id) ,
+    CONSTRAINT notices_institution_id_fkey FOREIGN key(institution_id) REFERENCES institutions(institution_id) 
+); 
+CREATE INDEX idx_notices_category ON public.notices USING btree (category); 
+COMMENT ON TABLE notices IS '???????? ?????????, ????????, ?????/????????? ????? ??????? ????????-?????? ????? ?????? ??????: "???????? ?? % ????????????" -> category='Attendance'';
+
+CREATE TABLE people(
+     person_id SERIAL NOT NULL,
+    institution_id integer NOT NULL,
+    name_bn text NOT NULL,
+    name_en text,
+    gender character(1),
+    department_id integer,
+    designation_id integer,
+    employment_type varchar(20) NOT NULL DEFAULT 'Permanent'::character varying,
+    shift varchar(10),
+    is_principal boolean NOT NULL DEFAULT false,
+    is_vice_principal boolean NOT NULL DEFAULT false,
+    is_chief_instructor boolean NOT NULL DEFAULT false,
+    is_workshop_super boolean NOT NULL DEFAULT false,
+    phone_primary varchar(50),
+    phone_secondary varchar(50),
+    email varchar(150),
+    responsibilities_bn text,
+    notes text,
+    created_at timestamp with time zone DEFAULT now() ,
+    PRIMARY KEY(person_id) ,
+    CONSTRAINT people_institution_id_fkey FOREIGN key(institution_id) REFERENCES institutions(institution_id),
+    CONSTRAINT people_department_id_fkey FOREIGN key(department_id) REFERENCES departments(department_id),
+    CONSTRAINT people_designation_id_fkey FOREIGN key(designation_id) REFERENCES designations(designation_id) ,
+    CONSTRAINT people_gender_check CHECK ((gender = ANY (ARRAY['M'::bpchar, 'F'::bpchar]))),
+    CONSTRAINT people_employment_type_check CHECK (((employment_type)::text = ANY ((ARRAY['Permanent'::character varying, 'Part-Time'::character varying, 'Contractual'::character varying, 'Outsourced'::character varying])::text[]))),
+    CONSTRAINT people_shift_check CHECK (((shift)::text = ANY ((ARRAY['1st'::character varying, '2nd'::character varying, 'Both'::character varying])::text[]))) 
+); 
+CREATE INDEX idx_people_department ON public.people USING btree (department_id);
+CREATE INDEX idx_people_designation ON public.people USING btree (designation_id);
+CREATE INDEX idx_people_phone_primary ON public.people USING btree (phone_primary);
+CREATE INDEX idx_people_name_bn_trgm ON public.people USING gin (name_bn gin_trgm_ops);
+CREATE INDEX idx_people_name_en_trgm ON public.people USING gin (name_en gin_trgm_ops); 
+COMMENT ON TABLE people IS '?? ???????? (???????, ??????, ????????, ?????-???? ??????, ????? ??????, ????????? ????? ????) ??? master ?????? "???" ????? ?????? ?? ???????? ????? ???? ????? ?????'; 
+COMMENT ON COLUMN people.employment_type IS 'Permanent / Part-Time / Contractual / Outsourced? Part-Time ?????? ?????? WHERE employment_type = 'Part-Time'';
+COMMENT ON COLUMN people.is_chief_instructor IS 'TRUE ??? ???? CI (Chief Instructor)? CNPI-?? ??? ? ?? CI ???? - COUNT(*) WHERE is_chief_instructor=TRUE ????? ??? ??? ?????';
+COMMENT ON COLUMN people.phone_primary IS '??? ????? TEXT ????? (?????/?????? ??????, +??? prefix, ?? ?????? ????? ??? ????? ????? ????)?';
+
+CREATE TABLE rooms(
+     room_id SERIAL NOT NULL,
+    building_id integer,
+    room_number varchar(30) NOT NULL,
+    floor integer,
+    room_type varchar(30),
+    department_id integer,
+    notes text ,
+    PRIMARY KEY(room_id) ,
+    CONSTRAINT rooms_building_id_fkey FOREIGN key(building_id) REFERENCES buildings(building_id),
+    CONSTRAINT rooms_department_id_fkey FOREIGN key(department_id) REFERENCES departments(department_id) 
+); 
+CREATE UNIQUE INDEX rooms_room_number_key ON public.rooms USING btree (room_number);
+CREATE INDEX idx_rooms_department ON public.rooms USING btree (department_id);
+CREATE INDEX idx_rooms_room_number ON public.rooms USING btree (room_number); 
+COMMENT ON TABLE rooms IS '?? ??? ??????? master ?????? (????????, ?????, ?????????, ??? ???????)? routine_classes ? labs ????? ????? FK ????'; 
+COMMENT ON COLUMN rooms.room_number IS '???? S-420, N-416? ???? ??? ?????????? (???? "Field","EWM","RAC Lab") - ??????? ????? room_number ??????? ??????';
+
+CREATE TABLE rooms(
+     room_id SERIAL NOT NULL,
+    building_id integer,
+    room_number varchar(30) NOT NULL,
+    floor integer,
+    room_type varchar(30),
+    department_id integer,
+    notes text ,
+    PRIMARY KEY(room_id) ,
+    CONSTRAINT rooms_building_id_fkey FOREIGN key(building_id) REFERENCES buildings(building_id),
+    CONSTRAINT rooms_department_id_fkey FOREIGN key(department_id) REFERENCES departments(department_id) 
+); 
+CREATE UNIQUE INDEX rooms_room_number_key ON public.rooms USING btree (room_number);
+CREATE INDEX idx_rooms_department ON public.rooms USING btree (department_id);
+CREATE INDEX idx_rooms_room_number ON public.rooms USING btree (room_number); 
+COMMENT ON TABLE rooms IS '?? ??? ??????? master ?????? (????????, ?????, ?????????, ??? ???????)? routine_classes ? labs ????? ????? FK ????'; 
+COMMENT ON COLUMN rooms.room_number IS '???? S-420, N-416? ???? ??? ?????????? (???? "Field","EWM","RAC Lab") - ??????? ????? room_number ??????? ??????';
+
+CREATE TABLE routine_classes(
+     class_id SERIAL NOT NULL,
+    routine_id integer NOT NULL,
+    day_of_week varchar(15) NOT NULL,
+    period_label varchar(30),
+    start_time time without time zone,
+    end_time time without time zone,
+    subject_id integer,
+    teacher_person_id integer,
+    room_id integer,
+    is_free boolean NOT NULL DEFAULT false ,
+    PRIMARY KEY(class_id) ,
+    CONSTRAINT routine_classes_routine_id_fkey FOREIGN key(routine_id) REFERENCES routines(routine_id),
+    CONSTRAINT routine_classes_subject_id_fkey FOREIGN key(subject_id) REFERENCES subjects(subject_id),
+    CONSTRAINT routine_classes_teacher_person_id_fkey FOREIGN key(teacher_person_id) REFERENCES people(person_id),
+    CONSTRAINT routine_classes_room_id_fkey FOREIGN key(room_id) REFERENCES rooms(room_id) ,
+    CONSTRAINT routine_classes_day_of_week_check CHECK (((day_of_week)::text = ANY ((ARRAY['Sunday'::character varying, 'Monday'::character varying, 'Tuesday'::character varying, 'Wednesday'::character varying, 'Thursday'::character varying, 'Friday'::character varying, 'Saturday'::character varying])::text[]))) 
+); 
+CREATE INDEX idx_routine_classes_routine ON public.routine_classes USING btree (routine_id);
+CREATE INDEX idx_routine_classes_day ON public.routine_classes USING btree (day_of_week);
+CREATE INDEX idx_routine_classes_teacher ON public.routine_classes USING btree (teacher_person_id);
+CREATE INDEX idx_routine_classes_subject ON public.routine_classes USING btree (subject_id); 
+COMMENT ON TABLE routine_classes IS '????????? ??????? ??????? ??????? ????? ?? ?????? ?????? ?????? ??????: "CST 5/2 group-?? ?????? ?? ????? ????" -> routines ????? routine_id ??? ??? ????? day_of_week='Sunday' ????? filter ?????'; 
+COMMENT ON COLUMN routine_classes.is_free IS 'TRUE ??? ??? ???????? ???? ????? ??? (????/???? ???????)?';
+
+
+CREATE TABLE routines(
+     routine_id SERIAL NOT NULL,
+    department_id integer NOT NULL,
+    semester varchar(30) NOT NULL,
+    session varchar(20) NOT NULL,
+    group_name varchar(30) NOT NULL,
+    shift varchar(20),
+    class_teacher_person_id integer,
+    created_at timestamp with time zone DEFAULT now() ,
+    PRIMARY KEY(routine_id) ,
+    CONSTRAINT routines_department_id_fkey FOREIGN key(department_id) REFERENCES departments(department_id),
+    CONSTRAINT routines_class_teacher_person_id_fkey FOREIGN key(class_teacher_person_id) REFERENCES people(person_id) 
+); 
+CREATE UNIQUE INDEX routines_department_id_semester_session_group_name_key ON public.routines USING btree (department_id, semester, session, group_name);
+CREATE INDEX idx_routines_department ON public.routines USING btree (department_id);
+CREATE INDEX idx_routines_group_name ON public.routines USING btree (group_name); 
+COMMENT ON TABLE routines IS '??????? (?????, ?????????, ????, ?????) ??????????? ???? ???? ?????-????? (master)? ??? ????? ???? routine_classes ???????'; 
+COMMENT ON COLUMN routines.group_name IS '????? ???, ???? CST 5/2 (?? ?????????, ??? ????)?';
+
+CREATE TABLE subjects(
+     subject_id SERIAL NOT NULL,
+    department_id integer,
+    subject_name_en varchar(200) NOT NULL,
+    subject_name_bn text,
+    course_code varchar(20),
+    semester varchar(30) ,
+    PRIMARY KEY(subject_id) ,
+    CONSTRAINT subjects_department_id_fkey FOREIGN key(department_id) REFERENCES departments(department_id) 
+); 
+CREATE UNIQUE INDEX subjects_course_code_key ON public.subjects USING btree (course_code);
+CREATE INDEX idx_subjects_course_code ON public.subjects USING btree (course_code);
+CREATE INDEX idx_subjects_name_en_trgm ON public.subjects USING gin (subject_name_en gin_trgm_ops); 
+COMMENT ON TABLE subjects IS '?? ?????/??????? master ??????, course_code ????? ?????? ?????? ??????: "28551 ????? ??? ??? ????????" -> WHERE course_code='28551'';
