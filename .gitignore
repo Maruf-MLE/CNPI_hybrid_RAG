@@ -27,6 +27,7 @@ ENV/
 .env
 .env.*
 !.env.example
+!.env.render.example
 
 # =============================================================
 # Node.js / Next.js (cnpichat-next)

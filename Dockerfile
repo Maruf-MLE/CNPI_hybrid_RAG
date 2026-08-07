@@ -55,4 +55,7 @@ ENV EMBEDDING_PROVIDER=hf_api
 # --timeout 300: RAG pipeline can take 30-60s per query
 # --preload: loads graph ONCE before worker forks (saves memory)
 WORKDIR /app/cnpi_api
-CMD ["gunicorn", "--bind", "0.0.0.0:${PORT:-8000}", "--workers", "1", "--timeout", "300", "--preload", "cnpi_api.wsgi:application"]
+
+# Render sets the PORT env var at runtime.  Shell form (not exec array)
+# so that ${PORT:-8000} is expanded by /bin/sh before gunicorn starts.
+CMD gunicorn --bind 0.0.0.0:${PORT:-8000} --workers 1 --timeout 300 --preload cnpi_api.wsgi:application
