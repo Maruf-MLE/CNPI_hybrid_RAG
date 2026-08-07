@@ -85,6 +85,7 @@ def no_answer_found_node(state: RAGState) -> Dict[str, Any]:
 
     return {
         "final_answer": final_answer,
+        "answer_status": "not_found",
     }
 
 if __name__ == "__main__":

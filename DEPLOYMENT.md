@@ -4,10 +4,45 @@
 ## Architecture
 
 ```
-Frontend (Vercel)  ──▶  Backend (HuggingFace Spaces)  ──▶  Database (Neon)
-  Next.js                 Django + LangGraph               PostgreSQL + pgvector
-  cnpichat-next           Docker container                 Serverless
+Frontend (Vercel)  ──▶  Backend (Render)  ──▶  Database (Neon)
+  Next.js               Django + LangGraph      PostgreSQL + pgvector
+  cnpichat-next         Docker container       Serverless
+                        Embeddings via HF API
 ```
+
+---
+
+## 0. Embedding Backend — HuggingFace Inference API (critical for Render)
+
+The RAG system uses `BAAI/bge-m3` embeddings (1024-dim).  Loading this model
+in-process needs ~2GB RAM, which will OOM on Render's 4GB tier once Django +
+LangGraph + LLM calls are also running.
+
+**Solution**: use the HuggingFace Inference API.  The model stays on HF's
+servers; your backend just sends text over HTTPS and gets the vector back.
+Zero model download, ~0 extra RAM.
+
+### Get an HF token
+1. Go to https://huggingface.co/settings/tokens
+2. Create a **READ** token (free, no billing)
+3. Copy the value (`hf_xxx...`)
+
+### Set these env vars on Render
+| Key | Value |
+|-----|-------|
+| `EMBEDDING_PROVIDER` | `hf_api` |
+| `EMBEDDING_MODEL` | `BAAI/bge-m3` |
+| `EMBEDDING_DIMENSION` | `1024` |
+| `HF_TOKEN` | `hf_xxx...` |
+
+> The same `EMBEDDING_PROVIDER` flag is used by the seed script
+> (`database/seed_documents.py`) and the query-time `embed_text()`, so
+> the vectors stored in Neon and the vectors generated at query time are
+> always produced by the same model.
+
+### Local dev stays on the local model
+Your `.env` already has `EMBEDDING_PROVIDER=local`, so locally the model
+loads in-process (faster, offline).  Only Render uses `hf_api`.
 
 ---
 
@@ -53,16 +88,16 @@ psql "postgresql://USER:PASSWORD@HOST.neon.tech/cnpi_rag_db?sslmode=require" \
 
 ---
 
-## 2. Backend — HuggingFace Spaces (Docker)
+## 2. Backend — Render (Docker)
 
-### Create Space
-1. Go to https://huggingface.co → New Space
-2. Name: `cnpi-rag-api`
-3. SDK: **Docker**
-4. Visibility: **Public** (or Private if you have Pro)
+### Create Service
+1. Go to https://render.com → New → **Web Service**
+2. Connect your GitHub repo, select the root directory
+3. Runtime: **Docker**
+4. Instance Type: Free (4GB RAM) or Starter
 
-### Add Secrets
-In Space → Settings → Repository secrets, add:
+### Add Environment Variables
+In Render → Environment, add:
 | Key | Value |
 |-----|-------|
 | DB_HOST | ep-xxx-pooler.region.aws.neon.tech |
@@ -73,24 +108,24 @@ In Space → Settings → Repository secrets, add:
 | GEMINI_API_KEY | your-gemini-key |
 | DJANGO_SECRET_KEY | generate-a-new-key |
 | DEBUG | False |
+| EMBEDDING_PROVIDER | hf_api |
+| EMBEDDING_MODEL | BAAI/bge-m3 |
+| EMBEDDING_DIMENSION | 1024 |
+| HF_TOKEN | hf_xxx... (from https://huggingface.co/settings/tokens) |
 
 ### Deploy
-```bash
-# Add HuggingFace as a remote
-git remote add hf https://huggingface.co/spaces/YOUR_USERNAME/cnpi-rag-api
+Render builds the Dockerfile automatically.  The build skips the
+sentence-transformers model download (because `EMBEDDING_PROVIDER=hf_api`
+is the default), keeping the image small.
 
-# Push to HuggingFace
-git push hf main
+Your API will be at:
 ```
-
-The Dockerfile will build automatically. Your API will be at:
-```
-https://YOUR_USERNAME-cnpi-rag-api.hf.space
+https://your-service-name.onrender.com
 ```
 
 Test:
 ```bash
-curl -X POST https://YOUR_USERNAME-cnpi-rag-api.hf.space/api/chat/ \
+curl -X POST https://your-service-name.onrender.com/api/chat/ \
   -H "Content-Type: application/json" \
   -d '{"message": "CST department er CI ke?"}'
 ```
@@ -107,7 +142,7 @@ curl -X POST https://YOUR_USERNAME-cnpi-rag-api.hf.space/api/chat/ \
 In Vercel → Settings → Environment Variables:
 | Key | Value |
 |-----|-------|
-| NEXT_PUBLIC_API_URL | https://YOUR_USERNAME-cnpi-rag-api.hf.space |
+| NEXT_PUBLIC_API_URL | https://your-service-name.onrender.com |
 
 ### Deploy
 Click Deploy. Your frontend will be at:
@@ -122,5 +157,6 @@ https://cnpi-chat.vercel.app
 | Component | Platform | Free Tier | URL |
 |-----------|----------|-----------|-----|
 | Database | Neon | 0.5GB, 192h compute | neon.tech |
-| Backend | HuggingFace Spaces | Free CPU, 16GB RAM | huggingface.co/spaces |
+| Backend | Render | 4GB RAM, Docker | render.com |
 | Frontend | Vercel | Unlimited | vercel.com |
+| Embeddings | HuggingFace Inference API | Free | huggingface.co |

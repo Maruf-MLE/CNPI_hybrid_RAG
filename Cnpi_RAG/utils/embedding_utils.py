@@ -3,41 +3,49 @@ Embedding & BM25 Search Utilities
 ===================================
 
 Provides:
-  - get_embedding_model()  : SentenceTransformer singleton
-  - embed_text(text)       : returns list[float]
+  - get_embedding_model()  : SentenceTransformer singleton (local mode)
+  - embed_text(text)       : returns list[float] (local OR HF Inference API)
+  - embed_batch(texts)     : batch embed (local OR HF Inference API)
   - vector_search(...)     : cosine-similarity search via PostgreSQL pgvector
   - bm25_search(...)       : full-text search via PostgreSQL tsvector/tsquery
   - hybrid_search(...)     : combines vector + BM25 results (RRF fusion)
 
+Two backends are supported, selected by EMBEDDING_PROVIDER env var:
+  - "local"  → SentenceTransformer loaded in-process (needs ~2GB RAM)
+  - "hf_api" → HuggingFace Inference API (no model download, ~0 RAM)
+
 Environment variables used (from .env):
-  EMBEDDING_MODEL     = sentence-transformers/all-MiniLM-L6-v2
-  EMBEDDING_DIMENSION = 384
+  EMBEDDING_PROVIDER  = hf_api | local   (default: local)
+  EMBEDDING_MODEL     = BAAI/bge-m3       (model id, used by both backends)
+  EMBEDDING_DIMENSION = 1024             (vector dim, MUST match DB column)
+  HF_TOKEN            = hf_xxx...         (required for hf_api mode)
   TOP_K_SEARCH        = 5
 """
 
 import os
+import time
 from typing import Any
 
 from dotenv import load_dotenv
 
 load_dotenv()
 
-_EMBEDDING_MODEL_NAME: str = os.getenv(
-    "EMBEDDING_MODEL", "sentence-transformers/all-MiniLM-L6-v2"
-)
+_EMBEDDING_PROVIDER: str = os.getenv("EMBEDDING_PROVIDER", "local").lower()
+_EMBEDDING_MODEL_NAME: str = os.getenv("EMBEDDING_MODEL", "BAAI/bge-m3")
+_EMBEDDING_DIMENSION: int = int(os.getenv("EMBEDDING_DIMENSION", "1024"))
 _TOP_K: int = int(os.getenv("TOP_K_SEARCH", "5"))
+_HF_TOKEN: str = os.getenv("HF_TOKEN", "")
 
 
 # =============================================================================
-# Embedding model singleton
+# Local embedding model singleton
 # =============================================================================
 
 def get_embedding_model():
     """Return a lazily-created SentenceTransformer singleton.
 
-    Keeping a single instance avoids reloading the model weights on every
-    graph invocation.  The model is downloaded on first call and cached in
-    the HuggingFace local cache directory.
+    Only used when EMBEDDING_PROVIDER=local.  Keeping a single instance
+    avoids reloading the model weights on every graph invocation.
     """
     if not hasattr(get_embedding_model, "_instance"):
         try:
@@ -52,19 +60,88 @@ def get_embedding_model():
     return get_embedding_model._instance
 
 
+# =============================================================================
+# HuggingFace Inference API embedding (via huggingface_hub.InferenceClient)
+# =============================================================================
+
+def _get_hf_client():
+    """Return a cached InferenceClient (router.huggingface.co endpoint)."""
+    if not hasattr(_get_hf_client, "_client"):
+        if not _HF_TOKEN:
+            raise RuntimeError(
+                "EMBEDDING_PROVIDER=hf_api requires HF_TOKEN. "
+                "Get one at https://huggingface.co/settings/tokens (read access)."
+            )
+        from huggingface_hub import InferenceClient
+        _get_hf_client._client = InferenceClient(
+            model=_EMBEDDING_MODEL_NAME,
+            token=_HF_TOKEN,
+        )
+        print(f"✓ HF Inference API client ready: {_EMBEDDING_MODEL_NAME}")
+    return _get_hf_client._client
+
+
+def _hf_embed_batch(texts: list[str]) -> list[list[float]]:
+    """Call HF Inference API feature-extraction for a batch via InferenceClient.
+
+    Uses huggingface_hub.InferenceClient which hits router.huggingface.co
+    (the api-inference.huggingface.co subdomain was deprecated).  Returns
+    L2-normalized sentence vectors (one per input text).
+    """
+    client = _get_hf_client()
+
+    # Retry on cold-start — the model may be loading on first call.
+    last_exc: Exception | None = None
+    for attempt in range(3):
+        try:
+            result = client.feature_extraction(text=texts, normalize=True)
+            import numpy as np
+
+            arr = np.asarray(result)
+            # bge-m3 returns shape (n, 1024) when normalize=True; but be
+            # defensive and flatten/mean-pool token vectors if needed.
+            if arr.ndim == 3:
+                # (n, tokens, dim) → mean-pool over tokens
+                arr = arr.mean(axis=1)
+            elif arr.ndim == 2 and arr.shape[0] == len(texts):
+                pass  # already (n, dim)
+            elif arr.ndim == 1:
+                arr = arr.reshape(1, -1)
+            return [v.tolist() for v in arr]
+        except Exception as exc:  # noqa: BLE001
+            last_exc = exc
+            time.sleep(3 * (attempt + 1))
+    raise RuntimeError(f"HF Inference API failed after retries: {last_exc}")
+
+
+def embed_batch(texts: list[str]) -> list[list[float]]:
+    """Embed a batch of texts using the configured backend.
+
+    Returns list of float vectors, each L2-normalized.
+    """
+    if not texts:
+        return []
+    if _EMBEDDING_PROVIDER == "hf_api":
+        return _hf_embed_batch(texts)
+    model = get_embedding_model()
+    vectors = model.encode(
+        texts,
+        convert_to_numpy=True,
+        show_progress_bar=False,
+        normalize_embeddings=True,
+    )
+    return [v.tolist() for v in vectors]
+
+
 def embed_text(text: str) -> list[float]:
     """Convert a text string into a dense embedding vector.
 
-    Parameters
-    ----------
-    text : str
-        The text to embed.
-
-    Returns
-    -------
-    list[float]
-        A flat list of floats representing the embedding.
+    Uses the backend selected by EMBEDDING_PROVIDER:
+      - local  → in-process SentenceTransformer
+      - hf_api → HuggingFace Inference API (no model download)
     """
+    if _EMBEDDING_PROVIDER == "hf_api":
+        return _hf_embed_batch([text])[0]
     model = get_embedding_model()
     vector = model.encode(text, convert_to_numpy=True, normalize_embeddings=True)
     return vector.tolist()

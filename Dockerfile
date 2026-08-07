@@ -1,32 +1,41 @@
 # ============================================================
-# CNPI Hybrid RAG - Dockerfile for HuggingFace Spaces
+# CNPI Hybrid RAG - Dockerfile for Render.com
 # ============================================================
-# Backend: Django + LangGraph + Sentence-Transformers
-# HuggingFace Spaces Docker SDK — must expose port 7860
+# Backend: Django + LangGraph
+# Render: 4GB RAM, Docker support
+#
+# Embedding backend is selected by EMBEDDING_PROVIDER env var:
+#   - local  : loads SentenceTransformer in-process (~2GB RAM, model download)
+#   - hf_api : calls HuggingFace Inference API (no model download, ~0 RAM)
+# For Render (4GB) use hf_api + HF_TOKEN to avoid OOM.  When hf_api is set,
+# sentence-transformers / torch are NOT imported, so the image stays small.
 # ============================================================
 
 FROM python:3.11-slim
 
 WORKDIR /app
 
-# Install system dependencies for psycopg2 + sentence-transformers
+# Install system dependencies (minimal — save RAM)
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
     libpq-dev \
-    curl \
-    git \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements first (better Docker layer caching)
+# Copy requirements first (Docker layer caching)
 COPY requirements.txt .
 
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Pre-download the sentence-transformers model during build
-# This avoids downloading 90MB on every cold start
-RUN python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')" \
-    || echo "WARN: Could not pre-download embedding model"
+# Only pre-download the embedding model when running in local mode.
+# In hf_api mode (default for Render) the model is never loaded, so we skip
+# this step to keep the image small and the build fast.
+ARG EMBEDDING_PROVIDER=hf_api
+RUN if [ "$EMBEDDING_PROVIDER" = "local" ]; then \
+        python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('BAAI/bge-m3')" \
+        || echo "WARN: Could not pre-download embedding model"; \
+    else \
+        echo "Skipping model pre-download (EMBEDDING_PROVIDER=hf_api)"; \
+    fi
 
 # Copy project files
 COPY Cnpi_RAG/ ./Cnpi_RAG/
@@ -39,15 +48,11 @@ ENV PYTHONUNBUFFERED=1
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV DJANGO_SETTINGS_MODULE=cnpi_api.settings
 ENV DEBUG=False
-ENV PORT=7860
-
-# HuggingFace Spaces requires port 7860
-EXPOSE 7860
+ENV EMBEDDING_PROVIDER=hf_api
 
 # Run Django with gunicorn
-# --workers 1: HuggingFace free tier has limited RAM; sentence-transformers
-#              model + LangGraph need ~1.5GB, so 1 worker is safer
-# --timeout 300: RAG pipeline can take 30-60s per query (LLM calls)
-# --preload: loads the graph ONCE before workers fork (saves memory)
+# --workers 1: Render 4GB RAM — 1 worker is safest with RAG + LLM calls
+# --timeout 300: RAG pipeline can take 30-60s per query
+# --preload: loads graph ONCE before worker forks (saves memory)
 WORKDIR /app/cnpi_api
-CMD ["gunicorn", "--bind", "0.0.0.0:7860", "--workers", "1", "--timeout", "300", "--preload", "cnpi_api.wsgi:application"]
+CMD ["gunicorn", "--bind", "0.0.0.0:${PORT:-8000}", "--workers", "1", "--timeout", "300", "--preload", "cnpi_api.wsgi:application"]

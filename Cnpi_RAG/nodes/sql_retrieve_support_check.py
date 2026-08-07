@@ -97,7 +97,9 @@ def sql_retrieve_support_check_node(state: RAGState) -> Dict[str, Any]:
                     **sql_retrieve_state,
                     "supported": True,
                     "retry_count": retry_count,
-                }
+                },
+                "answer_status": "found",
+                "final_answer": answer,
             }
         elif "no_support" in check_result:
             print("[sql_retrieve_support_check] No support in context. Skipping retries.")

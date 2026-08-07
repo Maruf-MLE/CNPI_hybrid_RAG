@@ -56,6 +56,11 @@ def get_llm(model: str | None = None) -> ChatGoogleGenerativeAI:
     every node in the graph shares the *same* underlying connection instead
     of creating a new ChatGoogleGenerativeAI instance on import.
 
+    gemini-3.5-flash-lite is a "thinking" model — it only works correctly
+    when thinking_config is sent with the request.  Without it the request
+    falls through to a quota path with limit 0 (429 RESOURCE_EXHAUSTED).
+    We set thinking_level="MINIMAL" to match the working raw SDK call.
+
     Parameters:
         model: optional override; defaults to project-wide model name.
     """
@@ -66,6 +71,7 @@ def get_llm(model: str | None = None) -> ChatGoogleGenerativeAI:
         get_llm._instances[model] = ChatGoogleGenerativeAI(
             model=model,
             google_api_key=os.getenv("GEMINI_API_KEY"),
+            thinking_level="minimal",
             # We don't set streaming=True as it might conflict with some LangChain LCEL setups, 
             # unless specifically needed by the graph implementation.
         )

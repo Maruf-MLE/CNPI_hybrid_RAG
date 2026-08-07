@@ -11,6 +11,7 @@ from .db_utils import format_metadata_query
 from .db_utils import optimize_context_for_llm
 from .embedding_utils import get_embedding_model
 from .embedding_utils import embed_text
+from .embedding_utils import embed_batch
 from .embedding_utils import vector_search
 from .embedding_utils import bm25_search
 from .embedding_utils import hybrid_search
@@ -25,6 +26,7 @@ __all__ = [
     "optimize_context_for_llm",
     "get_embedding_model",
     "embed_text",
+    "embed_batch",
     "vector_search",
     "bm25_search",
     "hybrid_search",

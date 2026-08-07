@@ -14,7 +14,10 @@ psycopg2-binary>=2.9.9
 pgvector>=0.3.0
 
 # Embeddings
+# Local mode uses sentence-transformers; production (hf_api) uses HF Inference API
+# via huggingface_hub / direct HTTP — sentence-transformers is optional in prod.
 sentence-transformers>=2.3.0
+huggingface_hub>=0.24.0
 
 # Search
 scikit-learn>=1.4.0
