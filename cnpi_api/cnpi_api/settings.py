@@ -60,6 +60,7 @@ ALLOWED_HOSTS = ["*"] if DEBUG else [
     ".netlify.app",
     "cnpi-hybrid-rag-1.onrender.com",
     "warm-fenglisu-e6e0f6.netlify.app",
+    "cnpichat.netlify.app",
 ]
 
 
