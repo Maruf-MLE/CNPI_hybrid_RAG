@@ -51,14 +51,15 @@ SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", os.getenv("SECRET_KEY", "django-inse
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("DEBUG", "True").lower() in ("true", "1", "yes")
 
-# ALLOWED_HOSTS — production: add your HuggingFace Space URL
-HF_SPACE_HOST = os.getenv("SPACE_HOST", "")
+# ALLOWED_HOSTS — production: add your Render URL
+RENDER_HOST = os.getenv("RENDER_HOST", "")
 ALLOWED_HOSTS = ["*"] if DEBUG else [
     "localhost",
     "127.0.0.1",
+    ".onrender.com",
     ".hf.space",
-    HF_SPACE_HOST,
-] if HF_SPACE_HOST else [".hf.space"]
+    RENDER_HOST,
+]
 
 
 # Application definition
