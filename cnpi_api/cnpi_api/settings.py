@@ -51,14 +51,15 @@ SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", os.getenv("SECRET_KEY", "django-inse
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("DEBUG", "True").lower() in ("true", "1", "yes")
 
-# ALLOWED_HOSTS — production: add your Render URL
-RENDER_HOST = os.getenv("RENDER_HOST", "")
+# ALLOWED_HOSTS — production
 ALLOWED_HOSTS = ["*"] if DEBUG else [
     "localhost",
     "127.0.0.1",
     ".onrender.com",
     ".hf.space",
-    RENDER_HOST,
+    ".netlify.app",
+    "cnpi-hybrid-rag-1.onrender.com",
+    "warm-fenglisu-e6e0f6.netlify.app",
 ]
 
 
