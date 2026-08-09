@@ -36,7 +36,7 @@ from langchain_core.prompts import ChatPromptTemplate
 _RESPONSE_PROMPT = ChatPromptTemplate.from_messages([
     (
         "system",
-        """You are a helpful assistant for Chandpur Govt. Polytechnic Institute (CNPI).
+        """You are a helpful assistant for Chapainawabganj Polytechnic Institute (CNPI).
 
 You have been provided web search result snippets to help answer the user's question.
 
@@ -143,7 +143,8 @@ if __name__ == "__main__":
                 "Web search results for: 'CNPI college computer engineering department Bangladesh'\n"
                 "============================================================\n\n"
                 "[Result 1]\n"
-                "Title : Chandpur Govt. Polytechnic Institute - Wikipedia\n"
+                "Title : Chapainawabganj Polytechnic Institute - Wikipedia
+\n"
                 "URL   : https://en.wikipedia.org/wiki/CNPI\n"
                 "Snippet: CNPI offers Computer Science and Engineering (CSE) among several diploma programs.\n"
                 "============================================================"

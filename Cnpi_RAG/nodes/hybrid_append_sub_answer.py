@@ -57,6 +57,23 @@ def _extract_context_from_state(state: RAGState, source_path: PathName) -> Optio
     return None
 
 
+def _extract_clarification_from_state(state: RAGState, source_path: PathName) -> Optional[str]:
+    """Extract clarification message if the sub-query hit a need_more_info / short_info state."""
+    if source_path == "sql_query":
+        sql_state = state.get("sql_query", {})
+        if sql_state.get("short_info") or sql_state.get("not_possible"):
+            return sql_state.get("final_answer") or sql_state.get("clarification")
+    elif source_path == "sql_retrieve":
+        sql_retrieve_state = state.get("sql_retrieve", {})
+        if sql_retrieve_state.get("need_more_info"):
+            return sql_retrieve_state.get("final_answer") or sql_retrieve_state.get("clarification")
+    elif source_path == "web_search":
+        # Web search typically doesn't have need_more_info, but check answer_status
+        if state.get("answer_status") == "need_more_info":
+            return state.get("final_answer")
+    return None
+
+
 def append_sub_answer_node(state: RAGState) -> Dict[str, Any]:
     """Collect one completed sub-query answer into the hybrid accumulator.
 
@@ -71,17 +88,29 @@ def append_sub_answer_node(state: RAGState) -> Dict[str, Any]:
     sub_question: str = state.get("parent_sub_query") or state.get("user_input", "")
     final_answer: str = state.get("final_answer", "").strip()
     source_path: PathName = state.get("decided_path", "sql_retrieve")
+    answer_status: str = state.get("answer_status", "pending")
 
+    # Check if this sub-query hit a "need_more_info" / "short_info" state
+    clarification: Optional[str] = _extract_clarification_from_state(state, source_path)
+    
     # Extract supporting context for transparency
     context: Optional[str] = _extract_context_from_state(state, source_path)
 
-    # Graceful fallback/Optimization: if no answer was produced (e.g. skipped response node),
-    # use the context as the answer for the merge node to synthesize.
-    if not final_answer and context:
+    # Priority 1: If there's a clarification message (need_more_info / short_info),
+    # use that as the final_answer so merge node knows this sub-query needs more info
+    if clarification:
+        final_answer = clarification
+        context = None  # No context available when clarification is needed
+        print(
+            f"[append_sub_answer] Sub-query #{sub_ans_count + 1} needs clarification: "
+            f"'{sub_question[:60]}'"
+        )
+    # Priority 2: If no answer was produced (e.g. skipped response node),
+    # use the context as the answer for the merge node to synthesize
+    elif not final_answer and context:
         final_answer = context
-
-    # Ultimate fallback if still no answer/context
-    if not final_answer:
+    # Priority 3: Ultimate fallback if still no answer/context
+    elif not final_answer:
         final_answer = "দুঃখিত, এই প্রশ্নের উত্তর পাওয়া যায়নি।"
 
     record: SubQueryAnswer = {

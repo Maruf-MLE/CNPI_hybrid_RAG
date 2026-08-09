@@ -76,7 +76,7 @@ _DECOMPOSE_PROMPT = ChatPromptTemplate.from_messages([
     (
         "system",
         f"""You are an expert at decomposing complex questions into simpler, independent sub-questions
-for a college information retrieval system (CNPI - Chandpur Govt. Polytechnic Institute).
+for a college information retrieval system (CNPI - Chapainawabganj Polytechnic Institute).
 
 Rules:
 1. Produce 2 to {_MAX_SUB_QUESTIONS} sub-questions maximum.

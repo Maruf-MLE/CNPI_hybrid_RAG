@@ -79,6 +79,41 @@ from nodes.hybrid_merge_support_check import merge_support_check_node
 from nodes.hybrid_merge_retry_check import merge_retry_check_node
 
 
+def process_sub_query_wrapper_node(state: RAGState) -> dict:
+    """
+    Wrapper node that executes the full pipeline for a single sub-query synchronously.
+    This prevents LangGraph from merging states of parallel Send branches across multiple nodes.
+    """
+    # 1. Phase 1: Rewrite & Normalize
+    state = {**state, **rewrite_query_node(state)}
+    state = {**state, **entity_normalizer_node(state)}
+    
+    # 2. Phase 1: Decide Path
+    state = {**state, **llm_decide_path_node(state)}
+    decided_path = state.get("decided_path")
+    
+    # 3. Phase 2-4: Execute chosen path
+    if decided_path == "sql_query":
+        state = {**state, **sql_query_info_check_node(state)}
+        sq = state.get("sql_query", {})
+        if not (sq.get("short_info") or sq.get("not_possible")):
+            state = {**state, **context_retrieve_node(state)}
+            state = {**state, **context_format_node(state)}
+            
+    elif decided_path == "sql_retrieve":
+        state = {**state, **sql_retrieve_check_node(state)}
+        if not state.get("sql_retrieve", {}).get("need_more_info"):
+            state = {**state, **sql_retrieve_create_node(state)}
+            state = {**state, **sql_retrieve_context_node(state)}
+            
+    elif decided_path == "web_search":
+        state = {**state, **web_search_rewrite_node(state)}
+        state = {**state, **web_search_docs_node(state)}
+        
+    # 4. Phase 5: Append answer (returns ONLY the hybrid channel update)
+    return append_sub_answer_node(state)
+
+
 def sub_query_router_node(state: RAGState) -> dict:
     """Pass-through node to make the sub-query exit routing visible in the graph."""
     return state
@@ -146,6 +181,7 @@ def build_graph():
     graph.add_node("create_sub_questions", create_sub_questions_node)
     # dispatch_sub_queries is a conditional edge, not a node.
     graph.add_node("sub_query_router_node", sub_query_router_node)
+    graph.add_node("process_sub_query_wrapper", process_sub_query_wrapper_node)
     graph.add_node("append_sub_answer", append_sub_answer_node)
     graph.add_node("merge_sub_answers", merge_sub_answers_node)
     graph.add_node("merge_support_check", merge_support_check_node)
@@ -375,6 +411,9 @@ def build_graph():
     # LangGraph handles the fan-out automatically; each branch re-enters the full pipeline.
     # In LangGraph, nodes returning List[Send] must be used as conditional edges!
     graph.add_conditional_edges("create_sub_questions", dispatch_sub_queries_node)
+    
+    # Wrapper node directly returns the appended answer, so we route it to merge
+    graph.add_edge("process_sub_query_wrapper", "merge_sub_answers")
 
     # ---- Central gateway: decides for ALL paths after context is collected ----
     def _route_sub_query_node(state: RAGState) -> Literal[

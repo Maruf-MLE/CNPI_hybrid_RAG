@@ -80,7 +80,11 @@ def dispatch_sub_queries_node(state: RAGState) -> List[Send]:
 
             # The sub-question IS the user input for this branch
             "user_input": sub_q,
-            "rewritten_query": "",  # rewrite_query node will fill this
+            "rewritten_query": "",        # rewrite_query node will fill this
+            "normalized_query": "",       # MUST clear parent's normalized_query,
+                                          # otherwise rewrite_query_node reads the
+                                          # parent's (leaked) normalized query
+                                          # instead of this sub-question.
 
             # The depth is inherited so hybrid_depth_check can block recursion
             "hybrid": {
@@ -104,8 +108,8 @@ def dispatch_sub_queries_node(state: RAGState) -> List[Send]:
             "answer_status": "pending",
         }
 
-        # Send this sub-state to the graph's entry node
-        sends.append(Send("rewrite_query", sub_state))
+        # Send this sub-state to the isolated wrapper node instead of the main graph entry
+        sends.append(Send("process_sub_query_wrapper", sub_state))
         print(f"[dispatch_sub_queries] Dispatching: '{sub_q[:80]}'")
 
     print(f"[dispatch_sub_queries] Total dispatched: {len(sends)} sub-queries.")

@@ -58,8 +58,30 @@ YOUR TASK — HOW TO WRITE THE CLARIFICATION
 
 If failure_reason is "greeting":
   The user is just saying hi, hello, or making smalltalk.
-  You MUST reply EXACTLY with this friendly message (with no other text):
-  "আমি CNPIchat 🤖, চাঁপাইনবাবগঞ্জ পলিটেকনিক ইন্সটিটিউট (CNPI)-এর বিষয়ে যেকোনো প্রশ্নের উত্তর বা যেকোনো সমাধান দিতে পারি। আপনার কি কিছু জানার আছে?"
+  Give a WARM, NATURAL, CONVERSATIONAL welcome reply in Bengali. You must NOT
+  repeat the same fixed sentence every time — vary the wording, emoji and tone
+  so each greeting feels fresh and spontaneous, as a real human receptionist
+  would.
+
+  Requirements:
+  - Introduce yourself briefly as "CNPIchat" (the AI assistant for
+    Chapainawabganj Polytechnic Institute / CNPI).
+  - Mention that you can answer questions about CNPI (departments, teachers,
+    notices, routine, etc.).
+  - Politely ask what the student wants to know.
+  - Keep it 1-3 short sentences.
+  - Use 1-2 friendly emojis (mix them up: 🤖 🎓 ✨ 👋 😊).
+  - Reply in natural Bengali (Bengali script). Keep institution name "CNPI" in
+    English. You may write the full name in Bengali sometimes and use the short
+    form other times for variety.
+
+  A few example styles (do NOT copy verbatim — create your own variation each time):
+    "হ্যালো! 🎓 আমি CNPIchat, চাঁপাইনবাবগঞ্জ পলিটেকনিক ইন্সটিটিউটের এআই সহকারী। বিভাগ,
+     শিক্ষক, রুটিন — যা জানতে চান বলুন!"
+    "স্বাগতম! 👋 আমি CNPIchat 🤖। CNPI সম্পর্কে আপনার কোনো প্রশ্ন থাকলে নিশ্চিন্তে করুন।"
+    "হাই 😊, আমি CNPIchat! চাঁপাইনবাবগঞ্জ পলিটেকনিক নিয়ে যেকোনো তথ্য দিতে পারি। কী জানবেন?"
+
+  Every reply MUST be a little different in wording from these examples.
 
 If failure_reason is "short_info":
   The student's question is missing some required details. Look at the MISSING
@@ -132,7 +154,10 @@ def sql_query_short_info_response_node(state: RAGState) -> dict:
         answer_status = "not_found" if not_possible else "need_more_info"
 
     try:
-        llm = get_llm()
+        # Greetings should feel natural and varied every time, so we use a
+        # higher sampling temperature. Clarification / not_possible replies
+        # stay more controlled (default temperature).
+        llm = get_llm(temperature=0.9) if is_greeting else get_llm()
         chain = _SHORT_INFO_PROMPT | llm
 
         result = chain.invoke({
@@ -149,7 +174,7 @@ def sql_query_short_info_response_node(state: RAGState) -> dict:
     except Exception as e:
         print(f"[sql_query_short_info_response] LLM error: {e}")
         if is_greeting:
-            clarification_text = "আমি CNPIchat 🤖, চাঁপাইনবাবগঞ্জ পলিটেকনিক ইন্সটিটিউট (CNPI)-এর বিষয়ে যেকোনো প্রশ্নের উত্তর বা যেকোনো সমাধান দিতে পারি। আপনার কি কিছু জানার আছে?"
+            clarification_text = "হ্যালো! 🎓 আমি CNPIchat, চাঁপাইনবাবগঞ্জ পলিটেকনিক ইন্সটিটিউটের এআই সহকারী। বিভাগ, শিক্ষক, রুটিন — যা জানতে চান বলুন!"
         elif not_possible:
             clarification_text = (
                 "দুঃখিত, আপনার প্রশ্নটি আমাদের ডেটাবেজ থেকে উত্তর দেওয়া সম্ভব নয়। "

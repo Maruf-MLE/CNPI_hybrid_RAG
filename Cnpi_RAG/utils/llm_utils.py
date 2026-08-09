@@ -49,7 +49,10 @@ def extract_content(response: Union[AIMessage, str, list]) -> str:
 
 _MODEL_NAME = "gemini-3.5-flash-lite"
 
-def get_llm(model: str | None = None) -> ChatGoogleGenerativeAI:
+def get_llm(
+    model: str | None = None,
+    temperature: float | None = None,
+) -> ChatGoogleGenerativeAI:
     """Return a shared ChatGoogleGenerativeAI instance.
 
     Calling this multiple times returns a lazily-created singleton so that
@@ -63,19 +66,30 @@ def get_llm(model: str | None = None) -> ChatGoogleGenerativeAI:
 
     Parameters:
         model: optional override; defaults to project-wide model name.
+        temperature: optional sampling temperature (0.0-2.0).  When omitted,
+            Gemini's default temperature is used (good for deterministic
+            tasks like routing / SQL generation).  Pass a higher value
+            (e.g. 0.8-1.0) for nodes that should produce varied, natural
+            replies such as greetings / small-talk.  Each distinct
+            temperature is cached as its own instance so deterministic
+            nodes are never affected.
     """
     model = model or _MODEL_NAME
+    cache_key = (model, temperature)
     if not hasattr(get_llm, "_instances"):
         get_llm._instances = {}
-    if model not in get_llm._instances:
-        get_llm._instances[model] = ChatGoogleGenerativeAI(
+    if cache_key not in get_llm._instances:
+        kwargs = dict(
             model=model,
             google_api_key=os.getenv("GEMINI_API_KEY"),
             thinking_level="minimal",
-            # We don't set streaming=True as it might conflict with some LangChain LCEL setups, 
+            # We don't set streaming=True as it might conflict with some LangChain LCEL setups,
             # unless specifically needed by the graph implementation.
         )
-    return get_llm._instances[model]
+        if temperature is not None:
+            kwargs["temperature"] = temperature
+        get_llm._instances[cache_key] = ChatGoogleGenerativeAI(**kwargs)
+    return get_llm._instances[cache_key]
 
 
 # ===========================================================================

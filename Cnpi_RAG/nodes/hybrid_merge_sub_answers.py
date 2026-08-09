@@ -55,7 +55,7 @@ _MERGE_PROMPT = ChatPromptTemplate.from_messages([
     (
         "system",
         """You are an expert at synthesizing multiple answers into one coherent response
-for Chandpur Govt. Polytechnic Institute (CNPI) information queries.
+for Chapainawabganj Polytechnic Institute (CNPI) information queries.
 
 Instructions:
 1. You will receive the original complex question and several sub-answers.

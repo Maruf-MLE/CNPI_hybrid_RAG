@@ -22,7 +22,7 @@ from utils.llm_utils import get_llm, extract_content
 from langchain_core.prompts import ChatPromptTemplate
 
 _NO_ANSWER_PROMPT = ChatPromptTemplate.from_messages([
-    ("system", """You are a helpful AI assistant for Chandpur Govt. Polytechnic Institute (CNPI).
+    ("system", """You are a helpful AI assistant for Chapainawabganj Polytechnic Institute (CNPI).
 The information requested by the user is currently NOT available in your database.
 
 ⚠️ VERY IMPORTANT — STRUCTURE OF YOUR RESPONSE:
