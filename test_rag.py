@@ -71,10 +71,8 @@ def main():
             
             # ★ Chat history আপডেট — এই টার্নের মানুষ ও AI মেসেজ যোগ করা
             chat_history = result_state.get("messages", [])
-            # যদি কোনো কারণে messages স্টেটে না থাকে, তবে নিজে যোগ করি
-            if not chat_history:
-                chat_history.append(HumanMessage(content=user_question))
-                chat_history.append(AIMessage(content=final_ans or "(কোনো উত্তর নেই)"))
+            # AI এর উত্তরটি chat history তে যোগ করি
+            chat_history.append(AIMessage(content=final_ans or "(কোনো উত্তর নেই)"))
             
             # ডিবাগ বা স্টেট ইনফরমেশন (Testing এর জন্য)
             print("🛠️ ডিবাগ ইনফো:")

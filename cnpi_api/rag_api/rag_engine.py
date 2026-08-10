@@ -86,17 +86,13 @@ def run_rag(user_input: str, chat_history: list | None = None) -> dict:
         debug_info["sub_query_list"] = hybrid_data.get("sub_query_list", [])
 
     # ---- Updated chat history ----
-    updated_messages = result_state.get("messages", [])
-
-    # If messages weren't populated for some reason, build them manually
-    if not updated_messages:
-        from langchain_core.messages import HumanMessage, AIMessage
-
-        updated_messages = list(chat_history or [])
-        updated_messages.append(HumanMessage(content=user_input))
-        updated_messages.append(
-            AIMessage(content=final_ans or "(কোনো উত্তর নেই)")
-        )
+    updated_messages = list(result_state.get("messages", []))
+    
+    from langchain_core.messages import AIMessage
+    # Append the bot's response to the history so it's available for the next turn
+    updated_messages.append(
+        AIMessage(content=final_ans or "(কোনো উত্তর নেই)")
+    )
 
     return {
         "final_answer": final_ans or "",

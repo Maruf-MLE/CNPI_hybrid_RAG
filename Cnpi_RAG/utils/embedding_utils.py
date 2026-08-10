@@ -36,6 +36,12 @@ _EMBEDDING_DIMENSION: int = int(os.getenv("EMBEDDING_DIMENSION", "1024"))
 _TOP_K: int = int(os.getenv("TOP_K_SEARCH", "5"))
 _HF_TOKEN: str = os.getenv("HF_TOKEN", "")
 
+# METRIC_THRESHOLD controls the embedding vs BM25 weight ratio in hybrid_search.
+#   METRIC_THRESHOLD = embedding (vector) weight  (0.0 – 1.0)
+#   bm25_weight      = 1.0 - METRIC_THRESHOLD
+# Example: METRIC_THRESHOLD=0.20 → 20% embedding, 80% BM25
+_METRIC_THRESHOLD: float = float(os.getenv("METRIC_THRESHOLD", "0.5"))
+
 
 # =============================================================================
 # Local embedding model singleton
@@ -326,15 +332,24 @@ def hybrid_search(
     table_name: str = "documents",
     top_k: int | None = None,
     rrf_k: int = 30,
-    vector_weight: float = 0.5,
-    bm25_weight: float = 0.5,
+    vector_weight: float | None = None,
+    bm25_weight: float | None = None,
 ) -> list[dict[str, Any]]:
     """Combine vector search and BM25 search using Weighted Reciprocal Rank Fusion.
 
     RRF score = Σ weight_i * 1/(rrf_k + rank_i)   for each retrieval system i.
 
-    By default: BM25 = 50% weight, Vector = 50% weight.
-    Both keyword matching and semantic similarity contribute equally.
+    The embedding (vector) vs BM25 weight ratio is controlled by the
+    METRIC_THRESHOLD environment variable:
+
+        METRIC_THRESHOLD = embedding (vector) weight  (range: 0.0 – 1.0)
+        bm25_weight      = 1.0 - METRIC_THRESHOLD
+
+    Example:
+        METRIC_THRESHOLD=0.20  →  20% embedding, 80% BM25
+        METRIC_THRESHOLD=0.55  →  55% embedding, 45% BM25
+
+    If METRIC_THRESHOLD is not set, defaults to 0.5 (equal weight).
 
     Parameters
     ----------
@@ -346,10 +361,10 @@ def hybrid_search(
         How many results to return after fusion.
     rrf_k : int
         RRF constant (30 gives better score differentiation than 60).
-    vector_weight : float
-        Weight for vector/semantic search (default 0.3 = 30%).
-    bm25_weight : float
-        Weight for BM25/keyword search (default 0.7 = 70%).
+    vector_weight : float | None
+        Override for vector/semantic weight. If None, uses METRIC_THRESHOLD.
+    bm25_weight : float | None
+        Override for BM25/keyword weight. If None, uses 1 - METRIC_THRESHOLD.
 
     Returns
     -------
@@ -359,6 +374,17 @@ def hybrid_search(
     """
     k = top_k or _TOP_K
 
+    # Resolve weights from METRIC_THRESHOLD env var unless explicitly overridden
+    if vector_weight is None:
+        vector_weight = _METRIC_THRESHOLD
+    if bm25_weight is None:
+        bm25_weight = 1.0 - _METRIC_THRESHOLD
+
+    print(
+        f"[hybrid_search] weights → embedding: {vector_weight:.2f}, "
+        f"bm25: {bm25_weight:.2f} (METRIC_THRESHOLD={_METRIC_THRESHOLD:.2f})"
+    )
+
     # Fetch more candidates from each system so fusion has enough to work with
     vec_results = vector_search(query_text, table_name=table_name, top_k=k * 3)
     bm25_results = bm25_search(query_text, table_name=table_name, top_k=k * 3)
@@ -366,7 +392,7 @@ def hybrid_search(
     # Build RRF score map keyed by content (use content as surrogate ID)
     scores: dict[str, dict[str, Any]] = {}
 
-    # Vector search contribution (70% weight)
+    # Vector search contribution
     # Skip duplicates within the same system — only count first occurrence
     seen_vec: set[str] = set()
     for rank, row in enumerate(vec_results, start=1):
@@ -378,7 +404,7 @@ def hybrid_search(
             scores[key] = {"content": key, "metadata": row.get("metadata"), "rrf_score": 0.0}
         scores[key]["rrf_score"] += vector_weight * (1.0 / (rrf_k + rank))
 
-    # BM25 search contribution (30% weight)
+    # BM25 search contribution
     # Skip duplicates within the same system — only count first occurrence
     seen_bm25: set[str] = set()
     for rank, row in enumerate(bm25_results, start=1):

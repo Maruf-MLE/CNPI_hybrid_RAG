@@ -25,7 +25,7 @@ body {
 
 .chat-wrapper {
   width: 100%;
-  max-width: 400px;
+  max-width: 500px;
   height: 90vh;
   min-height: 500px;
   max-height: 800px;
@@ -142,6 +142,7 @@ body {
   display: flex;
   align-items: flex-end;
   gap: 12px;
+  width: 100%;
 }
 
 .message-avatar {
@@ -162,9 +163,10 @@ body {
 .message {
   padding: 12px 16px;
   border-radius: 20px;
-  max-width: 80%;
+  max-width: 95%;
   font-size: 14px;
   line-height: 1.5;
+  overflow-x: auto;
 }
 
 .bot-message {
@@ -202,6 +204,58 @@ body {
 }
 .message strong {
   font-weight: 600;
+}
+
+/* TABLE STYLES (Markdown tables) */
+.message table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 12px 0;
+  font-size: 13px;
+  display: block;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+.message th, 
+.message td {
+  border: 1px solid var(--border-color);
+  padding: 8px 12px;
+  text-align: left;
+}
+
+.message th {
+  background-color: rgba(166, 98, 198, 0.1);
+  font-weight: 600;
+  color: var(--primary);
+}
+
+.bot-message table th {
+  background-color: white;
+  border-bottom: 2px solid var(--primary);
+}
+
+.bot-message table td {
+  background-color: transparent;
+}
+
+/* Scrollbar for message table */
+.message::-webkit-scrollbar {
+  height: 6px;
+  width: 6px;
+}
+
+.message::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.message::-webkit-scrollbar-thumb {
+  background: rgba(166, 98, 198, 0.3);
+  border-radius: 4px;
+}
+
+.message::-webkit-scrollbar-thumb:hover {
+  background: rgba(166, 98, 198, 0.6);
 }
 
 /* QUICK REPLIES */

@@ -65,46 +65,96 @@ CNPI has 6 departments, EACH with 2 shifts:
 2. Day / Second / 2nd shift
 
 Each shift has different Chief Instructors, teachers, and routines.
-Each department also has multiple semesters.
+Each department also has multiple semesters (1st to 8th).
+
+CRITICAL DETECTION RULES:
+==========================
+
+1. ROUTINE/SCHEDULE Queries (ALWAYS need Department + Shift + Semester):
+   Keywords: "routine", "schedule", "class routine", "timetable", "ক্লাস রুটিন", "রুটিন"
+   
+   MANDATORY CHECKS when these keywords are present:
+   - missing_department: true if no department mentioned (CST, ENT, ET, RAC, FT, MT)
+   - missing_shift: true if no shift mentioned (1st/Morning, 2nd/Day)
+   - missing_semester: true if no semester mentioned (1st, 2nd, 3rd, 4th, 5th, 6th, 7th, 8th)
+   
+   Even if the user mentions department and shift, you MUST check if semester is missing.
+   ROUTINE QUERIES ARE INCOMPLETE WITHOUT SEMESTER.
+
+2. CI/Teacher Queries (need Department + Shift, NO semester):
+   Keywords: "CI", "chief instructor", "teacher", "instructor", "শিক্ষক", "প্রধান"
+   
+   Checks:
+   - missing_department: true if no department mentioned
+   - missing_shift: true if no shift mentioned
+   - missing_semester: false (semester NOT needed for CI/teacher queries)
+
+3. General Info Queries (no specific requirements):
+   Keywords: "principal", "phone", "address", "email", "college info"
+   All flags: false
 
 You MUST set "needs_more_info": true if the query is missing ANY required piece.
-For EACH missing piece, set the corresponding flag to true:
-- missing_shift: true if the query asks about CI, teachers, or routine (shift-dependent)
-  but does NOT mention which shift.
-- missing_department: true if the query asks about department-level info
-  but does NOT mention which department.
-- missing_semester: true if the query asks about semester-specific info
-  but does NOT mention which semester.
+For EACH missing piece, set the corresponding flag to true.
 
-If the user already provided a piece of information, set the corresponding flag to
+If the user ALREADY provided a piece of information, set the corresponding flag to
 FALSE. NEVER set a missing flag to true if the user already provided that info.
 
-CRITICAL — ONLY ask for what is ACTUALLY MISSING:
-- If user already mentioned department (e.g. "CST") but NOT shift:
-  missing_shift=true, missing_department=false, missing_semester=false
-- If user already mentioned shift (e.g. "2nd shift") but NOT department:
-  missing_shift=false, missing_department=true
-- If BOTH shift and department are missing: set both to true.
+STEP-BY-STEP ANALYSIS:
+======================
+1. First, identify the query type (routine vs CI/teacher vs general)
+2. Then check which pieces are PRESENT in the query
+3. Finally, set missing_* flags for pieces that are REQUIRED but NOT PRESENT
 
-Examples:
-User: "CST department er chief instructor ke?"
-  -> missing_shift=true, missing_department=false, missing_semester=false
-User: "cst 5th er ci er nam ki"
-  -> missing_shift=true, missing_department=false, missing_semester=false
-User: "class routine dao"
-  -> missing_shift=true, missing_department=true, missing_semester=false
+Examples with Analysis:
+========================
 
-If the user ALREADY mentions all required info, set "needs_more_info": false,
-all missing flags to false, and leave clarification empty.
+Example 1: "Where can I find the class Routine for the CST Department Day Shift?"
+Step 1: Query type = ROUTINE (keyword: "Routine")
+Step 2: Check what's present:
+  - Department = CST ✓ (present)
+  - Shift = Day ✓ (present)
+  - Semester = ✗ (NOT present)
+Step 3: Set flags:
+  -> missing_department=false, missing_shift=false, missing_semester=true
+  -> needs_more_info=true
+
+Example 2: "CST Day Shift 5th semester routine"
+Step 1: Query type = ROUTINE
+Step 2: All present (CST, Day, 5th)
+Step 3: All flags false, needs_more_info=false
+
+Example 3: "class routine dao"
+Step 1: Query type = ROUTINE
+Step 2: All missing
+Step 3: missing_department=true, missing_shift=true, missing_semester=true, needs_more_info=true
+
+Example 4: "CST Day Shift chief instructor ke?"
+Step 1: Query type = CI/TEACHER
+Step 2: CST and Day present
+Step 3: All flags false, needs_more_info=false
+
+Example 5: "CST department er chief instructor ke?"
+Step 1: Query type = CI/TEACHER
+Step 2: CST present, shift missing
+Step 3: missing_shift=true, missing_department=false, missing_semester=false, needs_more_info=true
 
 ---------------------------------------
 HOW TO WRITE THE CLARIFICATION
 ---------------------------------------
-The clarification must ONLY ask for the pieces that are ACTUALLY missing.
-Do NOT ask for information the user already provided.
-Do NOT ask for "teacher name" or anything not in the missing flags.
+You MUST fill the "clarification" field whenever needs_more_info is true.
 
-Write in Bengali (বাংলা). Keep technical terms in English. Be polite and student-friendly.
+The clarification must ONLY ask for the pieces that are ACTUALLY missing
+(as indicated by the missing_* flags). Do NOT ask for information the user
+already provided.
+
+Write in Bengali (বাংলা). Keep technical terms (Shift, Department, Semester,
+CST, ENT, etc.) in English. Be polite and student-friendly.
+
+IMPORTANT: Match the clarification to the missing_* flags:
+- If only missing_shift is true, ask ONLY for shift
+- If only missing_department is true, ask ONLY for department
+- If only missing_semester is true, ask ONLY for semester
+- If multiple flags are true, ask for ALL of them in ONE sentence
 
 GOOD examples:
 
@@ -114,11 +164,20 @@ Only shift missing:
 Only department missing:
 "অনুগ্রহ করে জানান, আপনি কোন Department-এর তথ্য চাচ্ছেন? (CST, ENT, ET, RAC, FT, MT)"
 
-Shift and department both missing:
-"দয়া করে বলুন, আপনি কোন Department এবং কোন Shift-এর তথ্য জানতে চাচ্ছেন? (যেমন: CST Department, 1st Shift)"
-
 Only semester missing:
 "অনুগ্রহ করে বলুন, আপনি কোন Semester-এর তথ্য জানতে চাচ্ছেন? (1st থেকে 8th পর্যন্ত)"
+
+Shift and department both missing (semester not needed):
+"দয়া করে বলুন, আপনি কোন Department এবং কোন Shift-এর তথ্য জানতে চাচ্ছেন? (যেমন: CST Department, 1st Shift)"
+
+Shift and semester both missing (but department present):
+"দয়া করে বলুন, আপনি কোন Shift এবং কোন Semester-এর তথ্য জানতে চাচ্ছেন? (যেমন: 1st Shift, 5th Semester)"
+
+Department and semester both missing (but shift present):
+"দয়া করে বলুন, আপনি কোন Department এবং কোন Semester-এর তথ্য জানতে চাচ্ছেন? (যেমন: CST Department, 5th Semester)"
+
+Department, shift, and semester all missing (e.g., "class routine dao"):
+"দয়া করে বলুন, আপনি কোন Department, কোন Shift, এবং কোন Semester-এর Class Routine চাচ্ছেন? (যেমন: CST, 2nd Shift, 5th Semester)"
 
 ---------------------------------------
 RULE 3: GREETINGS & SMALLTALK

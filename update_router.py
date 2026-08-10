@@ -1,46 +1,17 @@
-"""
-Routing / Router Node - Phase 1
-================================
+﻿import re
 
-This node decides which retrieval path to use based on the rewritten query.
+with open('Cnpi_RAG/nodes/router.py', 'r', encoding='utf-8') as f:
+    content = f.read()
 
-Flow: rewritten_query → decided_path + confidence_score
-"""
-
-import sys
-from pathlib import Path
-from typing import TypedDict
-
-from pydantic import BaseModel, Field
-
-project_root = Path(__file__).resolve().parent.parent
-plan_root = project_root.parent / "plan"
-if str(plan_root) not in sys.path:
-    sys.path.insert(0, str(plan_root))
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
-
-from state import RAGState, PathName
-from utils.llm_utils import get_llm
-from langchain_core.prompts import ChatPromptTemplate
-
-
-# Structured output schema for the router LLM
-class RouterOutput(BaseModel):
-    path: str = Field(description="Chosen path: hybrid, sql_query, sql_retrieve, web_search")
-    confidence: float = Field(description="Confidence score 0.0-1.0")
-
-
-_routing_prompt = ChatPromptTemplate.from_messages([
-    ("system", """You are the Routing Engine of the CNPI Hybrid RAG System.
+new_system_prompt = '''You are the Routing Engine of the CNPI Hybrid RAG System.
 
 Your ONLY responsibility is to determine which retrieval path
-should handle the user\'s query.
+should handle the user\\'s query.
 
 You MUST NOT:
 
-- Answer the user\'s question.
-- Rewrite the user\'s question.
+- Answer the user\\'s question.
+- Rewrite the user\\'s question.
 - Generate SQL.
 - Retrieve documents.
 - Perform web searches.
@@ -54,7 +25,7 @@ Available Retrieval Paths:
 3. web_search
 4. hybrid
 
-The routing decision MUST be based on the user\'s intent and the
+The routing decision MUST be based on the user\\'s intent and the
 scope of the question.
 
 The system has one specific college knowledge domain:
@@ -156,7 +127,7 @@ Examples:
 
 IMPORTANT:
 
-If the user\'s question is clearly about CNPI,
+If the user\\'s question is clearly about CNPI,
 default to "sql_retrieve" unless it is specifically
 a latest/last-5 notice request.
 
@@ -179,7 +150,7 @@ This includes general, external, current, or world-wide topics.
 Examples:
 
 "Who is the president of the USA?"
-"What is today\'s weather?"
+"What is today\\'s weather?"
 "What is the latest AI news?"
 "What is Python?"
 "How does Java abstraction work?"
@@ -204,7 +175,7 @@ Do NOT use sql_retrieve for general external questions.
 PATH 4 — hybrid
 ==================================================
 
-Choose "hybrid" ONLY when the user\'s query contains
+Choose "hybrid" ONLY when the user\\'s query contains
 multiple independent intents that require different retrieval
 operations or different information sources.
 
@@ -214,7 +185,7 @@ another retrieval path.
 
 Examples:
 
-"Who is the principal of CNPI and what is today\'s weather?"
+"Who is the principal of CNPI and what is today\\'s weather?"
 
 → CNPI information + external/current information
 → hybrid
@@ -230,7 +201,7 @@ what is the latest AI news?"
 → latest notice + other CNPI information
 → hybrid
 
-"Give me the latest notice and today\'s Bangladesh news."
+"Give me the latest notice and today\\'s Bangladesh news."
 
 → latest CNPI notice + external news
 → hybrid
@@ -402,7 +373,7 @@ when the query has meaningful ambiguity but one path
 is still preferable.
 
 Below 0.70
-ONLY when the user\'s intent is genuinely unclear.
+ONLY when the user\\'s intent is genuinely unclear.
 
 Do not artificially lower confidence for normal variations
 in wording.
@@ -452,56 +423,11 @@ Return ONLY valid JSON.
 {{
   "path": "sql_query | sql_retrieve | web_search | hybrid",
   "confidence": 0.97
-}}"""),
-    ("human", "Query: {rewritten_query}")
-])
+}}'''
 
+pattern = re.compile(r'(\(\"system\",\s*\"\"\").*?(\"\"\"),)', re.DOTALL)
+new_content = pattern.sub(r'\g<1>\n' + new_system_prompt + r'\n\g<2>,', content)
 
-def llm_decide_path_node(state: RAGState) -> dict:
-    """Decide routing path based on query analysis."""
-    llm = get_llm()
-    # method="json_mode" is omitted or handled differently depending on the specific LangChain Google GenAI version,
-    # but the explicit prompt handles JSON formatting anyway.
-    routing_chain = _routing_prompt | llm.with_structured_output(
-        RouterOutput
-    )
-
-    # Prefer normalized_query (entity-normalized); fallback to rewritten_query
-    query = state.get("normalized_query") or state.get("rewritten_query", "")
-
-    
-    
-    result = routing_chain.invoke({"rewritten_query": query})
-
-        # Normalize to canonical PathName values
-    path_map: dict[str, str] = {
-            "hybrid": "hybrid",
-            "sql_query": "sql_query",
-            "sql_retrieve": "sql_retrieve",
-            "web_search": "web_search",
-            "not available": "sql_retrieve",
-            "electron": "sql_retrieve",
-            "definition": "sql_retrieve",
-        }
-    raw_path = str(result.path).strip().lower()
-    decided_path = path_map.get(raw_path, "sql_retrieve")
-
-        # Ensure confidence is a valid float
-    confidence_score = max(0.0, min(1.0, float(result.confidence)))
-
-    return {"decided_path": decided_path, "confidence_score": confidence_score}
-
-
-# =============================================================================
-# Example Usage
-# =============================================================================
-
-if __name__ == "__main__":
-
-    state = {
-        "rewritten_query": "List all departments in the college"
-    }
-
-    result = llm_decide_path_node(state)
-    print("Router Decision:")
-    print(result)
+with open('Cnpi_RAG/nodes/router.py', 'w', encoding='utf-8') as f:
+    f.write(new_content)
+print('Done!')

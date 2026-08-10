@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 // API base URL — local dev uses localhost, production uses HuggingFace Space URL
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
@@ -203,7 +204,9 @@ export default function Home() {
                   </div>
                 ) : null}
                 <div className={`message ${isBot ? "bot-message" : "user-message"}`}>
-                  <ReactMarkdown>{msg.content}</ReactMarkdown>
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                    {msg.content}
+                  </ReactMarkdown>
                 </div>
               </div>
 

@@ -46,11 +46,11 @@ def _ddg_search(query: str, max_results: int = _MAX_RESULTS) -> List[Dict[str, s
     Falls back to an empty list on any error (network issue, rate-limit, etc.).
     """
     try:
-        from duckduckgo_search import DDGS  # pip install duckduckgo-search
+        from ddgs import DDGS  # pip install ddgs
 
         results = []
         with DDGS() as ddgs:
-            for r in ddgs.text(query, max_results=max_results):
+            for r in ddgs.text(query, region="wt-wt", safesearch="moderate", max_results=max_results):
                 results.append({
                     "title": r.get("title", "").strip(),
                     "href":  r.get("href", "").strip(),
@@ -60,8 +60,8 @@ def _ddg_search(query: str, max_results: int = _MAX_RESULTS) -> List[Dict[str, s
 
     except ImportError:
         print(
-            "[web_search_docs] 'duckduckgo_search' not installed. "
-            "Run: pip install duckduckgo-search"
+            "[web_search_docs] 'ddgs' not installed. "
+            "Run: pip install ddgs"
         )
         return []
     except Exception as e:
