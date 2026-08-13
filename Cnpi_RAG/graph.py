@@ -49,11 +49,12 @@ from nodes.entry import rewrite_query_node
 from nodes.router import llm_decide_path_node
 
 # Import Phase 2 nodes (SQL Query path)
-from nodes.sql_query_info_check import sql_query_info_check_node
-from nodes.sql_query_create import sql_query_create_node as context_retrieve_node
+from nodes.sql_query_create import sql_query_create_node
 from nodes.context_format import context_format_node
-from nodes.sql_query_short_info_response import sql_query_short_info_response_node
 from nodes.fallback_dispatcher import fallback_dispatcher_node
+
+# ★ Alias for clarity: context_retrieve = sql_query_create (generates SQL + executes + returns contexts)
+context_retrieve_node = sql_query_create_node
 
 # Import Phase 3 nodes (SQL Retrieve path)
 from nodes.sql_retrieve_check import sql_retrieve_check_node
@@ -94,11 +95,9 @@ def process_sub_query_wrapper_node(state: RAGState) -> dict:
     
     # 3. Phase 2-4: Execute chosen path
     if decided_path == "sql_query":
-        state = {**state, **sql_query_info_check_node(state)}
-        sq = state.get("sql_query", {})
-        if not (sq.get("short_info") or sq.get("not_possible")):
-            state = {**state, **context_retrieve_node(state)}
-            state = {**state, **context_format_node(state)}
+        # ★ Bypass info_check, go directly to context_retrieve
+        state = {**state, **context_retrieve_node(state)}
+        state = {**state, **context_format_node(state)}
             
     elif decided_path == "sql_retrieve":
         state = {**state, **sql_retrieve_check_node(state)}
@@ -147,13 +146,17 @@ def build_graph():
     graph.add_node("llm_decide_path", llm_decide_path_node)
 
     # -------------------------------------------------------------------------
-    # Phase 2 â€” SQL Query path nodes (Simplified to Context Retrieval)
+    # Phase 2 — SQL Query path nodes (HYBRID: Notice queries bypass, others check)
     # -------------------------------------------------------------------------
+    # For notice queries: context_retrieve (direct SQL)
+    # For other queries: sql_query_info_check → short_info_response or context_retrieve
+    from nodes.sql_query_info_check import sql_query_info_check_node
+    from nodes.sql_query_short_info_response import sql_query_short_info_response_node
+    
     graph.add_node("sql_query_info_check", sql_query_info_check_node)
     graph.add_node("sql_query_short_info_response", sql_query_short_info_response_node)
     graph.add_node("context_retrieve", context_retrieve_node)
     graph.add_node("context_format", context_format_node)
-    # sql_retrieve_response is imported below and added in Phase 3 section
     graph.add_node("fallback_dispatcher", fallback_dispatcher_node)
 
     # -------------------------------------------------------------------------
@@ -193,29 +196,62 @@ def build_graph():
     graph.add_edge("rewrite_query", "entity_normalizer")
     graph.add_edge("entity_normalizer", "llm_decide_path")
 
-    # ---- Router: low confidence → retry | high confidence → route by path ----
+    # ---- Router: decide path and check if notice query ----
     def _route_after_decision(state: RAGState) -> Literal[
         "llm_decide_path",
         "sql_query_info_check",
+        "context_retrieve",
         "sql_retrieve_check",
+        "sql_retrieve_response",
         "web_search_rewrite",
         "hybrid_depth_check",
         "__end__",
     ]:
-        """Route to the right path entry node based on confidence + decided_path."""
+        """Route to the right path entry node based on confidence + decided_path.
+        
+        For sql_query path:
+        - If it's a NOTICE query (latest/last N) → context_retrieve (bypass info_check)
+        - Otherwise → sql_query_info_check (validate info first)
+        
+        For no_path:
+        - Route directly to sql_retrieve_response (bypass all retrieval steps)
+        """
         confidence_score = state.get("confidence_score", 0.0)
         if confidence_score < 0.7:
             return "hybrid_depth_check"
 
         decided_path = state.get("decided_path", "sql_retrieve")
+        
+        # ★ NEW: Handle no_path by routing directly to sql_retrieve_response
+        if decided_path == "no_path":
+            return "sql_retrieve_response"
+        
         if decided_path == "sql_query":
-            return "sql_query_info_check"
+            # ★ Check if it's a notice query
+            query = state.get("normalized_query", "") or state.get("user_input", "")
+            query_lower = query.lower()
+            
+            # Notice query keywords
+            notice_keywords = [
+                "latest notice", "last notice", "সর্বশেষ নোটিশ", "শেষ নোটিশ",
+                "last 5 notice", "last 3 notice", "last 10 notice",
+                "শেষ ৫টি", "শেষ ৩টি", "শেষ ১০টি",
+                "সর্বশেষ ৫টি", "সর্বশেষ ৩টি"
+            ]
+            
+            is_notice_query = any(keyword in query_lower for keyword in notice_keywords)
+            
+            if is_notice_query:
+                return "context_retrieve"  # ★ Bypass info_check for notice queries
+            else:
+                return "sql_query_info_check"  # ★ Check info for other queries
+                
         elif decided_path == "sql_retrieve":
             return "sql_retrieve_check"
         elif decided_path == "web_search":
             return "web_search_rewrite"
         elif decided_path == "hybrid":
-            return "hybrid_depth_check"           # Phase 5 entry
+            return "hybrid_depth_check"
         else:
             return "__end__"
 
@@ -225,32 +261,32 @@ def build_graph():
         {
             "llm_decide_path": "llm_decide_path",
             "sql_query_info_check": "sql_query_info_check",
+            "context_retrieve": "context_retrieve",
             "sql_retrieve_check": "sql_retrieve_check",
+            "sql_retrieve_response": "sql_retrieve_response",
             "web_search_rewrite": "web_search_rewrite",
-            "hybrid_depth_check": "hybrid_depth_check",   # Phase 5
+            "hybrid_depth_check": "hybrid_depth_check",
             "__end__": END,
         },
     )
 
     # -------------------------------------------------------------------------
-    # Phase 2 â€” SQL Query path edges
+    # Phase 2 — SQL Query path edges
     # -------------------------------------------------------------------------
-
+    
+    # info_check → (short_info? short_info_response : context_retrieve)
     def _route_after_info_check(state: RAGState) -> Literal[
         "sql_query_short_info_response", "context_retrieve"
     ]:
-        """
-        If info_check flagged short_info=True OR not_possible=True,
-        route to the clarification response node and exit.
-        Otherwise continue to context retrieval.
-        """
+        """Check if query has sufficient info."""
         sql_query_state = state.get("sql_query", {})
         short_info = sql_query_state.get("short_info", False)
         not_possible = sql_query_state.get("not_possible", False)
+        
         if short_info or not_possible:
             return "sql_query_short_info_response"
         return "context_retrieve"
-
+    
     graph.add_conditional_edges(
         "sql_query_info_check",
         _route_after_info_check,
@@ -259,12 +295,11 @@ def build_graph():
             "context_retrieve": "context_retrieve",
         },
     )
-
-    # short_info_response goes to sub_query_router_node
-    graph.add_edge("sql_query_short_info_response", "sub_query_router_node")
     
-    # context_retrieve -> context_format -> sql_retrieve_response
-    # We route to sub_query_router_node after generating the response in sql_retrieve_response.
+    # short_info_response → END (clarification sent to user)
+    graph.add_edge("sql_query_short_info_response", END)
+    
+    # context_retrieve → context_format → sql_retrieve_response
     graph.add_edge("context_retrieve", "context_format")
     graph.add_edge("context_format", "sql_retrieve_response")
 
@@ -275,11 +310,11 @@ def build_graph():
     # Phase 3 — SQL Retrieve path edges
     # -------------------------------------------------------------------------
 
-    # check → (more_info needed? short_info_response : create)
+    # check → (need_more_info? short_info_response : create)
     def _route_retrieve_check(state: RAGState) -> Literal[
         "sql_retrieve_create", "sql_query_short_info_response"
     ]:
-        """If the query is unsuitable / needs more info, route to short_info_response."""
+        """If unsuitable/needs more info, route to short_info_response."""
         sql_retrieve_state = state.get("sql_retrieve", {})
         need_more_info = sql_retrieve_state.get("need_more_info", False)
         return "sql_query_short_info_response" if need_more_info else "sql_retrieve_create"
@@ -299,7 +334,32 @@ def build_graph():
     # Router will handle: sub_query→append, context_found→sql_retrieve_response, no_context→END
     graph.add_edge("sql_retrieve_context", "sub_query_router_node")
 
-    graph.add_edge("sql_retrieve_response", "sql_retrieve_support_check")
+    # ★ NEW: Conditional edge from sql_retrieve_response
+    # If skip_support_check=True (no context), go directly to END
+    # Otherwise, go to support_check for validation
+    def _route_after_retrieve_response(state: RAGState) -> Literal[
+        "sql_retrieve_support_check", "__end__"
+    ]:
+        """Route to support_check or END based on skip_support_check flag.
+        
+        If skip_support_check=True (set by response node when there's no context),
+        skip validation and go directly to END.
+        """
+        sql_retrieve_state = state.get("sql_retrieve", {})
+        skip_support = sql_retrieve_state.get("skip_support_check", False)
+        
+        if skip_support:
+            return "__end__"
+        return "sql_retrieve_support_check"
+    
+    graph.add_conditional_edges(
+        "sql_retrieve_response",
+        _route_after_retrieve_response,
+        {
+            "sql_retrieve_support_check": "sql_retrieve_support_check",
+            "__end__": END,
+        },
+    )
 
     # SQL Retrieve support_check: retry → sql_retrieve_RESPONSE (not create), max MAX_RETRIES
     def _route_retrieve_support_check(state: RAGState) -> Literal[
@@ -549,3 +609,4 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"Error building graph: {e}")
         raise
+

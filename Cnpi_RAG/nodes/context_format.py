@@ -1,16 +1,13 @@
 """
 Context Format Node
-===================================
+===================
 
-This node takes the retrieved contexts (from context_retrieve) and formats them
-into a clean string for the LLM to read.
-
-Flow: sql_query.contexts → sql_query.formatted_context
+Formats retrieved contexts (from sql_query path) into a clean string for LLM consumption.
+Handles both notices data and other query results.
 """
 
 import sys
 from pathlib import Path
-from typing import Dict, Any
 
 project_root = Path(__file__).resolve().parent.parent
 plan_root = project_root.parent / "plan"
@@ -21,67 +18,93 @@ if str(project_root) not in sys.path:
 
 from state import RAGState
 
-def context_format_node(state: RAGState) -> Dict[str, Any]:
+
+def context_format_node(state: RAGState) -> dict:
     """
-    Format contexts for LLM with date info.
-    Outputs to sql_retrieve state so sql_retrieve_response can use it.
+    Format retrieved contexts into a clean string for sql_retrieve_response node.
+    
+    For notices: formats title_bn, content_bn, category, created_at
+    For other data: uses raw_context
     """
     sql_query_state = state.get("sql_query", {})
-    sql_retrieve_state = state.get("sql_retrieve", {})
-    
     contexts = sql_query_state.get("contexts", [])
+    raw_context = sql_query_state.get("raw_context", "")
     
-    if not contexts:
-        print("[context_format] No contexts found to format.")
+    if not contexts and not raw_context:
         return {
             "sql_retrieve": {
-                **sql_retrieve_state,
-                "context_with_meta": "No context available.",
+                "context_with_meta": "",
                 "context_found": False
             }
         }
-        
-    print(f"[context_format] Formatting {len(contexts)} contexts.")
     
-    lines = ["### Retrieved Contexts ###\n"]
-    for ctx in contexts:
-        rank = ctx.get("rank", 0)
-        score = ctx.get("score", 0.0)
-        retrieved_at = ctx.get("retrieved_at", "Unknown")
-        content = ctx.get("content", "")
+    # Format contexts for LLM
+    formatted_parts = []
+    
+    if contexts:
+        # ★ Notice-specific formatting
+        query_type = sql_query_state.get("query_type", "")
         
-        lines.append(f"--- Context {rank} (Score: {score:.4f}, Retrieved: {retrieved_at}) ---")
-        
-        # Optionally add created_at/updated_at if available
-        if "created_at" in ctx:
-            lines.append(f"Created: {ctx['created_at']}")
-        if "updated_at" in ctx:
-            lines.append(f"Updated: {ctx['updated_at']}")
-            
-        lines.append(f"Content:\n{content}\n")
-        
-    formatted_context = "\n".join(lines)
+        if query_type == "notices_query":
+            # Format as notices
+            for i, ctx in enumerate(contexts, 1):
+                notice_text = f"""
+=== Notice {i} ===
+Notice ID: {ctx.get('notice_id', 'N/A')}
+Title: {ctx.get('title_bn', '')}
+Category: {ctx.get('category', 'General')}
+Created At: {ctx.get('created_at', '')}
+
+Content:
+{ctx.get('content_bn', '')}
+
+---
+"""
+                formatted_parts.append(notice_text.strip())
+        else:
+            # Generic context formatting
+            for i, ctx in enumerate(contexts, 1):
+                ctx_text = f"=== Context {i} ===\n"
+                for key, value in ctx.items():
+                    if key not in ['rank']:
+                        ctx_text += f"{key}: {value}\n"
+                formatted_parts.append(ctx_text.strip())
+    
+    # Fallback to raw_context if no formatted contexts
+    if not formatted_parts and raw_context:
+        formatted_parts.append(raw_context)
+    
+    context_with_meta = "\n\n".join(formatted_parts)
     
     return {
         "sql_retrieve": {
-            **sql_retrieve_state,
-            "context_with_meta": formatted_context,
-            "context_found": True
+            "context_with_meta": context_with_meta,
+            "context_found": bool(context_with_meta.strip())
         }
     }
+
+
+# =============================================================================
+# Example Usage
+# =============================================================================
 
 if __name__ == "__main__":
     state = {
         "sql_query": {
+            "query_type": "notices_query",
             "contexts": [
                 {
                     "rank": 1,
-                    "score": 0.95,
-                    "retrieved_at": "2026-07-29",
-                    "content": "The Chief Instructor of CST 2nd shift is Mr. X."
+                    "notice_id": 123,
+                    "title_bn": "ভর্তি বিজ্ঞপ্তি ২০২৬",
+                    "content_bn": "চাঁপাইনবাবগঞ্জ পলিটেকনিক ইনস্টিটিউটে ভর্তি চলছে...",
+                    "category": "Admission",
+                    "created_at": "2026-08-10 14:30:00"
                 }
             ]
         }
     }
+    
     result = context_format_node(state)
-    print(result["sql_query"]["formatted_context"])
+    print("Formatted Context:")
+    print(result["sql_retrieve"]["context_with_meta"])

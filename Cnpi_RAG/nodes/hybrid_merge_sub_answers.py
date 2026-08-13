@@ -34,6 +34,7 @@ References:
 import sys
 from pathlib import Path
 from typing import Dict, Any, List
+from datetime import datetime
 
 project_root = Path(__file__).resolve().parent.parent
 plan_root = project_root.parent / "plan"
@@ -178,7 +179,7 @@ Unified Answer:
     ),
     (
         "human",
-        "Original Question:\n{original_question}\n\n"
+        "Original Question:\n{original_question}\n\nCurrent Date & Time: {current_datetime}\n\n"
         "Sub-Answers to Merge:\n{sub_answers_text}\n\n"
         "Unified Answer:",
     ),
@@ -244,6 +245,7 @@ def merge_sub_answers_node(state: RAGState) -> Dict[str, Any]:
         response = chain.invoke({
             "original_question": user_input,
             "sub_answers_text": sub_answers_text,
+            "current_datetime": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         })
 
         merged = extract_content(response).strip()

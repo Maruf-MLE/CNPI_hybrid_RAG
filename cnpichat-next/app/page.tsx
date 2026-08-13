@@ -10,9 +10,20 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 // Types
 type Role = "human" | "ai" | "system";
 
+interface Context {
+  rank: number;
+  content: string;
+  date: string;
+  time: string;
+  score: number;
+  doc_type: string;
+  topic: string;
+}
+
 interface Message {
   role: Role;
   content: string;
+  contexts?: Context[];
 }
 
 const initialMessages: Message[] = [
@@ -28,6 +39,7 @@ export default function Home() {
   const [showOptions, setShowOptions] = useState(true);
   const [showMenu, setShowMenu] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
+  const [showContextsModal, setShowContextsModal] = useState<number | null>(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -82,7 +94,11 @@ export default function Home() {
         setSessionId(data.session_id);
       }
 
-      setMessages([...newMessages, { role: "ai", content: data.answer || "Sorry, I couldn't process that." }]);
+      setMessages([...newMessages, { 
+        role: "ai", 
+        content: data.answer || "Sorry, I couldn't process that.",
+        contexts: data.contexts || []
+      }]);
     } catch (error) {
       console.error(error);
       setMessages([...newMessages, { role: "ai", content: "An error occurred connecting to the server." }]);
@@ -207,6 +223,182 @@ export default function Home() {
                   <ReactMarkdown remarkPlugins={[remarkGfm]}>
                     {msg.content}
                   </ReactMarkdown>
+                  
+                  {/* Context dates and source button for AI messages */}
+                  {isBot && msg.contexts && msg.contexts.length > 0 && (
+                    <div style={{ marginTop: "12px" }}>
+                      {/* Show highest scored context date */}
+                      {(() => {
+                        // Find the context with the highest score
+                        const highestScoredContext = msg.contexts.reduce((max, ctx) => 
+                          ctx.score > max.score ? ctx : max
+                        , msg.contexts[0]);
+                        
+                        return (
+                          <div style={{ 
+                            fontSize: "0.85em", 
+                            color: "#666", 
+                            marginBottom: "8px",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "6px"
+                          }}>
+                            <span>📅</span>
+                            <span>তথ্যের তারিখ: {highestScoredContext.date}</span>
+                          </div>
+                        );
+                      })()}
+                      
+                      {/* Source button */}
+                      <button
+                        onClick={() => setShowContextsModal(showContextsModal === idx ? null : idx)}
+                        style={{
+                          padding: "6px 14px",
+                          backgroundColor: "#A662C6",
+                          color: "white",
+                          border: "none",
+                          borderRadius: "6px",
+                          cursor: "pointer",
+                          fontSize: "0.85em",
+                          fontWeight: "500",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "6px",
+                          transition: "background-color 0.2s"
+                        }}
+                        onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#8B4FA8"}
+                        onMouseOut={(e) => e.currentTarget.style.backgroundColor = "#A662C6"}
+                      >
+                        <span>📄</span>
+                        <span>Source ({msg.contexts.length})</span>
+                      </button>
+                      
+                      {/* Contexts Modal */}
+                      {showContextsModal === idx && (
+                        <div 
+                          style={{
+                            position: "fixed",
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            backgroundColor: "rgba(0, 0, 0, 0.5)",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            zIndex: 1000,
+                            padding: "20px"
+                          }}
+                          onClick={() => setShowContextsModal(null)}
+                        >
+                          <div 
+                            style={{
+                              backgroundColor: "white",
+                              borderRadius: "12px",
+                              maxWidth: "800px",
+                              width: "100%",
+                              maxHeight: "80vh",
+                              overflow: "hidden",
+                              display: "flex",
+                              flexDirection: "column",
+                              boxShadow: "0 10px 40px rgba(0,0,0,0.2)"
+                            }}
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            {/* Modal Header */}
+                            <div style={{
+                              padding: "20px",
+                              borderBottom: "1px solid #e0e0e0",
+                              display: "flex",
+                              justifyContent: "space-between",
+                              alignItems: "center"
+                            }}>
+                              <h3 style={{ margin: 0, color: "#373A40" }}>সমস্ত Context</h3>
+                              <button
+                                onClick={() => setShowContextsModal(null)}
+                                style={{
+                                  background: "none",
+                                  border: "none",
+                                  fontSize: "24px",
+                                  cursor: "pointer",
+                                  color: "#666",
+                                  padding: "0",
+                                  width: "30px",
+                                  height: "30px",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  justifyContent: "center"
+                                }}
+                              >
+                                ×
+                              </button>
+                            </div>
+                            
+                            {/* Modal Body */}
+                            <div style={{
+                              overflowY: "auto",
+                              padding: "20px"
+                            }}>
+                              {msg.contexts!.map((ctx, ctxIdx) => (
+                                <div 
+                                  key={ctxIdx}
+                                  style={{
+                                    border: "1px solid #e0e0e0",
+                                    borderRadius: "8px",
+                                    padding: "16px",
+                                    marginBottom: "12px",
+                                    backgroundColor: "#f9f9f9"
+                                  }}
+                                >
+                                  {/* Context Meta */}
+                                  <div style={{
+                                    display: "flex",
+                                    gap: "12px",
+                                    flexWrap: "wrap",
+                                    marginBottom: "12px",
+                                    fontSize: "0.85em",
+                                    color: "#666"
+                                  }}>
+                                    <span style={{ 
+                                      fontWeight: "600", 
+                                      color: "#A662C6" 
+                                    }}>
+                                      #{ctx.rank}
+                                    </span>
+                                    <span>📅 {ctx.date} {ctx.time}</span>
+                                    <span>⭐ {(ctx.score * 100).toFixed(1)}%</span>
+                                    {ctx.doc_type && <span>📝 {ctx.doc_type}</span>}
+                                  </div>
+                                  
+                                  {/* Context Content */}
+                                  <div style={{
+                                    whiteSpace: "pre-wrap",
+                                    lineHeight: "1.6",
+                                    color: "#373A40",
+                                    fontSize: "0.95em"
+                                  }}>
+                                    {ctx.content}
+                                  </div>
+                                  
+                                  {/* Context Topic */}
+                                  {ctx.topic && (
+                                    <div style={{
+                                      marginTop: "10px",
+                                      fontSize: "0.85em",
+                                      color: "#666",
+                                      fontStyle: "italic"
+                                    }}>
+                                      বিষয়: {ctx.topic}
+                                    </div>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
 

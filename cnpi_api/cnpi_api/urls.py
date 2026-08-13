@@ -10,4 +10,5 @@ from django.urls import include, path
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/", include("rag_api.urls")),
+    path("admin-panel/", include("admin_panel.urls")),
 ]

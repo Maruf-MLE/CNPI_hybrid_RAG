@@ -30,6 +30,7 @@ class ChatResponseSerializer(serializers.Serializer):
     rewritten_query = serializers.CharField()
     session_id = serializers.CharField()
     debug_info = serializers.DictField(required=False)
+    contexts = serializers.ListField(child=serializers.DictField(), required=False)
 
 
 class SessionActionSerializer(serializers.Serializer):

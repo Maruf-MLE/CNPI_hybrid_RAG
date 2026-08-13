@@ -12,6 +12,7 @@ import sys
 import json
 from pathlib import Path
 from typing import Dict, Any
+from datetime import datetime
 
 project_root = Path(__file__).resolve().parent.parent
 plan_root = project_root.parent / "plan"
@@ -75,7 +76,11 @@ def sql_retrieve_context_node(state: RAGState) -> Dict[str, Any]:
         }
 
     try:
-        results = hybrid_search(query_text=search_query)
+        # Add current date & time to search query for time-sensitive retrieval
+        current_datetime = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        search_query_with_time = f"{search_query} [Current Date & Time: {current_datetime}]"
+        
+        results = hybrid_search(query_text=search_query_with_time)
 
         if not results:
             return {
@@ -94,12 +99,33 @@ def sql_retrieve_context_node(state: RAGState) -> Dict[str, Any]:
         raw_context = "\n\n".join(raw_parts)
         context_with_meta = "\n\n---\n\n".join(formatted_parts)
 
+        # Extract contexts list for frontend
+        contexts_list = []
+        for i, r in enumerate(results):
+            meta = r.get("metadata") or {}
+            if isinstance(meta, str):
+                try:
+                    meta = json.loads(meta)
+                except Exception:
+                    meta = {}
+            
+            contexts_list.append({
+                "rank": i + 1,
+                "content": r.get("content", "").strip(),
+                "date": meta.get("context_added_date", meta.get("date", "")),
+                "time": meta.get("context_added_time", ""),
+                "score": r.get("rrf_score", 0.0),
+                "doc_type": meta.get("doc_type", ""),
+                "topic": meta.get("topic", ""),
+            })
+
         return {
             "sql_retrieve": {
                 **sql_retrieve_state,
                 "raw_context": raw_context,
                 "context_with_meta": context_with_meta,
                 "context_found": True,
+                "contexts_list": contexts_list,
             }
         }
 

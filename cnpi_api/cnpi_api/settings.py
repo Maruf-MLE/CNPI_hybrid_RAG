@@ -78,6 +78,7 @@ INSTALLED_APPS = [
     'corsheaders',
     # Local
     'rag_api',
+    'admin_panel',
 ]
 
 MIDDLEWARE = [

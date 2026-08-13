@@ -112,6 +112,7 @@ def chat_view(request):
             "rewritten_query": result["rewritten_query"],
             "session_id": session_id,
             "debug_info": result.get("debug_info", {}),
+            "contexts": result.get("contexts", []),
         }
 
         resp_serializer = ChatResponseSerializer(response_data)

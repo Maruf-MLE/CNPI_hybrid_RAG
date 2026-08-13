@@ -10,6 +10,7 @@ Flow: sql_retrieve.context_with_meta -> sql_retrieve.final_answer
 import sys
 from pathlib import Path
 from typing import Dict, Any
+from datetime import datetime
 
 project_root = Path(__file__).resolve().parent.parent
 plan_root = project_root.parent / "plan"
@@ -175,6 +176,20 @@ Rules:
 16. If information is incomplete, clearly identify what is missing.
 17. Keep the answer concise but sufficiently detailed to fully answer the question.
 
+🔥 CRITICAL — DATE & TIME AWARENESS:
+
+18. ALWAYS compare the context date with the current date & time provided before answering.
+19. If the user asks about TODAY ("আজকে", "today", "আজ"), check if the context information is for TODAY'S date.
+20. If the context is from a PAST date (earlier than current date), do NOT say it applies to today.
+21. For time-sensitive questions (holidays, class schedules, notices):
+    - Check: Is the context date the SAME as current date?
+    - If YES → Answer applies to today
+    - If NO → Clearly mention the context is from [that date], not today
+22. Example:
+    ❌ BAD: "হাঁ, আজকে ছুটি আছে" (when context is from 2026-08-12 but today is 2026-08-13)
+    ✅ GOOD: "Context এ 12 তারিখের তথ্য আছে যে সেদিন ছুটি ছিল। কিন্তু আজকের (13 তারিখ) ছুটির তথ্য পাইনি।"
+23. Always verify dates match before confirming TODAY's information.
+
 Output formatting:
 
 - Prefer clean Markdown.
@@ -188,12 +203,16 @@ Provide an accurate, concise, readable, and professionally formatted answer that
 
 Answer:
 """),
-    ("human", "User Query: {user_query}\n\nRetrieved Context:\n{context}")
+    ("human", "User Query: {user_query}\n\nCurrent Date & Time: {current_datetime}\n\nRetrieved Context:\n{context}")
 ])
 
 
 def sql_retrieve_response_node(state: RAGState) -> Dict[str, Any]:
-    """Generate final response from retrieved context."""
+    """Generate final response from retrieved context.
+    
+    ★ NEW: Now sends query to LLM even without context (for no_path queries).
+    Sets skip_support_check=True when there's no context to skip validation.
+    """
     
     # Get the shared LLM instance
     llm = get_llm()
@@ -205,17 +224,16 @@ def sql_retrieve_response_node(state: RAGState) -> Dict[str, Any]:
     context = sql_retrieve_state.get("context_with_meta", "")
 
     try:
-        if not context:
-            return {
-                "sql_retrieve": {
-                    **sql_retrieve_state,
-                    "final_answer": "দুঃখিত, আপনার প্রশ্নের সাথে সম্পর্কিত কোনো তথ্য পাওয়া যায়নি। আমি আর কীভাবে আপনাকে সাহায্য করতে পারি?"
-                }
-            }
+        # ★ NEW: Send to LLM even without context (for no_path queries)
+        # If no context, send empty context - LLM will handle it naturally
+        has_real_context = bool(context.strip())
+        if not has_real_context:
+            context = "No specific context available. Answer based on general knowledge."
 
         response = chain.invoke({
             "user_query": user_query,
-            "context": context
+            "context": context,
+            "current_datetime": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         })
 
         answer = extract_content(response)
@@ -228,10 +246,13 @@ def sql_retrieve_response_node(state: RAGState) -> Dict[str, Any]:
         if not answer:
             raise ValueError("No response generated")
 
+        # ★ NEW: Set skip_support_check=True when there's no real context
+        # This signals the graph to skip support_check and go directly to END
         return {
             "sql_retrieve": {
                 **sql_retrieve_state,
-                "final_answer": answer
+                "final_answer": answer,
+                "skip_support_check": not has_real_context  # True if no context
             }
         }
     except Exception as e:
@@ -241,7 +262,8 @@ def sql_retrieve_response_node(state: RAGState) -> Dict[str, Any]:
         return {
             "sql_retrieve": {
                 **sql_retrieve_state,
-                "final_answer": "উত্তর তৈরি করতে সমস্যা হয়েছে। দয়া করে আবার চেষ্টা করুন। আর কিছু জানতে চাইলে বলুন।"
+                "final_answer": "উত্তর তৈরি করতে সমস্যা হয়েছে। দয়া করে আবার চেষ্টা করুন। আর কিছু জানতে চাইলে বলুন।",
+                "skip_support_check": True  # Skip support check on error
             }
         }
 

@@ -67,7 +67,12 @@ def run_rag(user_input: str, chat_history: list | None = None) -> dict:
     decided_path = result_state.get("decided_path", "")
 
     if not final_ans and decided_path:
-        path_state = result_state.get(decided_path, {})
+        # ★ NEW: For "no_path", check sql_retrieve state
+        if decided_path == "no_path":
+            path_state = result_state.get("sql_retrieve", {})
+        else:
+            path_state = result_state.get(decided_path, {})
+        
         if isinstance(path_state, dict):
             final_ans = path_state.get("final_answer", "")
 
@@ -85,6 +90,18 @@ def run_rag(user_input: str, chat_history: list | None = None) -> dict:
         debug_info["total_sub_queries"] = hybrid_data.get("total_sub_q")
         debug_info["sub_query_list"] = hybrid_data.get("sub_query_list", [])
 
+    # ---- Extract contexts list from decided path ----
+    contexts_list = []
+    if decided_path:
+        # ★ NEW: For "no_path", check sql_retrieve state
+        if decided_path == "no_path":
+            path_state = result_state.get("sql_retrieve", {})
+        else:
+            path_state = result_state.get(decided_path, {})
+        
+        if isinstance(path_state, dict):
+            contexts_list = path_state.get("contexts_list", [])
+
     # ---- Updated chat history ----
     updated_messages = list(result_state.get("messages", []))
     
@@ -101,6 +118,7 @@ def run_rag(user_input: str, chat_history: list | None = None) -> dict:
         "rewritten_query": debug_info.get("rewritten_query", ""),
         "messages": updated_messages,
         "debug_info": debug_info,
+        "contexts": contexts_list,
     }
 
 

@@ -16,6 +16,7 @@ Design Notes:
 import sys
 from pathlib import Path
 from typing import Dict, Any
+from datetime import datetime
 
 project_root = Path(__file__).resolve().parent.parent
 plan_root = project_root.parent / "plan"
@@ -133,7 +134,7 @@ answer that feels like a knowledgeable college assistant.
     ),
     (
         "human",
-        "User Question:\n{user_input}\n\nWeb Search Context:\n{context}\n\nAnswer:",
+        "User Question:\n{user_input}\n\nCurrent Date & Time: {current_datetime}\n\nWeb Search Context:\n{context}\n\nAnswer:",
     ),
 ])
 
@@ -175,6 +176,7 @@ def web_search_response_node(state: RAGState) -> Dict[str, Any]:
         response = chain.invoke({
             "user_input": user_input,
             "context": context,
+            "current_datetime": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         })
 
         answer = extract_content(response).strip()

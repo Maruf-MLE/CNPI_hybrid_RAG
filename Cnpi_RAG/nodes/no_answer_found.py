@@ -10,6 +10,7 @@ Generates a polite apology response using an LLM.
 import sys
 from pathlib import Path
 from typing import Dict, Any
+from datetime import datetime
 
 project_root = Path(__file__).resolve().parent.parent
 plan_root = project_root.parent / "plan"
@@ -61,7 +62,7 @@ RULES:
 - Keep technical terms (Department, Shift, Chief Instructor, CNPI, etc.) in English.
 - Total response: 2-3 sentences max — one short apology + one or two sentences pointing
   to the right person/office."""),
-    ("human", "User question: {user_input}")
+    ("human", "User question: {user_input}\n\nCurrent Date & Time: {current_datetime}")
 ])
 
 def no_answer_found_node(state: RAGState) -> Dict[str, Any]:
@@ -74,7 +75,10 @@ def no_answer_found_node(state: RAGState) -> Dict[str, Any]:
     chain = _NO_ANSWER_PROMPT | llm
     
     try:
-        response = chain.invoke({"user_input": user_input})
+        response = chain.invoke({
+            "user_input": user_input,
+            "current_datetime": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        })
         final_answer = extract_content(response).strip()
     except Exception as e:
         print(f"[no_answer_found] Error: {e}")
