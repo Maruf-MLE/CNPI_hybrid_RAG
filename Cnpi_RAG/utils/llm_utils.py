@@ -102,7 +102,7 @@ def call_llm(
     model: str = _MODEL_NAME
 ) -> str:
     """
-    Call the Gemini LLM API using ChatPromptTemplate and chain invocation.
+    Call the Gemini LLM API directly without template formatting.
 
     Parameters:
         system_message (str): System prompt to define the AI's behavior
@@ -114,18 +114,18 @@ def call_llm(
     """
 
     try:
-        # Create a ChatPromptTemplate
-        prompt = ChatPromptTemplate.from_messages([
-            ("system", system_message),
-            ("user", "{user_input}")
-        ])
-        
         # Get the LLM instance
         llm = get_llm(model)
         
-        # Create and invoke chain using the prompt and LLM
-        chain = prompt | llm
-        response = chain.invoke({"user_input": user_prompt})
+        # Create messages directly without template formatting
+        # to avoid issues with curly braces in system/user prompts
+        messages = [
+            SystemMessage(content=system_message),
+            HumanMessage(content=user_prompt)
+        ]
+        
+        # Invoke the LLM directly with message list
+        response = llm.invoke(messages)
         
         return extract_content(response)
 

@@ -50,8 +50,14 @@ educational and institutional documents for a Bangladeshi polytechnic institute.
 
 STRICT RULES – follow every rule without exception:
 
-1. TRANSLATE the entire input text from Bengali (or mixed Bangla-English) \
+1. TRANSLATE the entire input text from Bengali (Bengali Unicode, Banglish, or mixed) \
 into fluent, natural English.
+
+   - Bengali Unicode: আজকে ক্লাস হবে না
+   - Banglish (romanized): ajke class hobe na
+   - Mixed: আজকে class হবে না
+   
+   ALL must translate to: "There will be no class today."
 
 2. PRESERVE MEANING exactly. Do NOT summarise, paraphrase, add, remove, or \
 reorder any information. The English output must carry the same facts and \
@@ -63,17 +69,30 @@ English equivalent:
    - Institute/place names (e.g. "চাঁপাইনবাবগঞ্জ" → "Chapainawabganj")
    - Technical acronyms already in English (CST, ET, ENT, CNPI, etc.) → keep as-is
 
-4. DO NOT GUESS.  If you are unsure of the correct English translation of a \
-specific Bengali word or phrase, leave that word/phrase in Bengali as-is \
-inside the otherwise-English text.  It is better to keep a Bengali word than \
+4. BANGLISH DETECTION: Recognise common Bengali words written in English letters:
+   - ajke/ajk/aaj = today
+   - kal = tomorrow/yesterday (context-dependent)
+   - hobe/hbe = will be
+   - korbo/korbe = will do
+   - jabe/jabo = will go
+   - asbe/asbo = will come
+   - dao/daw = give
+   - koro/kro = do
+   - na/nai/nei = no/not
+   - class = class (same word but Bengali pronunciation)
+   - notis = notice
+
+5. DO NOT GUESS.  If you are unsure of the correct English translation of a \
+specific Bengali word or phrase, leave that word/phrase in its original form \
+inside the otherwise-English text.  It is better to keep the original word than \
 to produce an incorrect English word.
 
-5. OUTPUT FORMAT: Return ONLY the translated English text. No preamble, no \
+6. OUTPUT FORMAT: Return ONLY the translated English text. No preamble, no \
 explanation, no markdown, no quotation marks around the output.
 
-6. NUMBERS, DATES, PHONE NUMBERS: keep exactly as they appear in the source.
+7. NUMBERS, DATES, PHONE NUMBERS: keep exactly as they appear in the source.
 
-7. STRUCTURE: Preserve the original line breaks, bullet points, and paragraph \
+8. STRUCTURE: Preserve the original line breaks, bullet points, and paragraph \
 structure. If the source has numbered items, keep them numbered in English.
 """
 
@@ -82,12 +101,12 @@ structure. If the source has numbered items, keep them numbered in English.
 # ---------------------------------------------------------------------------
 
 def translate_to_english(text: str) -> str:
-    """Translate *text* from Bengali (or mixed Bangla-English) to English.
+    """Translate *text* from Bengali/Banglish to English.
 
     Parameters
     ----------
     text:
-        The raw document content submitted via the admin panel.
+        The raw document content (can be Bengali Unicode, Banglish, or mixed).
 
     Returns
     -------
@@ -98,15 +117,16 @@ def translate_to_english(text: str) -> str:
     if not text or not text.strip():
         return text
 
-    # If the text is already entirely ASCII/Latin (i.e. no Bengali Unicode
-    # codepoints in the U+0980–U+09FF range), skip the LLM call entirely.
-    if not _contains_bengali(text):
-        logger.info("doc_translator: text has no Bengali characters – skipping translation.")
+    # Check if translation is needed (Bengali Unicode OR Banglish)
+    if not _should_translate(text):
+        logger.info("doc_translator: text is already in English – skipping translation.")
         return text
 
     user_prompt = (
         "Translate the following document text to English following the rules "
-        "in the system prompt. Do NOT add anything extra.\n\n"
+        "in the system prompt. "
+        "NOTE: This text may be in Bengali Unicode, Banglish (Bengali written in English letters), or mixed. "
+        "Translate all non-English content to proper English.\n\n"
         "--- BEGIN DOCUMENT ---\n"
         f"{text}\n"
         "--- END DOCUMENT ---"
@@ -136,3 +156,59 @@ def translate_to_english(text: str) -> str:
 def _contains_bengali(text: str) -> bool:
     """Return True if *text* contains at least one Bengali Unicode character."""
     return any("\u0980" <= ch <= "\u09FF" for ch in text)
+
+
+def _is_banglish(text: str) -> bool:
+    """Detect if text is likely Banglish (Bengali written in English letters).
+    
+    Banglish characteristics:
+    - Uses English letters but Bengali words/grammar
+    - Common patterns: "hobe", "korbo", "dekhbo", "jabe", "asbe", "dao", "koro"
+    - Common endings: -e, -o, -bo, -be, -te, -le, -ge, -che, -chhe
+    - Common words: ajke, amar, tumi, amra, tomar, apni, keno, kothay, kivabe
+    """
+    if not text or not text.strip():
+        return False
+    
+    text_lower = text.lower()
+    
+    # Common Banglish words (high-confidence indicators)
+    banglish_words = [
+        # Time/Date
+        'ajke', 'ajk', 'aaj', 'kal', 'parsu', 'agamikal', 'gatkal',
+        # Pronouns
+        'amar', 'tomar', 'tumi', 'apni', 'amra', 'tomra', 'tara',
+        # Question words
+        'keno', 'kno', 'ken', 'kothay', 'kokhon', 'kivabe', 'kibhabe', 'ki',
+        # Verbs (common endings)
+        'hobe', 'hbe', 'hoye', 'korbo', 'krbo', 'korbe', 'dekhbo', 'dekhbe',
+        'jabe', 'jabo', 'asbe', 'asbo', 'khabo', 'khabe', 'chai', 'chao',
+        # Common words
+        'dao', 'daw', 'koro', 'kro', 'dekho', 'bolo', 'bol', 'shuno', 'suno',
+        'ache', 'ase', 'nai', 'nay', 'kora', 'diye', 'dilo', 'holo', 'holo',
+        'thake', 'thakbe', 'thakbo', 'gelo', 'giye', 'ese', 'eshe',
+        # Negation
+        'na', 'nah', 'nai', 'nei', 'nay',
+        # Common nouns
+        'class', 'notis', 'notice', 'porikha', 'porikkha', 'exam',
+        'school', 'college', 'office', 'kaj', 'kaaj',
+    ]
+    
+    # Check if any Banglish word exists in the text
+    words = text_lower.split()
+    for word in words:
+        if word in banglish_words:
+            return True
+    
+    # Check common Banglish verb endings (more than 2 occurrences)
+    banglish_endings = ['hobe', 'hbe', 'korbo', 'korbe', 'jabe', 'jabo', 'asbe', 'dao', 'che', 'chhe']
+    ending_count = sum(1 for ending in banglish_endings if ending in text_lower)
+    if ending_count >= 2:
+        return True
+    
+    return False
+
+
+def _should_translate(text: str) -> bool:
+    """Return True if text should be translated (Bengali or Banglish)."""
+    return _contains_bengali(text) or _is_banglish(text)

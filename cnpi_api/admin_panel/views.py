@@ -252,6 +252,213 @@ def stats_view(request: HttpRequest) -> JsonResponse:
 
 
 # ---------------------------------------------------------------------------
+# API: captains — list
+# ---------------------------------------------------------------------------
+
+@csrf_exempt
+@require_http_methods(["GET", "POST"])
+def captains_list_view(request: HttpRequest) -> JsonResponse:
+    """List captains with optional filters.
+
+    GET params: department, shift, semester, captain_rank, active_only (default true)
+    """
+    if request.method == "POST":
+        data = _read_json_body(request)
+    else:
+        data = request.GET
+
+    department = (data.get("department") or "").strip() or None
+    shift = (data.get("shift") or "").strip() or None
+    semester_raw = data.get("semester")
+    rank_raw = data.get("captain_rank")
+    active_only_raw = data.get("active_only", "true")
+
+    semester = None
+    if semester_raw:
+        try:
+            semester = int(semester_raw)
+        except ValueError:
+            return _json_error("semester must be an integer.")
+
+    captain_rank = None
+    if rank_raw:
+        try:
+            captain_rank = int(rank_raw)
+        except ValueError:
+            return _json_error("captain_rank must be 1 or 2.")
+
+    active_only = str(active_only_raw).lower() not in ("false", "0", "no")
+
+    try:
+        captains = services.list_captains(
+            department=department,
+            shift=shift,
+            semester=semester,
+            captain_rank=captain_rank,
+            active_only=active_only,
+        )
+    except Exception as exc:
+        logger.exception("list_captains failed")
+        return _json_error(f"List failed: {exc}", status=500)
+
+    # Serialize datetime fields
+    for c in captains:
+        for k in ("created_at", "updated_at"):
+            if c.get(k) and hasattr(c[k], "isoformat"):
+                c[k] = c[k].isoformat()
+
+    return JsonResponse({"count": len(captains), "captains": captains})
+
+
+# ---------------------------------------------------------------------------
+# API: captains — create
+# ---------------------------------------------------------------------------
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def captain_create_view(request: HttpRequest) -> JsonResponse:
+    """Create a new captain.
+
+    JSON body:
+        {
+            "department": "CST",    // required
+            "shift": "Day",         // required: "Day" or "Morning"
+            "semester": 5,          // required: 1–7
+            "captain_rank": 1,      // required: 1 (1st Captain) or 2 (2nd Captain)
+            "captain_name": "...",  // required
+            "student_id": "...",    // optional
+            "phone": "01...",       // optional
+            "email": "...",         // optional
+            "session_year": "2024-25" // optional
+        }
+    """
+    data = _read_json_body(request)
+    if not data:
+        return _json_error("Expected a JSON body.")
+
+    try:
+        result = services.create_captain(
+            department=data.get("department", ""),
+            shift=data.get("shift", ""),
+            semester=data.get("semester"),
+            captain_rank=data.get("captain_rank", 1),
+            captain_name=data.get("captain_name", ""),
+            student_id=data.get("student_id"),
+            phone=data.get("phone"),
+            email=data.get("email"),
+            session_year=data.get("session_year"),
+        )
+    except Exception as exc:
+        logger.exception("create_captain failed")
+        return _json_error(f"Create failed: {exc}", status=500)
+
+    if "error" in result:
+        return _json_error(result["error"])
+
+    # Serialize datetime
+    if result.get("captain"):
+        for k in ("created_at", "updated_at"):
+            if result["captain"].get(k) and hasattr(result["captain"][k], "isoformat"):
+                result["captain"][k] = result["captain"][k].isoformat()
+
+    return JsonResponse(result, status=201)
+
+
+# ---------------------------------------------------------------------------
+# API: captains — update
+# ---------------------------------------------------------------------------
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def captain_update_view(request: HttpRequest) -> JsonResponse:
+    """Update editable fields of a captain.
+
+    JSON body: { "captain_id": 3, "phone": "...", "captain_name": "...", ... }
+    """
+    data = _read_json_body(request)
+    if not data:
+        return _json_error("Expected a JSON body.")
+
+    captain_id = data.get("captain_id")
+    if captain_id is None:
+        return _json_error("captain_id is required.")
+    try:
+        captain_id = int(captain_id)
+    except (TypeError, ValueError):
+        return _json_error("captain_id must be an integer.")
+
+    try:
+        result = services.update_captain(
+            captain_id=captain_id,
+            captain_name=data.get("captain_name"),
+            student_id=data.get("student_id"),
+            phone=data.get("phone"),
+            email=data.get("email"),
+            session_year=data.get("session_year"),
+        )
+    except Exception as exc:
+        logger.exception("update_captain failed")
+        return _json_error(f"Update failed: {exc}", status=500)
+
+    if "error" in result:
+        return _json_error(result["error"])
+
+    if result.get("captain"):
+        for k in ("created_at", "updated_at"):
+            if result["captain"].get(k) and hasattr(result["captain"][k], "isoformat"):
+                result["captain"][k] = result["captain"][k].isoformat()
+
+    return JsonResponse(result)
+
+
+# ---------------------------------------------------------------------------
+# API: captains — deactivate
+# ---------------------------------------------------------------------------
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def captain_deactivate_view(request: HttpRequest) -> JsonResponse:
+    """Deactivate a captain (set is_active=FALSE).
+
+    JSON body: { "captain_id": 3 }
+    """
+    data = _read_json_body(request)
+    captain_id = data.get("captain_id")
+    if captain_id is None:
+        return _json_error("captain_id is required.")
+    try:
+        captain_id = int(captain_id)
+    except (TypeError, ValueError):
+        return _json_error("captain_id must be an integer.")
+
+    try:
+        result = services.deactivate_captain(captain_id=captain_id)
+    except Exception as exc:
+        logger.exception("deactivate_captain failed")
+        return _json_error(f"Deactivate failed: {exc}", status=500)
+
+    if "error" in result:
+        return _json_error(result["error"])
+
+    return JsonResponse(result)
+
+
+# ---------------------------------------------------------------------------
+# API: captains — stats
+# ---------------------------------------------------------------------------
+
+@require_http_methods(["GET"])
+def captain_stats_view(request: HttpRequest) -> JsonResponse:
+    """Return captain counts grouped by department and shift."""
+    try:
+        stats = services.captain_stats()
+    except Exception as exc:
+        logger.exception("captain_stats failed")
+        return _json_error(f"Stats failed: {exc}", status=500)
+    return JsonResponse(stats)
+
+
+# ---------------------------------------------------------------------------
 # The admin panel HTML page (self-contained, no external build step)
 # ---------------------------------------------------------------------------
 
@@ -391,17 +598,18 @@ _HTML_PAGE = r"""<!DOCTYPE html>
     <!-- TAB: add -->
     <div class="tabpane" id="tab-add" style="display:none">
       <div class="body">
-        <div class="field">
-          <label>chunk_id <span style="color:var(--warn)">(required, must be unique)</span></label>
+        <div class="field" id="chunkIdField">
+          <label>chunk_id <span style="color:var(--warn)" id="chunkIdLabel">(required, must be unique)</span></label>
           <input id="newChunkId" type="text" placeholder="e.g. manual_cst_1" />
+          <div id="chunkIdAutoInfo" style="display:none;color:var(--ok);font-size:0.85em;margin-top:4px">&#10003; Auto-generated: <b>notice-{ID}</b> (assigned after save)</div>
         </div>
         <div class="field">
-          <label>Content <span style="color:var(--muted)">(min 11 chars â€” Bengali auto-translated → English + entity normalised + date/time stamp added)</span></label>
+          <label>Content <span style="color:var(--muted)">(min 11 chars â€" Bengali auto-translated → English + entity normalised + date/time stamp added)</span></label>
           <textarea id="newContent" placeholder="New document contentâ€¦"></textarea>
         </div>
         <div class="two">
           <div class="field"><label>doc_type (Table Name)</label>
-            <select id="newDocType">
+            <select id="newDocType" onchange="onDocTypeChange(this.value)">
               <option value="documents">documents (default)</option>
               <option value="notices">notices</option>
               <option value="buildings">buildings</option>
@@ -579,16 +787,42 @@ function renderUpdateResult(d){
     </div>`;
 }
 
+// ---- doc_type change handler ----
+function onDocTypeChange(val){
+  const isNotice = val === "notices";
+  const chunkInput = $("newChunkId");
+  const autoInfo = $("chunkIdAutoInfo");
+  const chunkLabel = $("chunkIdLabel");
+  if(isNotice){
+    chunkInput.value = "";
+    chunkInput.disabled = true;
+    chunkInput.style.opacity = "0.4";
+    chunkInput.placeholder = "Auto-generated (notice-ID)";
+    autoInfo.style.display = "block";
+    chunkLabel.textContent = "(auto-generated for notices)";
+    chunkLabel.style.color = "var(--ok)";
+  } else {
+    chunkInput.disabled = false;
+    chunkInput.style.opacity = "1";
+    chunkInput.placeholder = "e.g. manual_cst_1";
+    autoInfo.style.display = "none";
+    chunkLabel.textContent = "(required, must be unique)";
+    chunkLabel.style.color = "var(--warn)";
+  }
+}
+
 // ---- create (add new) ----
 async function doCreate(){
-  const chunk_id = $("newChunkId").value.trim();
-  if(!chunk_id) return toast("chunk_id is required.", "err");
+  const docType = $("newDocType").value || "documents";
+  const isNotice = docType === "notices";
+  const chunk_id = isNotice ? "" : $("newChunkId").value.trim();
+  if(!isNotice && !chunk_id) return toast("chunk_id is required.", "err");
   const content = $("newContent").value.trim();
   if(content.length < 11) return toast("Content must be at least 11 characters.", "err");
     const body = {
       chunk_id,
       content,
-      doc_type: $("newDocType").value || "documents",
+      doc_type: docType,
       topic: $("newTopic").value.trim() || null,
       department: $("newDepartment").value || null,
       meta: $("newMeta").value.trim() || null,

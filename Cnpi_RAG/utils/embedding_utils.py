@@ -203,6 +203,11 @@ def vector_search(
             {metadata_column}                               AS metadata,
             1 - ({embedding_column} <=> '{vector_literal}') AS score
         FROM {table_name}
+        WHERE (
+            temporal_analysis IS NULL
+            OR temporal_analysis->>'expiration_date' IS NULL
+            OR (temporal_analysis->>'expiration_date')::date >= CURRENT_DATE
+        )
         ORDER BY {embedding_column} <=> '{vector_literal}', created_at DESC
         LIMIT %s;
     """
@@ -301,6 +306,11 @@ def bm25_search(
             ts_rank_cd({tsvector_column}, to_tsquery(%s, %s))         AS rank
         FROM {table_name}
         WHERE {tsvector_column} @@ to_tsquery(%s, %s)
+          AND (
+            temporal_analysis IS NULL
+            OR temporal_analysis->>'expiration_date' IS NULL
+            OR (temporal_analysis->>'expiration_date')::date >= CURRENT_DATE
+          )
         ORDER BY rank DESC, created_at DESC
         LIMIT %s;
     """

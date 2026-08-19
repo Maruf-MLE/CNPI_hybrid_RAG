@@ -8,6 +8,22 @@
 [[plugins]]
   package = "@netlify/plugin-nextjs"
 
+# /admin-panel → backend admin panel login (production)
+# This Netlify-level redirect runs BEFORE Next.js,
+# so it works even if Next.js redirects can't reach external URLs.
+[[redirects]]
+  from = "/admin-panel"
+  to = "https://cnpi-hybrid-rag-1.onrender.com/admin-panel/login/"
+  status = 307
+  force = true
+
+[[redirects]]
+  from = "/admin-panel/"
+  to = "https://cnpi-hybrid-rag-1.onrender.com/admin-panel/login/"
+  status = 307
+  force = true
+
+# Catch-all for Next.js routing (must be LAST)
 [[redirects]]
   from = "/*"
   to = "/index.html"

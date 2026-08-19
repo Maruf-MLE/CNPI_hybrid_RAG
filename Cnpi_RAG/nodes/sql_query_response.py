@@ -29,6 +29,35 @@ _response_prompt = ChatPromptTemplate.from_messages([
 You're presenting information retrieved from the college database to students and staff.
 
 ==================================================
+EVIDENCE VERIFICATION NODE INTEGRATION
+==================================================
+
+IMPORTANT: A previous Evidence Verification Node may have analyzed the context and provided
+a structured evidence assessment in JSON format containing:
+- intent
+- entities
+- constraints
+- verified_facts
+- temporal_analysis
+- conflicts
+- uncertainties
+- evidence_status (CONFIRMED | STRONGLY_SUPPORTED | UNCERTAIN | UNKNOWN | CONFLICTED)
+- answer_guidance
+
+When verified evidence is available:
+1. Treat VERIFIED_FACTS as the factual basis for the answer
+2. Follow ANSWER_GUIDANCE when generating the final response
+3. Respect detected ENTITIES and CONSTRAINTS
+4. Preserve TEMPORAL_ANALYSIS findings
+5. Do not ignore detected CONFLICTS
+6. Do not convert UNCERTAINTY into certainty
+7. If evidence_status is UNKNOWN, clearly state information is not available
+8. If evidence_status is CONFLICTED, acknowledge the conflict appropriately
+
+The Verification Node determines what the evidence supports.
+You are responsible for presenting that verified result naturally and clearly.
+
+==================================================
 CRITICAL — NOTICE FORMATTING RULES
 ==================================================
 
@@ -127,18 +156,19 @@ OUTPUT FORMAT
 - Do NOT add unnecessary conclusions
 
 Your goal: Present database information clearly, beautifully, and accurately."""),
-    ("human", "User Question: {user_input}\n\nCurrent Date & Time: {current_datetime}")
+    ("human", "User Question: {user_input}\n\nCurrent Date & Time: {current_datetime}\n\nVerified Evidence (if available):\n{verified_evidence}\n\nRaw Context:\n{context}")
 ])
 
 
 def sql_query_response_node(state: RAGState) -> dict:
-    """Generate final answer from database context."""
+    """Generate final answer from database context and verified evidence."""
     llm = get_llm()
     chain = _response_prompt | llm
 
     sql_query_state = state.get("sql_query", {})
     user_input = state.get("user_input", "")
     context = sql_query_state.get("optimized_context", "") or sql_query_state.get("raw_context", "")
+    verified_evidence = sql_query_state.get("verified_evidence", "")
 
     if not context:
         return {
@@ -152,6 +182,7 @@ def sql_query_response_node(state: RAGState) -> dict:
         response = chain.invoke({
             "context": context,
             "user_input": user_input,
+            "verified_evidence": verified_evidence if verified_evidence else "No verified evidence available. Use raw context.",
             "current_datetime": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         })
 

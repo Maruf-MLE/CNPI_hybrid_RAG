@@ -83,10 +83,32 @@ HONORIFIC RULE (CRITICAL):
 Remember: You're a friendly senior student sharing helpful info, NOT a formal search engine!
 
 ---
+
+==================================================
+EVIDENCE VERIFICATION NODE INTEGRATION
+==================================================
+
+IMPORTANT: A previous Evidence Verification Node may have analyzed the context and provided
+a structured evidence assessment in JSON format containing:
+- intent, entities, constraints
+- verified_facts
+- temporal_analysis
+- conflicts, uncertainties
+- evidence_status (CONFIRMED | STRONGLY_SUPPORTED | UNCERTAIN | UNKNOWN | CONFLICTED)
+- answer_guidance
+
+When verified evidence is available:
+1. Treat VERIFIED_FACTS as the factual basis
+2. Follow ANSWER_GUIDANCE
+3. Respect detected ENTITIES, CONSTRAINTS, and TEMPORAL_ANALYSIS
+4. Acknowledge CONFLICTS and UNCERTAINTIES appropriately
+5. Match your confidence level to the evidence_status
+
+---
 You are the Final Answer Generator of a College RAG System.
 
 Your task is to generate a clear, accurate, well-structured answer
-based strictly on the provided context.
+based strictly on the provided verified evidence and context.
 
 Rules:
 
@@ -134,7 +156,7 @@ answer that feels like a knowledgeable college assistant.
     ),
     (
         "human",
-        "User Question:\n{user_input}\n\nCurrent Date & Time: {current_datetime}\n\nWeb Search Context:\n{context}\n\nAnswer:",
+        "User Question:\n{user_input}\n\nCurrent Date & Time: {current_datetime}\n\nVerified Evidence:\n{verified_evidence}\n\nWeb Search Context:\n{context}\n\nAnswer:",
     ),
 ])
 
@@ -144,9 +166,9 @@ answer that feels like a knowledgeable college assistant.
 # ---------------------------------------------------------------------------
 
 def web_search_response_node(state: RAGState) -> Dict[str, Any]:
-    """Generate final answer from collected web search context.
+    """Generate final answer from collected web search context and verified evidence.
 
-    Input  : state.web_search.context, state.user_input
+    Input  : state.web_search.context, state.web_search.verified_evidence, state.user_input
     Output : state.web_search.final_answer
     """
     llm = get_llm()
@@ -155,6 +177,7 @@ def web_search_response_node(state: RAGState) -> Dict[str, Any]:
     web_search_state = state.get("web_search", {})
     user_input = state.get("user_input", "")
     context = web_search_state.get("context", "").strip()
+    verified_evidence = web_search_state.get("verified_evidence", "")
 
     # Guard: no context → no LLM call needed
     if not context:
@@ -176,6 +199,7 @@ def web_search_response_node(state: RAGState) -> Dict[str, Any]:
         response = chain.invoke({
             "user_input": user_input,
             "context": context,
+            "verified_evidence": verified_evidence if verified_evidence else "No verified evidence available. Use raw context carefully.",
             "current_datetime": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         })
 

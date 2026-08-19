@@ -43,12 +43,14 @@ CREATE TABLE notices(
     title_bn TEXT NOT NULL,
     content_bn TEXT NOT NULL,
     faq_bn TEXT,
+    temporal_analysis JSONB,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
     CONSTRAINT notices_institution_id_fkey FOREIGN KEY(institution_id) 
         REFERENCES institutions(institution_id)
 );
 
 CREATE INDEX idx_notices_category ON public.notices USING btree (category);
+CREATE INDEX idx_notices_temporal_expiration ON public.notices ((temporal_analysis->>'expiration_date'));
 
 COLUMN DESCRIPTIONS:
 - notice_id: Unique identifier for each notice
@@ -57,7 +59,19 @@ COLUMN DESCRIPTIONS:
 - title_bn: Notice title in Bengali
 - content_bn: Notice content in Bengali (MAIN FIELD TO RETRIEVE)
 - faq_bn: Optional FAQ content in Bengali
+- temporal_analysis: JSONB containing temporal metadata (notice_date, valid_from, valid_until, expiration_date, events)
 - created_at: Notice creation timestamp (USE THIS FOR ORDERING)
+
+★★★ CRITICAL TEMPORAL FILTERING ★★★
+ALWAYS add temporal filtering to exclude expired notices:
+
+WHERE institution_id = 1
+  AND (
+    temporal_analysis->>'expiration_date' IS NULL
+    OR (temporal_analysis->>'expiration_date')::date >= CURRENT_DATE
+  )
+
+This ensures only active/valid notices are returned.
 
 ==================================================
 QUERY TYPES YOU MUST HANDLE
@@ -70,6 +84,10 @@ QUERY TYPES YOU MUST HANDLE
    SELECT notice_id, title_bn, content_bn, category, created_at 
    FROM notices 
    WHERE institution_id = 1 
+     AND (
+       temporal_analysis->>'expiration_date' IS NULL
+       OR (temporal_analysis->>'expiration_date')::date >= CURRENT_DATE
+     )
    ORDER BY created_at DESC 
    LIMIT 1;
 
@@ -80,6 +98,10 @@ QUERY TYPES YOU MUST HANDLE
    SELECT notice_id, title_bn, content_bn, category, created_at 
    FROM notices 
    WHERE institution_id = 1 
+     AND (
+       temporal_analysis->>'expiration_date' IS NULL
+       OR (temporal_analysis->>'expiration_date')::date >= CURRENT_DATE
+     )
    ORDER BY created_at DESC 
    LIMIT N;
    
@@ -92,7 +114,11 @@ QUERY TYPES YOU MUST HANDLE
    SELECT notice_id, title_bn, content_bn, category, created_at 
    FROM notices 
    WHERE institution_id = 1 
-       AND category ILIKE '%keyword%'
+     AND category ILIKE '%keyword%'
+     AND (
+       temporal_analysis->>'expiration_date' IS NULL
+       OR (temporal_analysis->>'expiration_date')::date >= CURRENT_DATE
+     )
    ORDER BY created_at DESC 
    LIMIT N;
 
@@ -102,8 +128,15 @@ CRITICAL SQL GENERATION RULES
 
 1. ALWAYS include:
    - WHERE institution_id = 1 (filter for CNPI)
+   - AND temporal filtering (exclude expired notices)
    - ORDER BY created_at DESC (newest first)
    - LIMIT clause (1 for single, N for multiple)
+   
+   ★ MANDATORY TEMPORAL FILTER:
+   AND (
+     temporal_analysis->>'expiration_date' IS NULL
+     OR (temporal_analysis->>'expiration_date')::date >= CURRENT_DATE
+   )
 
 2. ALWAYS select these columns:
    - notice_id
@@ -143,6 +176,7 @@ SQL:
 SELECT notice_id, title_bn, content_bn, category, created_at 
 FROM notices 
 WHERE institution_id = 1 
+  AND (temporal_analysis->>'expiration_date' IS NULL OR (temporal_analysis->>'expiration_date')::date >= CURRENT_DATE)
 ORDER BY created_at DESC 
 LIMIT 1;
 ```
@@ -153,6 +187,7 @@ SQL:
 SELECT notice_id, title_bn, content_bn, category, created_at 
 FROM notices 
 WHERE institution_id = 1 
+  AND (temporal_analysis->>'expiration_date' IS NULL OR (temporal_analysis->>'expiration_date')::date >= CURRENT_DATE)
 ORDER BY created_at DESC 
 LIMIT 5;
 ```
@@ -163,6 +198,7 @@ SQL:
 SELECT notice_id, title_bn, content_bn, category, created_at 
 FROM notices 
 WHERE institution_id = 1 
+  AND (temporal_analysis->>'expiration_date' IS NULL OR (temporal_analysis->>'expiration_date')::date >= CURRENT_DATE)
 ORDER BY created_at DESC 
 LIMIT 10;
 ```
@@ -173,7 +209,8 @@ SQL:
 SELECT notice_id, title_bn, content_bn, category, created_at 
 FROM notices 
 WHERE institution_id = 1 
-    AND category ILIKE '%exam%'
+  AND category ILIKE '%exam%'
+  AND (temporal_analysis->>'expiration_date' IS NULL OR (temporal_analysis->>'expiration_date')::date >= CURRENT_DATE)
 ORDER BY created_at DESC 
 LIMIT 1;
 ```
@@ -203,11 +240,14 @@ FINAL CHECKLIST
 
 Before returning, verify:
 ✓ WHERE institution_id = 1 is present
+✓ Temporal filtering is present (exclude expired notices)
 ✓ ORDER BY created_at DESC is present
 ✓ LIMIT clause is present
 ✓ SELECT includes: notice_id, title_bn, content_bn, category, created_at
 ✓ Query is valid PostgreSQL syntax
 ✓ Query is wrapped in ```sql code block
+
+REMEMBER: Every query MUST include temporal filtering to exclude expired notices!
 
 Your output must be executable SQL ONLY."""),
     ("human", "User Query: {user_query}\n\nGenerate the SQL query:")

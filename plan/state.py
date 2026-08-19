@@ -183,6 +183,7 @@ class SQLQueryPathState(TypedDict, total=False):
     formatted_context: str         # contexts formatted for the LLM
     search_query: str              # query used for retrieval
     retrieved_at: str              # timestamp of retrieval
+    verified_evidence: str         # JSON string from evidence_verification_node
     final_answer: str              # this path's own working answer / clarifying
                                     # question text (see AnswerStatus note below)
     retry_count: int
@@ -195,6 +196,7 @@ class SQLRetrievePathState(TypedDict, total=False):
     raw_context: str               # metadata search + embedding + BM25 result
     context_with_meta: str         # context annotated with date + priority
     context_found: bool            # False => diagram's "No and context=False" branch
+    verified_evidence: str         # JSON string from evidence_verification_node
     final_answer: str
     retry_count: int
 
@@ -202,6 +204,7 @@ class SQLRetrievePathState(TypedDict, total=False):
 class WebSearchPathState(TypedDict, total=False):
     rewritten_query: str           # query rewritten specifically for web search
     context: str                   # "Ready docs context" from the diagram
+    verified_evidence: str         # JSON string from evidence_verification_node
     final_answer: str
     retry_count: int
 
@@ -287,6 +290,7 @@ def new_sql_query_state() -> SQLQueryPathState:
         formatted_context="",
         search_query="",
         retrieved_at="",
+        verified_evidence="",
         final_answer="",
         retry_count=0,
         generation_retry_count=0,
@@ -300,6 +304,7 @@ def new_sql_retrieve_state() -> SQLRetrievePathState:
         raw_context="",
         context_with_meta="",
         context_found=False,
+        verified_evidence="",
         final_answer="",
         retry_count=0,
     )
@@ -309,6 +314,7 @@ def new_web_search_state() -> WebSearchPathState:
     return WebSearchPathState(
         rewritten_query="",
         context="",
+        verified_evidence="",
         final_answer="",
         retry_count=0,
     )

@@ -58,105 +58,57 @@ RULE 1: Default suitable
 Always assume "suitable": "yes" for any college-related question.
 
 ---------------------------------------
-RULE 2: Missing Information Check (needs_more_info)
+RULE 2: TIME/DATE/NOTICE Queries — NEVER ask for dept/shift/semester
 ---------------------------------------
-CNPI has 6 departments, EACH with 2 shifts:
-1. Morning / First / 1st shift
-2. Day / Second / 2nd shift
+If the query is about TODAY, TOMORROW, or NOTICES, return immediately:
+  needs_more_info=false, all missing flags=false
 
-Each shift has different Chief Instructors, teachers, and routines.
-Each department also has multiple semesters (1st to 8th).
+Type A keywords (any match → pass through immediately):
+  Banglish: ajke, aajke, aaj, kal, kalke, agamikal, today, tomorrow, yesterday
+  Phrases:  class hobe, class hobe na, class ache, class nei, class nai,
+            ki hobe, hobe ki, hobe na ki, ki class, class ki
+  Notice:   notice, notis, notiish
+  Bengali:  আজকে, আজ, কাল, আগামীকাল, ক্লাস হবে, ক্লাস নেই, ক্লাস আছে, নোটিশ
 
-CRITICAL DETECTION RULES:
-==========================
+Examples that MUST return needs_more_info=false:
+  - "cnpi te ajke ki class hobe"
+  - "ajke class ache?"
+  - "kal class hobe na?"
+  - "today class ache?"
+  - "আজকে কি ক্লাস আছে?"
+  - "latest notice"
 
-1. ROUTINE/SCHEDULE Queries (ALWAYS need Department + Shift + Semester):
+---------------------------------------
+RULE 3: Missing Information Check (needs_more_info)
+---------------------------------------
+ONLY for NON-time queries:
+
+1. ROUTINE/SCHEDULE Queries (need Department + Shift + Semester):
    Keywords: "routine", "schedule", "class routine", "timetable", "ক্লাস রুটিন", "রুটিন"
-   
-   MANDATORY CHECKS when these keywords are present:
-   - missing_department: true if no department mentioned (CST, ENT, ET, RAC, FT, MT)
-   - missing_shift: true if no shift mentioned (1st/Morning, 2nd/Day)
-   - missing_semester: true if no semester mentioned (1st, 2nd, 3rd, 4th, 5th, 6th, 7th, 8th)
-   
-   Even if the user mentions department and shift, you MUST check if semester is missing.
-   ROUTINE QUERIES ARE INCOMPLETE WITHOUT SEMESTER.
+   - missing_department: true if no dept (CST, ENT, ET, RAC, FT, MT)
+   - missing_shift: true if no shift (1st/Morning, 2nd/Day)
+   - missing_semester: true if no semester (1st–8th)
 
 2. CI/Teacher Queries (need Department + Shift, NO semester):
    Keywords: "CI", "chief instructor", "teacher", "instructor", "শিক্ষক", "প্রধান"
-   
-   Checks:
-   - missing_department: true if no department mentioned
-   - missing_shift: true if no shift mentioned
-   - missing_semester: false (semester NOT needed for CI/teacher queries)
+   - missing_department: true if no dept
+   - missing_shift: true if no shift
+   - missing_semester: false always
 
-3. General Info Queries (no specific requirements):
-   Keywords: "principal", "phone", "address", "email", "college info"
+3. General Info (no requirements):
+   Keywords: "principal", "phone", "address", "email", "college info", "lab", "history"
    All flags: false
 
-You MUST set "needs_more_info": true if the query is missing ANY required piece.
-For EACH missing piece, set the corresponding flag to true.
-
-If the user ALREADY provided a piece of information, set the corresponding flag to
-FALSE. NEVER set a missing flag to true if the user already provided that info.
-
-STEP-BY-STEP ANALYSIS:
-======================
-1. First, identify the query type (routine vs CI/teacher vs general)
-2. Then check which pieces are PRESENT in the query
-3. Finally, set missing_* flags for pieces that are REQUIRED but NOT PRESENT
-
-Examples with Analysis:
-========================
-
-Example 1: "Where can I find the class Routine for the CST Department Day Shift?"
-Step 1: Query type = ROUTINE (keyword: "Routine")
-Step 2: Check what's present:
-  - Department = CST ✓ (present)
-  - Shift = Day ✓ (present)
-  - Semester = ✗ (NOT present)
-Step 3: Set flags:
-  -> missing_department=false, missing_shift=false, missing_semester=true
-  -> needs_more_info=true
-
-Example 2: "CST Day Shift 5th semester routine"
-Step 1: Query type = ROUTINE
-Step 2: All present (CST, Day, 5th)
-Step 3: All flags false, needs_more_info=false
-
-Example 3: "class routine dao"
-Step 1: Query type = ROUTINE
-Step 2: All missing
-Step 3: missing_department=true, missing_shift=true, missing_semester=true, needs_more_info=true
-
-Example 4: "CST Day Shift chief instructor ke?"
-Step 1: Query type = CI/TEACHER
-Step 2: CST and Day present
-Step 3: All flags false, needs_more_info=false
-
-Example 5: "CST department er chief instructor ke?"
-Step 1: Query type = CI/TEACHER
-Step 2: CST present, shift missing
-Step 3: missing_shift=true, missing_department=false, missing_semester=false, needs_more_info=true
+---------------------------------------
+RULE 4: GREETINGS & SMALLTALK
+---------------------------------------
+If query is just greeting/smalltalk (hi, hello, salam, thanks):
+  suitable=no, needs_more_info=true, is_greeting=true, all missing flags=false
 
 ---------------------------------------
-HOW TO WRITE THE CLARIFICATION
+HOW TO WRITE CLARIFICATION
 ---------------------------------------
-You MUST fill the "clarification" field whenever needs_more_info is true.
-
-The clarification must ONLY ask for the pieces that are ACTUALLY missing
-(as indicated by the missing_* flags). Do NOT ask for information the user
-already provided.
-
-Write in Bengali (বাংলা). Keep technical terms (Shift, Department, Semester,
-CST, ENT, etc.) in English. Be polite and student-friendly.
-
-IMPORTANT: Match the clarification to the missing_* flags:
-- If only missing_shift is true, ask ONLY for shift
-- If only missing_department is true, ask ONLY for department
-- If only missing_semester is true, ask ONLY for semester
-- If multiple flags are true, ask for ALL of them in ONE sentence
-
-GOOD examples:
+Write in Bengali. Keep technical terms in English. Be polite.
 
 Only shift missing:
 "দয়া করে বলুন, আপনি কোন Shift-এর তথ্য জানতে চাচ্ছেন? 1st/Morning নাকি 2nd/Day Shift?"
@@ -167,26 +119,11 @@ Only department missing:
 Only semester missing:
 "অনুগ্রহ করে বলুন, আপনি কোন Semester-এর তথ্য জানতে চাচ্ছেন? (1st থেকে 8th পর্যন্ত)"
 
-Shift and department both missing (semester not needed):
+Dept + Shift missing:
 "দয়া করে বলুন, আপনি কোন Department এবং কোন Shift-এর তথ্য জানতে চাচ্ছেন? (যেমন: CST Department, 1st Shift)"
 
-Shift and semester both missing (but department present):
-"দয়া করে বলুন, আপনি কোন Shift এবং কোন Semester-এর তথ্য জানতে চাচ্ছেন? (যেমন: 1st Shift, 5th Semester)"
-
-Department and semester both missing (but shift present):
-"দয়া করে বলুন, আপনি কোন Department এবং কোন Semester-এর তথ্য জানতে চাচ্ছেন? (যেমন: CST Department, 5th Semester)"
-
-Department, shift, and semester all missing (e.g., "class routine dao"):
+All three missing:
 "দয়া করে বলুন, আপনি কোন Department, কোন Shift, এবং কোন Semester-এর Class Routine চাচ্ছেন? (যেমন: CST, 2nd Shift, 5th Semester)"
-
----------------------------------------
-RULE 3: GREETINGS & SMALLTALK
----------------------------------------
-If the user's query is just a greeting or smalltalk (e.g., "hi", "hello", "hey", "salam", "kemon asen", "thanks"):
-- Set "suitable": "no"
-- Set "needs_more_info": true
-- Set "is_greeting": true
-- All missing flags MUST be false.
 """),
     ("human", "User Query: {user_input}")
 ])
@@ -194,8 +131,6 @@ If the user's query is just a greeting or smalltalk (e.g., "hi", "hello", "hey",
 
 def sql_retrieve_check_node(state: RAGState) -> Dict[str, Any]:
     """Check if query is suitable for semantic search."""
-    llm = get_llm()
-    check_chain = _retrieve_check_prompt | llm.with_structured_output(RetrieveCheckOutput)
 
     user_input = state.get("normalized_query") or state.get("user_input", "")
     sql_retrieve_state = state.get("sql_retrieve", {})
@@ -208,6 +143,46 @@ def sql_retrieve_check_node(state: RAGState) -> Dict[str, Any]:
                 "final_answer": "দয়া করে আপনার প্রশ্নটি লিখুন।",
             }
         }
+
+    # ================================================================
+    # PRE-CHECK: TYPE A — time/date/notice queries bypass LLM entirely
+    # These NEVER need department / shift / semester
+    # ================================================================
+    _TYPE_A_KEYWORDS = [
+        # Banglish time words
+        "ajke", "aajke", "aaj", "kal", "kalke", "agamikal", "agamikaal",
+        "parsu", "gotokal",
+        # English time words
+        "today", "tomorrow", "yesterday",
+        # Class status phrases
+        "class hobe", "class hobe na", "class ache", "class nei",
+        "class nai", "ki class", "class ki",
+        "hobe ki na", "hobe na ki", "ki hobe",
+        # Notice keywords
+        "notice", "notis", "notiish",
+        # Bengali Unicode time words
+        "আজকে", "আজ", "কাল", "আগামীকাল", "আগামীকালকে",
+        "গতকাল", "পরশু",
+        # Bengali class/notice
+        "ক্লাস হবে", "ক্লাস নেই", "ক্লাস আছে",
+        "নোটিশ", "বিজ্ঞপ্তি",
+    ]
+
+    q_lower = user_input.lower()
+    if any(kw in q_lower for kw in _TYPE_A_KEYWORDS):
+        print(f"[retrieve_check] TYPE A (time/notice) query → skip clarification")
+        return {
+            "sql_retrieve": {
+                **sql_retrieve_state,
+                "need_more_info": False,
+            }
+        }
+
+    # ================================================================
+    # LLM CHECK: routine, teacher, general queries
+    # ================================================================
+    llm = get_llm()
+    check_chain = _retrieve_check_prompt | llm.with_structured_output(RetrieveCheckOutput)
 
     try:
         decision = check_chain.invoke({"user_input": user_input})

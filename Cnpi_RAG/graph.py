@@ -48,6 +48,9 @@ from nodes.entity_normalizer import entity_normalizer_node
 from nodes.entry import rewrite_query_node
 from nodes.router import llm_decide_path_node
 
+# Import Evidence Verification node (NEW - inserted before response generation)
+from nodes.evidence_verification import evidence_verification_node
+
 # Import Phase 2 nodes (SQL Query path)
 from nodes.sql_query_create import sql_query_create_node
 from nodes.context_format import context_format_node
@@ -144,6 +147,11 @@ def build_graph():
     graph.add_node("entity_normalizer", entity_normalizer_node)
     graph.add_node("rewrite_query", rewrite_query_node)
     graph.add_node("llm_decide_path", llm_decide_path_node)
+    
+    # -------------------------------------------------------------------------
+    # Evidence Verification node (NEW - sits between context and response)
+    # -------------------------------------------------------------------------
+    graph.add_node("evidence_verification", evidence_verification_node)
 
     # -------------------------------------------------------------------------
     # Phase 2 — SQL Query path nodes (HYBRID: Notice queries bypass, others check)
@@ -299,9 +307,27 @@ def build_graph():
     # short_info_response → END (clarification sent to user)
     graph.add_edge("sql_query_short_info_response", END)
     
-    # context_retrieve → context_format → sql_retrieve_response
+    # context_retrieve → context_format → evidence_verification (for sql_query path)
     graph.add_edge("context_retrieve", "context_format")
-    graph.add_edge("context_format", "sql_retrieve_response")
+    
+    # After context_format, check if we need verification
+    def _route_after_context_format(state: RAGState) -> Literal["evidence_verification", "sql_retrieve_response"]:
+        """Route to evidence verification if we have context."""
+        sql_query_state = state.get("sql_query", {})
+        context = sql_query_state.get("optimized_context") or sql_query_state.get("raw_context", "")
+        
+        if context and context.strip():
+            return "evidence_verification"
+        return "sql_retrieve_response"
+    
+    graph.add_conditional_edges(
+        "context_format",
+        _route_after_context_format,
+        {
+            "evidence_verification": "evidence_verification",
+            "sql_retrieve_response": "sql_retrieve_response"
+        }
+    )
 
     # Bridge between fallback dispatcher and real SQL Retrieve
     graph.add_edge("fallback_dispatcher", "sql_retrieve_check")
@@ -330,9 +356,26 @@ def build_graph():
 
     graph.add_edge("sql_retrieve_create", "sql_retrieve_context")
 
-    # context → sub_query_router_node (unconditional solid edge)
+    # context → evidence_verification → sub_query_router_node
     # Router will handle: sub_query→append, context_found→sql_retrieve_response, no_context→END
-    graph.add_edge("sql_retrieve_context", "sub_query_router_node")
+    def _route_after_sql_retrieve_context(state: RAGState) -> Literal["evidence_verification", "sub_query_router_node"]:
+        """Check if we have context to verify before routing."""
+        sql_retrieve_state = state.get("sql_retrieve", {})
+        context_found = sql_retrieve_state.get("context_found", False)
+        
+        # Only verify if we have context
+        if context_found:
+            return "evidence_verification"
+        return "sub_query_router_node"
+    
+    graph.add_conditional_edges(
+        "sql_retrieve_context",
+        _route_after_sql_retrieve_context,
+        {
+            "evidence_verification": "evidence_verification",
+            "sub_query_router_node": "sub_query_router_node"
+        }
+    )
 
     # ★ NEW: Conditional edge from sql_retrieve_response
     # If skip_support_check=True (no context), go directly to END
@@ -399,9 +442,26 @@ def build_graph():
     # rewrite → docs (always)
     graph.add_edge("web_search_rewrite", "web_search_docs")
 
-    # docs → sub_query_router_node (unconditional solid edge)
+    # docs → evidence_verification → sub_query_router_node
     # Router will handle: sub_query→append, context→web_search_response, no_context→END
-    graph.add_edge("web_search_docs", "sub_query_router_node")
+    def _route_after_web_search_docs(state: RAGState) -> Literal["evidence_verification", "sub_query_router_node"]:
+        """Check if we have context to verify before routing."""
+        web_search_state = state.get("web_search", {})
+        context = web_search_state.get("context", "").strip()
+        
+        # Only verify if we have context
+        if context:
+            return "evidence_verification"
+        return "sub_query_router_node"
+    
+    graph.add_conditional_edges(
+        "web_search_docs",
+        _route_after_web_search_docs,
+        {
+            "evidence_verification": "evidence_verification",
+            "sub_query_router_node": "sub_query_router_node"
+        }
+    )
 
     # response → support_check (always)
     graph.add_edge("web_search_response", "web_search_support_check")
@@ -475,6 +535,27 @@ def build_graph():
     # Wrapper node directly returns the appended answer, so we route it to merge
     graph.add_edge("process_sub_query_wrapper", "merge_sub_answers")
 
+    # After verification, route based on decided_path
+    def _route_after_verification(state: RAGState) -> Literal["sql_retrieve_response", "sub_query_router_node"]:
+        """After evidence verification, route to appropriate response node or router."""
+        decided_path = state.get("decided_path", "sql_retrieve")
+        
+        # For sql_query path, go directly to sql_retrieve_response (which handles sql_query too)
+        if decided_path == "sql_query":
+            return "sql_retrieve_response"
+        
+        # For sql_retrieve and web_search, go to sub_query_router_node
+        return "sub_query_router_node"
+    
+    graph.add_conditional_edges(
+        "evidence_verification",
+        _route_after_verification,
+        {
+            "sql_retrieve_response": "sql_retrieve_response",
+            "sub_query_router_node": "sub_query_router_node"
+        }
+    )
+    
     # ---- Central gateway: decides for ALL paths after context is collected ----
     def _route_sub_query_node(state: RAGState) -> Literal[
         "append_sub_answer",
