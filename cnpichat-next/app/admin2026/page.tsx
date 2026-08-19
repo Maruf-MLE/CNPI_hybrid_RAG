@@ -132,6 +132,11 @@ function Toaster({ toasts }: { toasts: Toast[] }) {
 // ─── Main component ───────────────────────────────────────────────────────────
 
 export default function AdminPage() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [authPassword, setAuthPassword] = useState("");
+  const [authError, setAuthError] = useState("");
+  const [isAuthBusy, setIsAuthBusy] = useState(false);
+
   const [tab, setTab] = useState<Tab>("update");
   const toastIdRef = useRef(0);
   const [toasts, setToasts] = useState<Toast[]>([]);
@@ -589,6 +594,50 @@ export default function AdminPage() {
     three: { display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10 },
     muted: { color: "#94a3b8" },
   };
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsAuthBusy(true);
+    setAuthError("");
+    try {
+      const res = await fetch("/api/admin-auth", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password: authPassword }),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setIsAuthenticated(true);
+      } else {
+        setAuthError(data.error || "Login failed");
+      }
+    } catch (err) {
+      setAuthError("Network error");
+    } finally {
+      setIsAuthBusy(false);
+    }
+  };
+
+  if (!isAuthenticated) {
+    return (
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100vh", background: "#0f172a", color: "white", fontFamily: "system-ui, sans-serif" }}>
+        <h2 style={{ marginBottom: 20 }}>Admin Login</h2>
+        <form onSubmit={handleLogin} style={{ display: "flex", flexDirection: "column", gap: 10, width: 300 }}>
+          <input 
+            type="password" 
+            placeholder="Enter password..." 
+            value={authPassword} 
+            onChange={(e) => setAuthPassword(e.target.value)}
+            style={{ padding: 12, borderRadius: 6, border: "1px solid #334155", background: "#1e293b", color: "white", outline: "none" }}
+          />
+          <button type="submit" disabled={isAuthBusy} style={{ padding: 12, borderRadius: 6, border: "none", background: "#3b82f6", color: "white", cursor: "pointer", fontWeight: "bold" }}>
+            {isAuthBusy ? "Checking..." : "Login"}
+          </button>
+        </form>
+        {authError && <p style={{ color: "#ef4444", marginTop: 15 }}>{authError}</p>}
+      </div>
+    );
+  }
 
   // ── render ────────────────────────────────────────────────────────────────
 
