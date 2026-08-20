@@ -136,6 +136,7 @@ def sql_query_short_info_response_node(state: RAGState) -> dict:
     """Use LLM + DB schema to craft a smart clarification message for the user."""
     sql_query_state = state.get("sql_query", {})
     user_input = state.get("user_input", "")
+    normalized_query = state.get("normalized_query", "")
     is_sub_query_call = state.get("is_sub_query_call", False)
 
     not_possible = sql_query_state.get("not_possible", False)
@@ -146,6 +147,29 @@ def sql_query_short_info_response_node(state: RAGState) -> dict:
     missing_department = sql_query_state.get("missing_department", False)
     missing_semester = sql_query_state.get("missing_semester", False)
 
+    # ============================================================
+    # PASSTHROUGH: If final_answer already set by info_check, use it
+    # ============================================================
+    existing_answer = sql_query_state.get("final_answer", "")
+    if existing_answer and existing_answer != "":
+        print(f"[short_info_response] Using existing final_answer from info_check node")
+        return {
+            "final_answer": existing_answer,
+            "answer_status": "not_found" if not_possible else "need_more_info",
+            "is_sub_query_call": is_sub_query_call,
+            "sql_query": {
+                **sql_query_state,
+                "final_answer": existing_answer,
+            },
+        }
+
+    # ============================================================
+    # CAPTAIN QUERY DETECTION (fallback if info_check didn't handle it)
+    # ============================================================
+    captain_keywords = ["captain", "ক্যাপ্টেন", "ক্লাস ক্যাপ্টেন", "class captain"]
+    query_to_check = (user_input + " " + normalized_query).lower()
+    is_captain_query = any(kw in query_to_check for kw in captain_keywords)
+
     if is_greeting:
         failure_reason = "greeting"
         answer_status = "need_more_info"
@@ -154,22 +178,51 @@ def sql_query_short_info_response_node(state: RAGState) -> dict:
         answer_status = "not_found" if not_possible else "need_more_info"
 
     try:
-        # Greetings should feel natural and varied every time, so we use a
-        # higher sampling temperature. Clarification / not_possible replies
-        # stay more controlled (default temperature).
-        llm = get_llm(temperature=0.9) if is_greeting else get_llm()
-        chain = _SHORT_INFO_PROMPT | llm
+        # ============================================================
+        # FOR CAPTAIN QUERIES - Use exact templates (bypass LLM)
+        # ============================================================
+        if is_captain_query and short_info and not is_greeting:
+            print(f"[short_info_response] Captain query detected → using exact template")
+            
+            # Apply exact templates based on missing combination
+            if missing_department and missing_shift and missing_semester:
+                clarification_text = "দয়া করে বলুন, আপনি কোন Department, কোন Shift, এবং কোন Semester-এর Class Captain-এর তথ্য চাচ্ছেন? (যেমন: CST, 2nd Shift, 5th Semester)"
+            elif missing_department and not missing_shift and not missing_semester:
+                clarification_text = "অনুগ্রহ করে জানান, আপনি কোন Department-এর Class Captain-এর তথ্য চাচ্ছেন? (যেমন: CST, ENT, ET, RAC, FT, MT)"
+            elif not missing_department and missing_shift and not missing_semester:
+                clarification_text = "দয়া করে বলুন, আপনি কোন Shift-এর Class Captain-এর তথ্য জানতে চাচ্ছেন? 1st/Morning নাকি 2nd/Day Shift?"
+            elif not missing_department and not missing_shift and missing_semester:
+                clarification_text = "অনুগ্রহ করে বলুন, আপনি কোন Semester-এর Class Captain-এর তথ্য জানতে চাচ্ছেন? (যেমন: 1st থেকে 8th পর্যন্ত)"
+            elif missing_department and missing_shift and not missing_semester:
+                clarification_text = "দয়া করে বলুন, আপনি কোন Department এবং কোন Shift-এর Class Captain-এর তথ্য জানতে চাচ্ছেন? (যেমন: CST Department, 1st Shift)"
+            elif missing_department and not missing_shift and missing_semester:
+                clarification_text = "দয়া করে বলুন, আপনি কোন Department এবং কোন Semester-এর Class Captain-এর তথ্য জানতে চাচ্ছেন? (যেমন: CST, 5th Semester)"
+            elif not missing_department and missing_shift and missing_semester:
+                clarification_text = "দয়া করে বলুন, আপনি কোন Shift এবং কোন Semester-এর Class Captain-এর তথ্য জানতে চাচ্ছেন? (যেমন: 2nd Shift, 5th Semester)"
+            else:
+                # Fallback
+                clarification_text = "দয়া করে বলুন, আপনি কোন Department, কোন Shift, এবং কোন Semester-এর Class Captain-এর তথ্য চাচ্ছেন?"
+        
+        # ============================================================
+        # FOR NON-CAPTAIN QUERIES - Use LLM
+        # ============================================================
+        else:
+            # Greetings should feel natural and varied every time, so we use a
+            # higher sampling temperature. Clarification / not_possible replies
+            # stay more controlled (default temperature).
+            llm = get_llm(temperature=0.9) if is_greeting else get_llm()
+            chain = _SHORT_INFO_PROMPT | llm
 
-        result = chain.invoke({
-            "db_schema": DB_SCHEMA.strip(),
-            "failure_reason": failure_reason,
-            "user_input": user_input,
-            "missing_shift": missing_shift,
-            "missing_department": missing_department,
-            "missing_semester": missing_semester,
-        })
+            result = chain.invoke({
+                "db_schema": DB_SCHEMA.strip(),
+                "failure_reason": failure_reason,
+                "user_input": user_input,
+                "missing_shift": missing_shift,
+                "missing_department": missing_department,
+                "missing_semester": missing_semester,
+            })
 
-        clarification_text = extract_content(result).strip()
+            clarification_text = extract_content(result).strip()
 
     except Exception as e:
         print(f"[sql_query_short_info_response] LLM error: {e}")
@@ -188,9 +241,13 @@ def sql_query_short_info_response_node(state: RAGState) -> dict:
                 parts.append("কোন Shift")
             if missing_semester:
                 parts.append("কোন Semester")
+            
+            # Add "Class Captain-এর" if this is a captain query
+            suffix = "-এর Class Captain-এর তথ্য" if is_captain_query else "-এর তথ্য"
+            
             if parts:
                 clarification_text = (
-                    f"দয়া করে বলুন, আপনি {' এবং '.join(parts)}-এর তথ্য জানতে চাচ্ছেন? "
+                    f"দয়া করে বলুন, আপনি {' এবং '.join(parts)}{suffix} জানতে চাচ্ছেন? "
                     "তাহলে আমি আপনাকে সঠিক উত্তর দিতে পারব।"
                 )
             else:

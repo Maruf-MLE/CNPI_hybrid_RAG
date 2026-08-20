@@ -188,11 +188,40 @@ def sql_retrieve_check_node(state: RAGState) -> Dict[str, Any]:
         decision = check_chain.invoke({"user_input": user_input})
 
         if decision.suitable == "no" or decision.needs_more_info:
+            # ============================================================
+            # POST-PROCESSING: Generate clarification if LLM didn't provide one
+            # ============================================================
+            clarification = decision.clarification
+            
+            # If LLM didn't generate good clarification, create one from flags
+            if not clarification or clarification.strip() == "":
+                print(f"[retrieve_check] No LLM clarification → generating from flags")
+                
+                parts = []
+                if decision.missing_department:
+                    parts.append("কোন Department")
+                if decision.missing_shift:
+                    parts.append("কোন Shift")
+                if decision.missing_semester:
+                    parts.append("কোন Semester")
+                
+                if parts:
+                    clarification = (
+                        f"দয়া করে বলুন, আপনি {' এবং '.join(parts)}-এর তথ্য জানতে চাচ্ছেন? "
+                        "তাহলে আমি আপনাকে সঠিক উত্তর দিতে পারব।"
+                    )
+                else:
+                    clarification = (
+                        "দয়া করে বলুন, আপনি আরও নির্দিষ্ট করে জানান — "
+                        "কোন Department, কোন Shift এবং কোন Semester-এর তথ্য জানতে চাচ্ছেন? "
+                        "তাহলে আমি আপনাকে সঠিক উত্তর দিতে পারব।"
+                    )
+            
             return {
                 "sql_retrieve": {
                     **sql_retrieve_state,
                     "need_more_info": True,
-                    "final_answer": decision.clarification,
+                    "final_answer": clarification,
                 },
                 "sql_query": {
                     "short_info": True,

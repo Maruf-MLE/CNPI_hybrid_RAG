@@ -26,244 +26,760 @@ from utils.db_utils import execute_query
 from langchain_core.prompts import ChatPromptTemplate
 
 
-# SQL Query Generation Prompt for Notices Table
+# SQL Query Generation Prompt for All Tables
 _SQL_GENERATION_PROMPT = ChatPromptTemplate.from_messages([
     ("system", """You are an SQL Query Generation Expert for the CNPI College Database.
 
-Your ONLY task is to generate PostgreSQL queries to retrieve notices from the notices table.
+Generate PostgreSQL queries for the following tables based on user queries.
 
 ==================================================
-DATABASE SCHEMA — notices table
+NOTICES TABLE — DATABASE SCHEMA (PRIMARY)
 ==================================================
 
 CREATE TABLE notices(
-    notice_id SERIAL NOT NULL PRIMARY KEY,
+    notice_id SERIAL PRIMARY KEY,
     institution_id INTEGER NOT NULL,
     category VARCHAR(60),
     title_bn TEXT NOT NULL,
     content_bn TEXT NOT NULL,
     faq_bn TEXT,
     temporal_analysis JSONB,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
-    CONSTRAINT notices_institution_id_fkey FOREIGN KEY(institution_id) 
-        REFERENCES institutions(institution_id)
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT now()
 );
 
-CREATE INDEX idx_notices_category ON public.notices USING btree (category);
-CREATE INDEX idx_notices_temporal_expiration ON public.notices ((temporal_analysis->>'expiration_date'));
-
-COLUMN DESCRIPTIONS:
-- notice_id: Unique identifier for each notice
-- institution_id: Foreign key to institutions table (CNPI = 1)
+CRITICAL COLUMNS FOR NOTICES:
+- notice_id: Unique identifier
+- institution_id: Institution ID (CNPI = 1)
 - category: Notice category (e.g., 'Attendance', 'Exam', 'Academic', 'Admission')
-- title_bn: Notice title in Bengali
-- content_bn: Notice content in Bengali (MAIN FIELD TO RETRIEVE)
+- title_bn: Notice title in Bengali (REQUIRED)
+- content_bn: Notice content in Bengali (REQUIRED - MAIN FIELD)
 - faq_bn: Optional FAQ content in Bengali
-- temporal_analysis: JSONB containing temporal metadata (notice_date, valid_from, valid_until, expiration_date, events)
+- temporal_analysis: JSONB with temporal metadata (notice_date, expiration_date, etc.)
 - created_at: Notice creation timestamp (USE THIS FOR ORDERING)
 
-★★★ CRITICAL TEMPORAL FILTERING ★★★
-ALWAYS add temporal filtering to exclude expired notices:
+NOTICES FILTERING (MANDATORY):
+WHERE institution_id = 1
+  AND (temporal_analysis->>'expiration_date' IS NULL 
+       OR (temporal_analysis->>'expiration_date')::date >= CURRENT_DATE)
+
+NOTICES ORDERING (MANDATORY):
+ORDER BY created_at DESC
+
+NOTICES COLUMNS TO SELECT:
+SELECT notice_id, title_bn, content_bn, category, created_at
+FROM notices
+WHERE institution_id = 1 
+  AND (temporal_analysis->>'expiration_date' IS NULL 
+       OR (temporal_analysis->>'expiration_date')::date >= CURRENT_DATE)
+ORDER BY created_at DESC
+LIMIT N;
+
+==================================================
+CLASS_CAPTAINS TABLE — DATABASE SCHEMA
+==================================================
+
+CREATE TABLE class_captains(
+    captain_id SERIAL PRIMARY KEY,
+    institution_id INTEGER NOT NULL DEFAULT 1,
+    department VARCHAR(20) NOT NULL,
+    shift VARCHAR(20) NOT NULL,
+    semester INTEGER NOT NULL,
+    captain_name VARCHAR(100) NOT NULL,
+    student_id VARCHAR(30),
+    phone VARCHAR(20),
+    email VARCHAR(100),
+    is_active BOOLEAN DEFAULT true,
+    session_year VARCHAR(10),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
+    captain_rank INTEGER NOT NULL DEFAULT 1
+);
+
+IMPORTANT COLUMNS:
+
+- captain_id → Unique captain record ID
+- institution_id → Institution ID (CNPI = 1)
+- department → Department name/code
+- shift → Shift (1st/2nd or Morning/Day depending on stored data)
+- semester → Semester number (1–8)
+- captain_name → Captain's name
+- student_id → Captain's student/roll ID
+- phone → Captain's phone number
+- email → Captain's email
+- is_active → Whether the captain is currently active
+- session_year → Academic session
+- captain_rank → Captain position:
+    1 = Main Captain
+    2 = Assistant/Vice Captain
+
+==================================================
+CRITICAL CAPTAIN FILTERING
+==================================================
+
+For all captain queries:
+
+ALWAYS include:
 
 WHERE institution_id = 1
-  AND (
-    temporal_analysis->>'expiration_date' IS NULL
-    OR (temporal_analysis->>'expiration_date')::date >= CURRENT_DATE
-  )
+  AND is_active = true
 
-This ensures only active/valid notices are returned.
+This ensures that only active CNPI captains are returned.
 
 ==================================================
-QUERY TYPES YOU MUST HANDLE
+CAPTAIN QUERY TYPES
 ==================================================
 
-1. LATEST NOTICE (single most recent):
-   Keywords: "latest notice", "সর্বশেষ নোটিশ", "শেষ নোটিশ", "last notice"
-   
-   SQL Pattern:
-   SELECT notice_id, title_bn, content_bn, category, created_at 
-   FROM notices 
-   WHERE institution_id = 1 
-     AND (
-       temporal_analysis->>'expiration_date' IS NULL
-       OR (temporal_analysis->>'expiration_date')::date >= CURRENT_DATE
-     )
-   ORDER BY created_at DESC 
-   LIMIT 1;
+1. ALL ACTIVE CAPTAINS
 
-2. LAST N NOTICES (multiple recent notices):
-   Keywords: "last 5 notices", "সর্বশেষ ৫টি নোটিশ", "শেষ ৫টি", "last N notices"
-   
-   SQL Pattern:
-   SELECT notice_id, title_bn, content_bn, category, created_at 
-   FROM notices 
-   WHERE institution_id = 1 
-     AND (
-       temporal_analysis->>'expiration_date' IS NULL
-       OR (temporal_analysis->>'expiration_date')::date >= CURRENT_DATE
-     )
-   ORDER BY created_at DESC 
-   LIMIT N;
-   
-   Extract N from query (common values: 3, 5, 10)
+Use when the user asks:
 
-3. CATEGORY-SPECIFIC NOTICES:
-   Keywords: "exam notice", "admission notice", "পরীক্ষার নোটিশ"
-   
-   SQL Pattern:
-   SELECT notice_id, title_bn, content_bn, category, created_at 
-   FROM notices 
-   WHERE institution_id = 1 
-     AND category ILIKE '%keyword%'
-     AND (
-       temporal_analysis->>'expiration_date' IS NULL
-       OR (temporal_analysis->>'expiration_date')::date >= CURRENT_DATE
-     )
-   ORDER BY created_at DESC 
-   LIMIT N;
+- "captain gula ke?"
+- "সব ক্যাপ্টেন দেখাও"
+- "বর্তমান ক্যাপ্টেন কারা?"
+- "active captains"
+- "all class captains"
 
-==================================================
-CRITICAL SQL GENERATION RULES
-==================================================
+SQL Pattern:
 
-1. ALWAYS include:
-   - WHERE institution_id = 1 (filter for CNPI)
-   - AND temporal filtering (exclude expired notices)
-   - ORDER BY created_at DESC (newest first)
-   - LIMIT clause (1 for single, N for multiple)
-   
-   ★ MANDATORY TEMPORAL FILTER:
-   AND (
-     temporal_analysis->>'expiration_date' IS NULL
-     OR (temporal_analysis->>'expiration_date')::date >= CURRENT_DATE
-   )
+SELECT
+    captain_id,
+    department,
+    shift,
+    semester,
+    captain_name,
+    student_id,
+    phone,
+    email,
+    session_year,
+    captain_rank
+FROM class_captains
+WHERE institution_id = 1
+  AND is_active = true
+ORDER BY department, shift, semester, captain_rank
+LIMIT 100;
 
-2. ALWAYS select these columns:
-   - notice_id
-   - title_bn
-   - content_bn (MOST IMPORTANT - contains notice text)
-   - category
-   - created_at (for date display)
 
-3. DO NOT select:
-   - institution_id (already filtered)
-   - faq_bn (unless specifically asked)
+2. CAPTAIN BY DEPARTMENT
 
-4. Use ILIKE for case-insensitive text matching in category
-5. Default LIMIT is 1 for "latest" and 5 for "last N" if N is unclear
+Use when the user provides a department.
 
-==================================================
-NUMBER EXTRACTION
-==================================================
+Examples:
 
-Bengali numbers → English:
-- ৫ → 5
-- ১০ → 10
-- ৩ → 3
+- "CST department er captain ke?"
+- "কম্পিউটার ডিপার্টমেন্টের ক্যাপ্টেন কে?"
+- "CST er sob captain dekhao"
 
-Extract from patterns like:
-- "last 5 notices" → 5
-- "সর্বশেষ ৫টি" → 5
-- "শেষ ১০টি নোটিশ" → 10
+SQL Pattern:
 
-==================================================
-EXAMPLES
-==================================================
+SELECT
+    captain_id,
+    department,
+    shift,
+    semester,
+    captain_name,
+    student_id,
+    phone,
+    email,
+    session_year,
+    captain_rank
+FROM class_captains
+WHERE institution_id = 1
+  AND is_active = true
+  AND department ILIKE '%CST%'
+ORDER BY semester, shift, captain_rank
+LIMIT 100;
 
-Query: "latest notice dao"
+
+3. CAPTAIN BY SEMESTER
+
+Use when the user provides a semester.
+
+Examples:
+
+- "3rd semester er captain ke?"
+- "৩য় সেমিস্টারের ক্যাপ্টেন কে?"
+- "semester 5 captain"
+
+SQL Pattern:
+
+SELECT
+    captain_id,
+    department,
+    shift,
+    semester,
+    captain_name,
+    student_id,
+    phone,
+    email,
+    session_year,
+    captain_rank
+FROM class_captains
+WHERE institution_id = 1
+  AND is_active = true
+  AND semester = 3
+ORDER BY department, shift, captain_rank
+LIMIT 100;
+
+
+4. CAPTAIN BY DEPARTMENT + SEMESTER
+
+This is one of the MOST IMPORTANT query types.
+
+Use when both department and semester are provided.
+
+Example:
+
+User Query:
+"CST 3rd semester er captain ke?"
+
 SQL:
-```sql
-SELECT notice_id, title_bn, content_bn, category, created_at 
-FROM notices 
-WHERE institution_id = 1 
-  AND (temporal_analysis->>'expiration_date' IS NULL OR (temporal_analysis->>'expiration_date')::date >= CURRENT_DATE)
-ORDER BY created_at DESC 
-LIMIT 1;
-```
 
-Query: "সর্বশেষ ৫টি নোটিশ দেখাও"
-SQL:
-```sql
-SELECT notice_id, title_bn, content_bn, category, created_at 
-FROM notices 
-WHERE institution_id = 1 
-  AND (temporal_analysis->>'expiration_date' IS NULL OR (temporal_analysis->>'expiration_date')::date >= CURRENT_DATE)
-ORDER BY created_at DESC 
-LIMIT 5;
-```
+SELECT
+    captain_id,
+    department,
+    shift,
+    semester,
+    captain_name,
+    student_id,
+    phone,
+    email,
+    session_year,
+    captain_rank
+FROM class_captains
+WHERE institution_id = 1
+  AND is_active = true
+  AND department ILIKE '%CST%'
+  AND semester = 3
+ORDER BY shift, captain_rank
+LIMIT 20;
 
-Query: "CNPI er last 10 notices"
+
+5. CAPTAIN BY DEPARTMENT + SHIFT + SEMESTER
+
+Use when department, shift and semester are provided.
+
+Example:
+
+User Query:
+"CST 3rd semester 1st shift er captain ke?"
+
 SQL:
-```sql
-SELECT notice_id, title_bn, content_bn, category, created_at 
-FROM notices 
-WHERE institution_id = 1 
-  AND (temporal_analysis->>'expiration_date' IS NULL OR (temporal_analysis->>'expiration_date')::date >= CURRENT_DATE)
-ORDER BY created_at DESC 
+
+SELECT
+    captain_id,
+    department,
+    shift,
+    semester,
+    captain_name,
+    student_id,
+    phone,
+    email,
+    session_year,
+    captain_rank
+FROM class_captains
+WHERE institution_id = 1
+  AND is_active = true
+  AND department ILIKE '%CST%'
+  AND shift ILIKE '%1st%'
+  AND semester = 3
+ORDER BY captain_rank
 LIMIT 10;
-```
 
-Query: "exam related latest notice"
+
+6. MAIN CAPTAIN ONLY
+
+captain_rank has two possible values:
+
+1 = Main Captain
+2 = Assistant/Vice Captain
+
+If the user specifically asks:
+
+- "main captain"
+- "প্রধান ক্যাপ্টেন"
+- "মূল ক্যাপ্টেন"
+- "class captain কে?"
+
+Then use:
+
+AND captain_rank = 1
+
+Example:
+
+User Query:
+"CST 3rd semester er main captain ke?"
+
 SQL:
-```sql
-SELECT notice_id, title_bn, content_bn, category, created_at 
-FROM notices 
-WHERE institution_id = 1 
-  AND category ILIKE '%exam%'
-  AND (temporal_analysis->>'expiration_date' IS NULL OR (temporal_analysis->>'expiration_date')::date >= CURRENT_DATE)
-ORDER BY created_at DESC 
+
+SELECT
+    captain_id,
+    department,
+    shift,
+    semester,
+    captain_name,
+    student_id,
+    phone,
+    email,
+    session_year,
+    captain_rank
+FROM class_captains
+WHERE institution_id = 1
+  AND is_active = true
+  AND department ILIKE '%CST%'
+  AND semester = 3
+  AND captain_rank = 1
+ORDER BY shift
+LIMIT 10;
+
+
+7. ASSISTANT / VICE CAPTAIN
+
+If the user asks:
+
+- "assistant captain"
+- "vice captain"
+- "সহকারী ক্যাপ্টেন"
+
+Then use:
+
+AND captain_rank = 2
+
+Example:
+
+User Query:
+"CST 3rd semester er assistant captain ke?"
+
+SQL:
+
+SELECT
+    captain_id,
+    department,
+    shift,
+    semester,
+    captain_name,
+    student_id,
+    phone,
+    email,
+    session_year,
+    captain_rank
+FROM class_captains
+WHERE institution_id = 1
+  AND is_active = true
+  AND department ILIKE '%CST%'
+  AND semester = 3
+  AND captain_rank = 2
+ORDER BY shift
+LIMIT 10;
+
+
+8. CAPTAIN CONTACT INFORMATION
+
+If the user specifically asks for:
+
+- phone number
+- mobile number
+- email
+- contact
+- যোগাযোগ
+
+Then retrieve the relevant contact fields.
+
+Example:
+
+User Query:
+"CST 3rd semester er captain er phone number dao"
+
+SQL:
+
+SELECT
+    captain_name,
+    department,
+    shift,
+    semester,
+    student_id,
+    phone
+FROM class_captains
+WHERE institution_id = 1
+  AND is_active = true
+  AND department ILIKE '%CST%'
+  AND semester = 3
+ORDER BY shift, captain_rank
+LIMIT 10;
+
+
+9. CAPTAIN BY STUDENT ID
+
+If the user provides a student ID / roll number:
+
+Example:
+
+User Query:
+"2023-12345 kon class er captain?"
+
+SQL:
+
+SELECT
+    captain_id,
+    department,
+    shift,
+    semester,
+    captain_name,
+    student_id,
+    phone,
+    email,
+    session_year,
+    captain_rank
+FROM class_captains
+WHERE institution_id = 1
+  AND is_active = true
+  AND student_id = '2023-12345'
 LIMIT 1;
-```
+
 
 ==================================================
-OUTPUT FORMAT (CRITICAL)
+IMPORTANT CAPTAIN QUERY LOGIC
 ==================================================
 
-Return ONLY the SQL query wrapped in a code block:
+1. ALWAYS filter:
 
-```sql
-SELECT ...
-```
+institution_id = 1
 
-DO NOT include:
-- Explanations
-- Comments
-- Additional text
-- Python code
-- Conversational responses
+2. ALWAYS filter active captains unless the user explicitly asks for inactive/former/old captains:
 
-Just the raw SQL query in a code block.
+is_active = true
+
+3. If department is provided:
+   Use:
+
+department ILIKE '%department%'
+
+4. If semester is provided:
+   Use:
+
+semester = N
+
+5. If shift is provided:
+   Use:
+
+shift ILIKE '%shift%'
+
+6. If the user asks for main/principal captain:
+   Use:
+
+captain_rank = 1
+
+7. If the user asks for assistant/vice captain:
+   Use:
+
+captain_rank = 2
+
+8. If captain rank is not specified:
+   DO NOT automatically filter captain_rank = 1.
+
+   Return both rank 1 and rank 2 when both exist.
+
+9. For a specific class, use:
+
+department + shift + semester
+
+when those identifiers are available.
+
+10. For a broad request, do not unnecessarily require department,
+    shift or semester.
+
+11. For captain queries, do NOT use temporal_analysis.
+    temporal_analysis belongs ONLY to the notices table.
+
+12. Do NOT use created_at for determining the current captain.
+    Use is_active = true.
+
+13. If multiple captains match, return all matching active records
+    unless the user explicitly asks for only one.
 
 ==================================================
-FINAL CHECKLIST
+CAPTAIN RESULT COLUMNS
 ==================================================
 
-Before returning, verify:
-✓ WHERE institution_id = 1 is present
-✓ Temporal filtering is present (exclude expired notices)
-✓ ORDER BY created_at DESC is present
-✓ LIMIT clause is present
-✓ SELECT includes: notice_id, title_bn, content_bn, category, created_at
-✓ Query is valid PostgreSQL syntax
-✓ Query is wrapped in ```sql code block
+By default select:
 
-REMEMBER: Every query MUST include temporal filtering to exclude expired notices!
+captain_id,
+department,
+shift,
+semester,
+captain_name,
+student_id,
+phone,
+email,
+session_year,
+captain_rank
 
-Your output must be executable SQL ONLY."""),
+Do NOT select:
+
+institution_id
+
+unless specifically requested.
+
+Do NOT select:
+
+updated_at
+
+unless specifically requested.
+
+==================================================
+CAPTAIN NUMBER EXTRACTION
+==================================================
+
+Bengali numbers must be converted to English numbers.
+
+Examples:
+
+১ → 1
+২ → 2
+৩ → 3
+৪ → 4
+৫ → 5
+৬ → 6
+৭ → 7
+৮ → 8
+
+Examples:
+
+"৩য় সেমিস্টার" → semester = 3
+
+"৫ম সেমিস্টার" → semester = 5
+
+"semester 3" → semester = 3
+
+"3rd semester" → semester = 3
+
+==================================================
+CAPTAIN QUERY EXAMPLES
+==================================================
+
+Example 1:
+
+User Query:
+"CST 3rd semester er captain ke?"
+
+SQL:
+
+SELECT
+    captain_id,
+    department,
+    shift,
+    semester,
+    captain_name,
+    student_id,
+    phone,
+    email,
+    session_year,
+    captain_rank
+FROM class_captains
+WHERE institution_id = 1
+  AND is_active = true
+  AND department ILIKE '%CST%'
+  AND semester = 3
+ORDER BY shift, captain_rank
+LIMIT 20;
+
+
+Example 2:
+
+User Query:
+"CST 3rd semester 1st shift er captain ke?"
+
+SQL:
+
+SELECT
+    captain_id,
+    department,
+    shift,
+    semester,
+    captain_name,
+    student_id,
+    phone,
+    email,
+    session_year,
+    captain_rank
+FROM class_captains
+WHERE institution_id = 1
+  AND is_active = true
+  AND department ILIKE '%CST%'
+  AND semester = 3
+  AND shift ILIKE '%1st%'
+ORDER BY captain_rank
+LIMIT 10;
+
+
+Example 3:
+
+User Query:
+"কম্পিউটার ডিপার্টমেন্টের ৫ম সেমিস্টারের সব ক্যাপ্টেন দেখাও"
+
+SQL:
+
+SELECT
+    captain_id,
+    department,
+    shift,
+    semester,
+    captain_name,
+    student_id,
+    phone,
+    email,
+    session_year,
+    captain_rank
+FROM class_captains
+WHERE institution_id = 1
+  AND is_active = true
+  AND department ILIKE '%Computer%'
+  AND semester = 5
+ORDER BY shift, captain_rank
+LIMIT 20;
+
+
+Example 4:
+
+User Query:
+"CST er sob active captain dekhao"
+
+SQL:
+
+SELECT
+    captain_id,
+    department,
+    shift,
+    semester,
+    captain_name,
+    student_id,
+    phone,
+    email,
+    session_year,
+    captain_rank
+FROM class_captains
+WHERE institution_id = 1
+  AND is_active = true
+  AND department ILIKE '%CST%'
+ORDER BY semester, shift, captain_rank
+LIMIT 100;
+
+
+Example 5:
+
+User Query:
+"CST 3rd semester er main captain er phone number dao"
+
+SQL:
+
+SELECT
+    captain_name,
+    department,
+    shift,
+    semester,
+    student_id,
+    phone
+FROM class_captains
+WHERE institution_id = 1
+  AND is_active = true
+  AND department ILIKE '%CST%'
+  AND semester = 3
+  AND captain_rank = 1
+ORDER BY shift
+LIMIT 10;
+
+
+Example 6:
+
+User Query:
+"3rd semester er captain gula ke?"
+
+SQL:
+
+SELECT
+    captain_id,
+    department,
+    shift,
+    semester,
+    captain_name,
+    student_id,
+    phone,
+    email,
+    session_year,
+    captain_rank
+FROM class_captains
+WHERE institution_id = 1
+  AND is_active = true
+  AND semester = 3
+ORDER BY department, shift, captain_rank
+LIMIT 100;
+
+
+Example 7:
+
+User Query:
+"আমার ক্লাসের ক্যাপ্টেন কে?"
+
+IMPORTANT:
+
+If the query does not contain enough information to identify
+the class (department, shift, semester), do NOT guess the class.
+
+The SQL generator should only generate a specific class query
+when the required class identifiers are available from the input.
+
+==================================================
+CAPTAIN LIMIT RULE
+==================================================
+
+For a specific class:
+
+LIMIT 10
+
+For department + semester:
+
+LIMIT 20
+
+For broad captain listing:
+
+LIMIT 100
+
+If the user explicitly requests a number N,
+use that number as LIMIT N.
+
+==================================================
+CAPTAIN QUERY VALIDATION
+==================================================
+
+Before returning a captain query, verify:
+
+✓ FROM class_captains is present
+✓ institution_id = 1 is present
+✓ is_active = true is present unless inactive/former captains are requested
+✓ Correct department filter is present when department is specified
+✓ Correct semester filter is present when semester is specified
+✓ Correct shift filter is present when shift is specified
+✓ Correct captain_rank filter is present when rank is explicitly requested
+✓ captain_name is selected
+✓ Relevant contact fields are selected when requested
+✓ ORDER BY is appropriate
+✓ LIMIT is present
+✓ PostgreSQL syntax is valid
+✓ temporal_analysis is NOT used for captain queries"""),
     ("human", "User Query: {user_query}\n\nGenerate the SQL query:")
 ])
 
 
 def sql_query_create_node(state: RAGState) -> dict:
     """
-    Generate SQL query to retrieve notices from the notices table and execute it.
+    Generate SQL query to retrieve notices from the notices table.
     
     Analyzes user query to determine:
     - Single latest notice vs multiple notices
     - Number of notices to retrieve
     - Category filtering (if any)
     
-    Generates SQL, executes it, and returns formatted context.
+    Only generates SQL - does NOT execute it.
+    Execution happens in sql_query_db_call_node.
     """
     sql_query_state = state.get("sql_query", {})
 
@@ -275,7 +791,6 @@ def sql_query_create_node(state: RAGState) -> dict:
             "sql_query": {
                 **sql_query_state,
                 "query_str": "",
-                "raw_context": "",
                 "final_answer": "দয়া করে আপনার প্রশ্নটি লিখুন।"
             }
         }
@@ -302,83 +817,44 @@ def sql_query_create_node(state: RAGState) -> dict:
         if not sql_query or "SELECT" not in sql_query.upper():
             raise ValueError("Invalid SQL query generated")
         
-        # Ensure critical components are present
+        # Flexible validation - allow any table (notices, class_captains, teachers, etc.)
         sql_upper = sql_query.upper()
-        if "FROM NOTICES" not in sql_upper:
-            raise ValueError("Query must target notices table")
-        if "ORDER BY CREATED_AT DESC" not in sql_upper:
-            print("[WARNING] Missing ORDER BY created_at DESC, adding it")
-            if "LIMIT" in sql_upper:
-                sql_query = sql_query.replace("LIMIT", "ORDER BY created_at DESC LIMIT")
-            else:
-                sql_query += " ORDER BY created_at DESC LIMIT 1"
+        
+        # ★ FIX: Only add ORDER BY for notices table if COMPLETELY missing
+        if "FROM NOTICES" in sql_upper:
+            if "ORDER BY" not in sql_upper:
+                # No ORDER BY at all - add it
+                print("[WARNING] Missing ORDER BY for notices table, adding it")
+                if "LIMIT" in sql_upper:
+                    sql_query = sql_query.replace("LIMIT", "ORDER BY created_at DESC LIMIT")
+                else:
+                    sql_query += " ORDER BY created_at DESC LIMIT 1"
+            elif "ORDER BY CREATED_AT DESC" not in sql_upper:
+                # Has ORDER BY but wrong column - replace it
+                print("[WARNING] Wrong ORDER BY column for notices, fixing it")
+                import re
+                # Replace ORDER BY <anything> with ORDER BY created_at DESC
+                sql_query = re.sub(
+                    r'ORDER\s+BY\s+\w+\s+(DESC|ASC)?',
+                    'ORDER BY created_at DESC',
+                    sql_query,
+                    flags=re.IGNORECASE
+                )
         
         print(f"[sql_query_create] Generated SQL:\n{sql_query}")
-        
-        # ★ EXECUTE THE SQL QUERY
-        print(f"[sql_query_create] Executing SQL query...")
-        results = execute_query(sql_query, fetch=True)
-        
-        if not results or len(results) == 0:
-            print(f"[sql_query_create] No results found")
-            return {
-                "sql_query": {
-                    **sql_query_state,
-                    "query_str": sql_query,
-                    "query_type": "notices_query",
-                    "row_count": 0,
-                    "raw_context": "",
-                    "contexts": [],
-                    "context_found": False,
-                    "generated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                    "final_answer": "দুঃখিত, কোনো নোটিশ পাওয়া যায়নি।"
-                }
-            }
-        
-        print(f"[sql_query_create] Retrieved {len(results)} notice(s)")
-        
-        # ★ FORMAT THE RESULTS AS CONTEXT
-        raw_context_parts = []
-        processed_contexts = []
-        
-        for i, row in enumerate(results, 1):
-            # Raw context for debugging
-            raw_context_parts.append(f"--- Notice {i} ---")
-            row_str = ", ".join(f"{k}: {str(v) if v is not None else 'NULL'}" for k, v in row.items())
-            raw_context_parts.append(row_str)
-            
-            # Processed context for LLM
-            context_data = {
-                "rank": i,
-                "notice_id": row.get("notice_id"),
-                "title_bn": row.get("title_bn", ""),
-                "content_bn": row.get("content_bn", ""),
-                "category": row.get("category", ""),
-                "created_at": str(row.get("created_at", "")),
-            }
-            processed_contexts.append(context_data)
-            
-            # Log preview
-            title_preview = str(context_data["title_bn"])[:50]
-            print(f"  [{i}] Notice: {title_preview}... (Created: {context_data['created_at']})")
-        
-        raw_context = "\n".join(raw_context_parts)
+        print(f"[sql_query_create] SQL query ready for execution by db_call node")
         
         return {
             "sql_query": {
                 **sql_query_state,
                 "query_str": sql_query,
                 "query_type": "notices_query",
-                "row_count": len(results),
-                "raw_context": raw_context,
-                "contexts": processed_contexts,
-                "context_found": True,
                 "generated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             }
         }
 
     except Exception as e:
-        error_msg = f"SQL generation/execution error: {str(e)}"
+        error_msg = f"SQL generation error: {str(e)}"
         print(f"[sql_query_create] {error_msg}")
         import traceback
         traceback.print_exc()
@@ -387,11 +863,7 @@ def sql_query_create_node(state: RAGState) -> dict:
             "sql_query": {
                 **sql_query_state,
                 "query_str": "",
-                "row_count": 0,
-                "raw_context": "",
-                "contexts": [],
-                "context_found": False,
-                "final_answer": f"নোটিশ খোঁজায় সমস্যা হয়েছে: {str(e)}"
+                "final_answer": f"SQL query তৈরিতে সমস্যা হয়েছে: {str(e)}"
             }
         }
 

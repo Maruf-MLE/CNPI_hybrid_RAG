@@ -53,11 +53,25 @@ from nodes.evidence_verification import evidence_verification_node
 
 # Import Phase 2 nodes (SQL Query path)
 from nodes.sql_query_create import sql_query_create_node
+from nodes.sql_query_db_call import sql_query_db_call_node
 from nodes.context_format import context_format_node
 from nodes.fallback_dispatcher import fallback_dispatcher_node
 
-# ★ Alias for clarity: context_retrieve = sql_query_create (generates SQL + executes + returns contexts)
-context_retrieve_node = sql_query_create_node
+# ★ Wrapper: context_retrieve = sql_query_create + sql_query_db_call (generates SQL + executes + returns contexts)
+def context_retrieve_node(state: RAGState) -> dict:
+    """
+    Convenience wrapper that combines SQL generation and execution.
+    Used for notice queries that bypass info_check.
+    
+    Flow: sql_query_create (generate SQL) → sql_query_db_call (execute SQL)
+    """
+    # Step 1: Generate SQL query
+    state = {**state, **sql_query_create_node(state)}
+    
+    # Step 2: Execute the SQL query
+    state = {**state, **sql_query_db_call_node(state)}
+    
+    return {"sql_query": state.get("sql_query", {})}
 
 # Import Phase 3 nodes (SQL Retrieve path)
 from nodes.sql_retrieve_check import sql_retrieve_check_node

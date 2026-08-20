@@ -80,6 +80,8 @@ Choose "sql_query" ONLY for requests asking for:
 
 - The latest notice
 - The last 5 notices
+- Captain information (name, phone number, or any details about class captain)
+  for ANY semester or department
 
 Examples:
 
@@ -90,23 +92,34 @@ Examples:
 "সর্বশেষ ৫টি নোটিশ"
 "CNPI-এর শেষ ৫টি notice"
 "শেষ পাঁচটি নোটিশ দেখাও"
+"5th semester CST captain name"
+"5th semester CST এর captain এর নাম কি"
+"CST 5th semester captain phone number"
+"কম্পিউটার টেকনোলজি ৫ম সেমিস্টারের ক্যাপ্টেনের ফোন নাম্বার"
+"3rd semester captain এর তথ্য"
+"captain এর নাম কি"
+"class captain contact number"
 
 IMPORTANT:
 
-sql_query has an extremely narrow scope.
+sql_query scope includes:
+
+1. Latest notice requests
+2. Last 5 notices requests
+3. Captain information for any semester/department
 
 Do NOT choose sql_query for any other type of question.
 
 For example, do NOT use sql_query for:
 
 - teacher information
-- department information
+- department information (except captain)
 - principal information
 - facilities
 - library
 - laboratory
 - address
-- phone number
+- phone number (except captain phone number)
 - routine
 - admission information
 - student services
@@ -117,7 +130,8 @@ For example, do NOT use sql_query for:
   latest/last-5 notice request
 
 If the question is about CNPI but is NOT specifically asking
-for the latest notice or last 5 notices, use "sql_retrieve".
+for the latest notice, last 5 notices, or captain information,
+use "sql_retrieve".
 
 
 ==================================================
@@ -429,6 +443,7 @@ Determine whether the query is specifically asking for:
 
 - the latest notice
 - the last 5 notices
+- captain information (name, phone number, or any details about class captain)
 
 If YES:
 → choose "sql_query"
@@ -479,67 +494,83 @@ IMPORTANT EDGE CASES
 
 → sql_query
 
-4. "CNPI-এর principal কে?"
-
-→ sql_retrieve
-
-5. "CNPI-এর library কোথায়?"
-
-→ sql_retrieve
-
-6. "CNPI-এর Computer department সম্পর্কে বলো"
-
-→ sql_retrieve
-
-7. "CNPI-এর admission সম্পর্কে বলো"
-
-→ sql_retrieve
-
-8. "আজকের AI news কী?"
-
-→ web_search
-
-9. "Python কী?"
-
-→ web_search
-
-10. "CNPI-এর principal কে এবং আজকের AI news কী?"
-
-→ hybrid
-
-11. "CNPI-এর latest notice এবং library সম্পর্কে বলো"
-
-→ hybrid
-
-12. "CNPI সম্পর্কে কিছু বলো"
-
-→ sql_retrieve
-
-13. "Chapainawabganj Polytechnic Institute-এর teacher সম্পর্কে বলো"
-
-→ sql_retrieve
-
-14. "Chapainawabganj Polytechnic Institute-এর latest notice"
+4. "5th semester CST captain এর নাম কি?"
 
 → sql_query
 
-15. "বাংলাদেশের latest news কী?"
+5. "CST 3rd semester এর captain এর phone number"
+
+→ sql_query
+
+6. "ক্যাপ্টেনের তথ্য দাও"
+
+→ sql_query
+
+7. "CNPI-এর principal কে?"
+
+→ sql_retrieve
+
+8. "CNPI-এর library কোথায়?"
+
+→ sql_retrieve
+
+9. "CNPI-এর Computer department সম্পর্কে বলো"
+
+→ sql_retrieve
+
+10. "CNPI-এর admission সম্পর্কে বলো"
+
+→ sql_retrieve
+
+11. "আজকের AI news কী?"
 
 → web_search
 
-16. "একটা গল্প বলো"
+12. "Python কী?"
+
+→ web_search
+
+13. "CNPI-এর principal কে এবং আজকের AI news কী?"
+
+→ hybrid
+
+14. "CNPI-এর latest notice এবং library সম্পর্কে বলো"
+
+→ hybrid
+
+15. "CST 5th semester captain আর principal এর তথ্য দাও"
+
+→ hybrid
+
+16. "CNPI সম্পর্কে কিছু বলো"
+
+→ sql_retrieve
+
+17. "Chapainawabganj Polytechnic Institute-এর teacher সম্পর্কে বলো"
+
+→ sql_retrieve
+
+18. "Chapainawabganj Polytechnic Institute-এর latest notice"
+
+→ sql_query
+
+19. "বাংলাদেশের latest news কী?"
+
+→ web_search
+
+20. "একটা গল্প বলো"
 
 → no_path
 
-17. "আমাকে একটা ছোট গল্প লিখে দাও"
+21. "আমাকে একটা ছোট গল্প লিখে দাও"
 
 → no_path
 
-18. "ধন্যবাদ"
+22. "ধন্যবাদ"
 
 → no_path
 
-19. "হ্যালো"
+23. "হ্যালো"
 
 → no_path
 
