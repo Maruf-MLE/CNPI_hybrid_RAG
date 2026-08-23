@@ -7,7 +7,8 @@ import logging
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import redirect
 from django.views.decorators.csrf import csrf_exempt
-from django.views.decorators.http import require_http_methods
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
 
 from . import services
 
@@ -38,7 +39,7 @@ def _is_logged_in(request: HttpRequest) -> bool:
 
 
 @csrf_exempt
-@require_http_methods(["GET", "POST"])
+@api_view(["GET", "POST"])
 def login_view(request: HttpRequest) -> HttpResponse:
     if request.method == "POST":
         data = _read_json_body(request)
@@ -54,18 +55,17 @@ def login_view(request: HttpRequest) -> HttpResponse:
     return HttpResponse(_LOGIN_PAGE, content_type="text/html; charset=utf-8")
 
 
-@require_http_methods(["GET"])
+@api_view(["GET"])
 def logout_view(request: HttpRequest) -> HttpResponse:
     request.session.flush()
     return redirect("/admin-panel/login/")
 
 
-@require_http_methods(["GET"])
+@api_view(["GET"])
 def index_view(request: HttpRequest) -> HttpResponse:
     if not _is_logged_in(request):
         return redirect("/admin-panel/login/")
     return HttpResponse(_HTML_PAGE, content_type="text/html; charset=utf-8")
-
 
 
 # ---------------------------------------------------------------------------
@@ -73,7 +73,7 @@ def index_view(request: HttpRequest) -> HttpResponse:
 # ---------------------------------------------------------------------------
 
 @csrf_exempt
-@require_http_methods(["POST", "GET"])
+@api_view(["POST", "GET"])
 def search_view(request: HttpRequest) -> JsonResponse:
     """Semantic search: embed the question, return top-k document chunks.
 
@@ -110,7 +110,7 @@ def search_view(request: HttpRequest) -> JsonResponse:
 # API: get a single document
 # ---------------------------------------------------------------------------
 
-@require_http_methods(["GET"])
+@api_view(["GET"])
 def document_view(request: HttpRequest) -> JsonResponse:
     """Fetch one document by doc_id or chunk_id."""
     doc_id = request.GET.get("doc_id", "").strip()
@@ -136,7 +136,7 @@ def document_view(request: HttpRequest) -> JsonResponse:
 # ---------------------------------------------------------------------------
 
 @csrf_exempt
-@require_http_methods(["POST"])
+@api_view(["POST"])
 def update_view(request: HttpRequest) -> JsonResponse:
     """Update a document row and regenerate its embedding.
 
@@ -189,7 +189,7 @@ def update_view(request: HttpRequest) -> JsonResponse:
 # ---------------------------------------------------------------------------
 
 @csrf_exempt
-@require_http_methods(["POST"])
+@api_view(["POST"])
 def create_view(request: HttpRequest) -> JsonResponse:
     """Insert a new document row with an auto-generated embedding.
 
@@ -240,7 +240,7 @@ def create_view(request: HttpRequest) -> JsonResponse:
 # API: stats
 # ---------------------------------------------------------------------------
 
-@require_http_methods(["GET"])
+@api_view(["GET"])
 def stats_view(request: HttpRequest) -> JsonResponse:
     """Return document counts for the dashboard."""
     try:
@@ -256,7 +256,7 @@ def stats_view(request: HttpRequest) -> JsonResponse:
 # ---------------------------------------------------------------------------
 
 @csrf_exempt
-@require_http_methods(["GET", "POST"])
+@api_view(["GET", "POST"])
 def captains_list_view(request: HttpRequest) -> JsonResponse:
     """List captains with optional filters.
 
@@ -315,7 +315,7 @@ def captains_list_view(request: HttpRequest) -> JsonResponse:
 # ---------------------------------------------------------------------------
 
 @csrf_exempt
-@require_http_methods(["POST"])
+@api_view(["POST"])
 def captain_create_view(request: HttpRequest) -> JsonResponse:
     """Create a new captain.
 
@@ -369,7 +369,7 @@ def captain_create_view(request: HttpRequest) -> JsonResponse:
 # ---------------------------------------------------------------------------
 
 @csrf_exempt
-@require_http_methods(["POST"])
+@api_view(["POST"])
 def captain_update_view(request: HttpRequest) -> JsonResponse:
     """Update editable fields of a captain.
 
@@ -416,7 +416,7 @@ def captain_update_view(request: HttpRequest) -> JsonResponse:
 # ---------------------------------------------------------------------------
 
 @csrf_exempt
-@require_http_methods(["POST"])
+@api_view(["POST"])
 def captain_deactivate_view(request: HttpRequest) -> JsonResponse:
     """Deactivate a captain (set is_active=FALSE).
 
@@ -447,7 +447,7 @@ def captain_deactivate_view(request: HttpRequest) -> JsonResponse:
 # API: captains — stats
 # ---------------------------------------------------------------------------
 
-@require_http_methods(["GET"])
+@api_view(["GET"])
 def captain_stats_view(request: HttpRequest) -> JsonResponse:
     """Return captain counts grouped by department and shift."""
     try:

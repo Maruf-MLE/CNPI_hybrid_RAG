@@ -289,49 +289,13 @@ def create_document(
     context_added_date = now_bst.strftime("%Y-%m-%d")
     context_added_time = now_bst.strftime("%H:%M:%S")
 
-    # Step 4 — Temporal Analysis (extract dates, events, validity periods)
-    # ----------------------------------------------------------------
-    # ★ Temporal analysis JSON will be stored ONLY in the temporal_analysis column
-    # ★ NOT prepended to content anymore
-    temporal_analysis_json = None
-    try:
-        from nodes.temporal_analyzer import analyze_temporal_context  # noqa: WPS433
-        logger.info("create_document: Running temporal analysis...")
-        temporal_data = analyze_temporal_context(new_content, notice_date=context_added_date)
-        if temporal_data and isinstance(temporal_data, dict):
-            temporal_analysis_json = json.dumps(temporal_data, ensure_ascii=False)
-            logger.info("create_document: Temporal analysis completed successfully.")
-            logger.info(f"create_document: Temporal data - valid_until: {temporal_data.get('valid_until')}")
-        else:
-            logger.warning("create_document: Temporal analysis returned empty/invalid data.")
-    except Exception as exc:  # noqa: BLE001
-        logger.exception("create_document: Temporal analysis failed (%s); skipping.", exc)
-
-    # Step 5 — Append metadata to meta dict
-    # ----------------------------------------------------------------
-
-    # Step 5 continued — Merge into the existing meta dict
-    try:
-        existing_meta: dict = json.loads(meta_json) if meta_json and meta_json != "{}" else {}
-    except (json.JSONDecodeError, TypeError):
-        existing_meta = {}
-
-    existing_meta["context_added_date"] = context_added_date
-    existing_meta["context_added_time"] = context_added_time
-    existing_meta["translation_performed"] = translation_performed
-    if translation_performed:
-        existing_meta["original_content_lang"] = "Bengali/mixed"
-
-    meta_json = json.dumps(existing_meta, ensure_ascii=False)
-
-    # Prepend the date/time stamp and metadata as a visible header in the content itself
-    # so that retrieval context automatically carries this provenance info.
+    # Prepare timestamp header for LLM extraction (Step 3.5)
     timestamp_header = (
         f"[context_added_date: {context_added_date} | "
         f"context_added_time: {context_added_time} BST]\n"
     )
     
-    # Add Doc Type, Department, and Topic after the timestamp
+    # Add Doc Type, Department, and Topic metadata
     metadata_lines = []
     if new_doc_type:
         metadata_lines.append(f"Doc Type: {new_doc_type}")
@@ -342,17 +306,118 @@ def create_document(
     
     metadata_header = "\n".join(metadata_lines) + "\n\n" if metadata_lines else "\n"
     
-    # ★ NO temporal analysis text in content - only timestamp + metadata + original content
-    new_content = timestamp_header + metadata_header + new_content.lstrip()
+    # Content with timestamp for LLM extraction
+    content_with_timestamp = timestamp_header + metadata_header + new_content.lstrip()
+
+    # Step 3.5 & Step 4 — LLM Metadata Extraction + Temporal Analysis (Parallel)
+    # ----------------------------------------------------------------
+    # ★ These two steps can run in parallel as they are independent
+    # ★ LLM extraction output will ONLY be used for embedding
+    # ★ Original content will still be stored in the database
+    from concurrent.futures import ThreadPoolExecutor, as_completed  # noqa: WPS433
+    
+    embedding_content = None
+    metadata_extraction_success = False
+    temporal_analysis_json = None
+    
+    def run_llm_extraction():
+        """Run LLM metadata extraction in parallel."""
+        try:
+            from nodes.metadata_extractor import extract_notice_metadata, format_metadata_for_embedding  # noqa: WPS433
+            logger.info("create_document: Running LLM metadata extraction for embedding...")
+            
+            extracted_metadata = extract_notice_metadata(
+                content=content_with_timestamp,
+                title_en=None,
+                topic=new_topic,
+            )
+            
+            if extracted_metadata:
+                formatted_content = format_metadata_for_embedding(extracted_metadata)
+                logger.info(f"create_document: LLM extraction successful. Embedding content length: {len(formatted_content)}")
+                logger.info(f"create_document: Extracted title: {extracted_metadata.get('title_en', '')[:50]}")
+                return (True, formatted_content)
+            else:
+                logger.warning("create_document: LLM metadata extraction returned None.")
+                return (False, None)
+        except Exception as exc:  # noqa: BLE001
+            logger.exception("create_document: LLM metadata extraction failed (%s)", exc)
+            return (False, None)
+    
+    def run_temporal_analysis():
+        """Run temporal analysis in parallel."""
+        try:
+            from nodes.temporal_analyzer import analyze_temporal_context  # noqa: WPS433
+            logger.info("create_document: Running temporal analysis...")
+            temporal_data = analyze_temporal_context(new_content, notice_date=context_added_date)
+            if temporal_data and isinstance(temporal_data, dict):
+                temporal_json = json.dumps(temporal_data, ensure_ascii=False)
+                logger.info("create_document: Temporal analysis completed successfully.")
+                logger.info(f"create_document: Temporal data - valid_until: {temporal_data.get('valid_until')}")
+                return temporal_json
+            else:
+                logger.warning("create_document: Temporal analysis returned empty/invalid data.")
+                return None
+        except Exception as exc:  # noqa: BLE001
+            logger.exception("create_document: Temporal analysis failed (%s)", exc)
+            return None
+    
+    # Execute both tasks in parallel
+    logger.info("create_document: Starting parallel execution of LLM extraction and temporal analysis...")
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        future_llm = executor.submit(run_llm_extraction)
+        future_temporal = executor.submit(run_temporal_analysis)
+        
+        # Wait for both to complete
+        for future in as_completed([future_llm, future_temporal]):
+            try:
+                future.result()  # Raise any exceptions that occurred
+            except Exception as exc:  # noqa: BLE001
+                logger.exception("create_document: Parallel task failed: %s", exc)
+        
+        # Get results
+        metadata_extraction_success, embedding_content = future_llm.result()
+        temporal_analysis_json = future_temporal.result()
+    
+    # Fallback to original content if LLM extraction failed
+    if not metadata_extraction_success or embedding_content is None:
+        logger.warning("create_document: Using original content with timestamp for embedding (LLM extraction failed).")
+        embedding_content = content_with_timestamp
+    
+    logger.info("create_document: Parallel processing completed.")
+
+    # Step 5 — Append metadata to meta dict
+    # ----------------------------------------------------------------
+    try:
+        existing_meta: dict = json.loads(meta_json) if meta_json and meta_json != "{}" else {}
+    except (json.JSONDecodeError, TypeError):
+        existing_meta = {}
+
+    existing_meta["context_added_date"] = context_added_date
+    existing_meta["context_added_time"] = context_added_time
+    existing_meta["translation_performed"] = translation_performed
+    existing_meta["metadata_extraction_success"] = metadata_extraction_success
+    if translation_performed:
+        existing_meta["original_content_lang"] = "Bengali/mixed"
+
+    meta_json = json.dumps(existing_meta, ensure_ascii=False)
+
+    # ★ For database storage: timestamp + metadata + original content
+    # ★ This will be stored in the `content` column
+    new_content = content_with_timestamp
 
     # ================================================================
     # END PRE-PROCESSING PIPELINE
     # ================================================================
 
     # ---- generate embedding ----
+    # ★ Use LLM-extracted content for embedding if available
+    # ★ Otherwise fall back to original content with timestamp
     try:
-        vec = embed_text(new_content)
+        logger.info(f"create_document: Generating embedding from {'LLM-extracted' if metadata_extraction_success else 'original'} content...")
+        vec = embed_text(embedding_content)
         vec_literal = _vec_to_pg_literal(vec)
+        logger.info("create_document: Embedding generated successfully.")
     except Exception as exc:
         logger.exception("create_document embedding failed")
         return {"error": f"Embedding generation failed: {exc}"}
@@ -462,9 +527,12 @@ def create_document(
                 "embedding_generated": True,
                 "translation_performed": translation_performed,
                 "temporal_analysis_performed": temporal_analysis_json is not None,
+                "metadata_extraction_success": metadata_extraction_success,
                 "context_added_date": context_added_date,
                 "context_added_time": context_added_time,
                 "document": doc,
+                "embedding_content": embedding_content,  # Content used for embedding
+                "stored_content": new_content,  # Content stored in database
             }
         except Exception as exc:
             conn.rollback()
@@ -510,9 +578,12 @@ def create_document(
             "embedding_generated": True,
             "translation_performed": translation_performed,
             "temporal_analysis_performed": temporal_analysis_json is not None,
+            "metadata_extraction_success": metadata_extraction_success,
             "context_added_date": context_added_date,
             "context_added_time": context_added_time,
             "document": doc,
+            "embedding_content": embedding_content,  # Content used for embedding
+            "stored_content": new_content,  # Content stored in database
         }
     except Exception as exc:
         conn.rollback()

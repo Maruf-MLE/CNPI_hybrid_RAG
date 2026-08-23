@@ -3,14 +3,14 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 
 // Django backend base URL.
-// CORS is already enabled on Django (CORS_ALLOW_ALL_ORIGINS=True), so the browser
-// can call the backend directly without going through a Next.js proxy.
-// NEXT_PUBLIC_API_URL is inlined at build time by Next.js (must be set in .env.local).
 const BACKEND = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
 // All admin-panel endpoints live under /admin-panel/api/ on Django
 const API = `${BACKEND}/admin-panel/api`;
 const MAIN_API = `${BACKEND}/admin-panel/api`;
+
+// Google Client ID - replace with your actual Client ID
+const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "YOUR_GOOGLE_CLIENT_ID";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -73,7 +73,10 @@ async function apiFetch(
   url: string,
   opts?: RequestInit
 ): Promise<{ ok: boolean; d: Record<string, unknown> }> {
-  const r = await fetch(url, opts);
+  const r = await fetch(url, {
+    ...opts,
+    credentials: 'include', // IMPORTANT: Include cookies in all API calls
+  });
   const d = await r.json();
   return { ok: r.ok, d };
 }
@@ -133,9 +136,11 @@ function Toaster({ toasts }: { toasts: Toast[] }) {
 
 export default function AdminPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [authPassword, setAuthPassword] = useState("");
+  const [userEmail, setUserEmail] = useState("");
   const [authError, setAuthError] = useState("");
-  const [isAuthBusy, setIsAuthBusy] = useState(false);
+  const [isAuthBusy, setIsAuthBusy] = useState(true);
+  const [googleLoaded, setGoogleLoaded] = useState(false);
+  const googleButtonRef = useRef<HTMLDivElement>(null);
 
   const [tab, setTab] = useState<Tab>("update");
   const toastIdRef = useRef(0);
@@ -338,17 +343,45 @@ export default function AdminPage() {
         return toast((d.error as string) || "Create failed", "err");
       }
       const xlat = d.translation_performed ? " · translated Bengali→English" : "";
+      const metaExtracted = d.metadata_extraction_success ? " · LLM extracted" : "";
       const dateInfo = d.context_added_date
         ? ` · ${d.context_added_date} ${d.context_added_time} BST`
         : "";
       const noticeInfo = d.inserted_into_notices
         ? ` · notice_id=${d.notice_id}`
         : "";
-      toast(`Created doc_id=${d.doc_id}${xlat}${dateInfo}${noticeInfo}`, "ok");
+      toast(`Created doc_id=${d.doc_id}${xlat}${metaExtracted}${dateInfo}${noticeInfo}`, "ok");
+      
+      // Show both embedding content and stored content
+      const embeddingContent = d.embedding_content || "";
+      const storedContent = (d.document as { content?: string })?.content || d.stored_content || "";
+      
       setAddResult(
         `<div style="background:#1e293b;border:1px solid #334155;border-radius:10px;padding:12px">
-          <div style="font-size:12px;color:#94a3b8;margin-bottom:6px">doc_id: ${esc(d.doc_id)} · chunk_id: <b>${esc(d.chunk_id)}</b></div>
-          <div style="font-size:13px;white-space:pre-wrap;font-family:monospace;max-height:120px;overflow:auto">${esc((d.document as { content?: string })?.content ?? "")}</div>
+          <div style="font-size:12px;color:#94a3b8;margin-bottom:10px">
+            doc_id: ${esc(d.doc_id)} · chunk_id: <b>${esc(d.chunk_id)}</b>
+            ${d.metadata_extraction_success ? ' · <span style="color:#22c55e">✓ LLM Metadata Extracted</span>' : ''}
+          </div>
+          
+          ${embeddingContent ? `
+          <div style="margin-bottom:14px">
+            <div style="font-size:11px;color:#38bdf8;font-weight:600;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px">
+              🔍 Embedding Content (Used for Search)
+            </div>
+            <div style="background:#0f172a;border:1px solid #334155;border-radius:8px;padding:10px;font-size:12px;white-space:pre-wrap;font-family:monospace;max-height:180px;overflow:auto;line-height:1.6">
+              ${esc(embeddingContent)}
+            </div>
+          </div>
+          ` : ''}
+          
+          <div>
+            <div style="font-size:11px;color:#94a3b8;font-weight:600;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px">
+              💾 Stored Content (Saved in Database)
+            </div>
+            <div style="background:#0f172a;border:1px solid #334155;border-radius:8px;padding:10px;font-size:12px;white-space:pre-wrap;font-family:monospace;max-height:180px;overflow:auto;line-height:1.6">
+              ${esc(storedContent)}
+            </div>
+          </div>
         </div>`
       );
       loadStats();
@@ -595,46 +628,180 @@ export default function AdminPage() {
     muted: { color: "#94a3b8" },
   };
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
+  // Load Google Sign-In SDK
+  useEffect(() => {
+    const script = document.createElement('script');
+    script.src = 'https://accounts.google.com/gsi/client';
+    script.async = true;
+    script.defer = true;
+    script.onload = () => {
+      setGoogleLoaded(true);
+    };
+    document.body.appendChild(script);
+
+    return () => {
+      if (document.body.contains(script)) {
+        document.body.removeChild(script);
+      }
+    };
+  }, []);
+
+  // Check authentication status on mount
+  useEffect(() => {
+    const checkAuth = async () => {
+      setIsAuthBusy(true);
+      try {
+        const res = await fetch(`${BACKEND}/admin-panel/api/auth/status/`, {
+          credentials: 'include', // Important: include cookies
+        });
+        const data = await res.json();
+        if (res.ok && data.authenticated) {
+          setIsAuthenticated(true);
+          setUserEmail(data.email || '');
+        } else {
+          setIsAuthenticated(false);
+        }
+      } catch (err) {
+        setIsAuthenticated(false);
+      } finally {
+        setIsAuthBusy(false);
+      }
+    };
+    checkAuth();
+  }, []);
+
+  // Handle Google Sign-In callback
+  const handleGoogleCallback = useCallback(async (response: any) => {
     setIsAuthBusy(true);
-    setAuthError("");
+    setAuthError('');
+    
     try {
-      const res = await fetch("/api/admin-auth", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ password: authPassword }),
+      const res = await fetch(`${BACKEND}/admin-panel/api/auth/google-login/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include', // Important: include cookies
+        body: JSON.stringify({
+          id_token: response.credential
+        })
       });
+
       const data = await res.json();
+
       if (res.ok && data.success) {
         setIsAuthenticated(true);
+        setUserEmail(data.email);
+        toast('Login successful!', 'ok');
       } else {
-        setAuthError(data.error || "Login failed");
+        setAuthError(data.error || 'Login failed');
+        toast(data.error || 'Login failed', 'err');
       }
     } catch (err) {
-      setAuthError("Network error");
+      setAuthError('Network error. Please try again.');
+      toast('Network error', 'err');
     } finally {
       setIsAuthBusy(false);
     }
+  }, [toast]);
+
+  // Initialize Google Sign-In when SDK is loaded
+  useEffect(() => {
+    if (googleLoaded && !isAuthenticated && googleButtonRef.current) {
+      try {
+        // Clear existing button first
+        googleButtonRef.current.innerHTML = '';
+        
+        (window as any).google.accounts.id.initialize({
+          client_id: GOOGLE_CLIENT_ID,
+          callback: handleGoogleCallback,
+        });
+        
+        (window as any).google.accounts.id.renderButton(
+          googleButtonRef.current,
+          {
+            theme: "filled_blue",
+            size: "large",
+            text: "signin_with",
+            shape: "rectangular",
+            width: 280
+          }
+        );
+      } catch (error) {
+        console.error('Google Sign-In initialization error:', error);
+        setAuthError('Failed to load Google Sign-In');
+      }
+    }
+  }, [googleLoaded, isAuthenticated, handleGoogleCallback]);
+
+  const handleLogout = async () => {
+    try {
+      await fetch(`${BACKEND}/admin-panel/api/auth/logout/`, {
+        method: 'POST',
+        credentials: 'include',
+      });
+      
+      // Clear Google Sign-In state
+      if ((window as any).google) {
+        (window as any).google.accounts.id.disableAutoSelect();
+      }
+      
+      setIsAuthenticated(false);
+      setUserEmail('');
+      toast('Logged out successfully', 'ok');
+    } catch (err) {
+      toast('Logout failed', 'err');
+    }
   };
+
+  if (isAuthBusy) {
+    return (
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100vh", background: "#0f172a", color: "white", fontFamily: "system-ui, sans-serif" }}>
+        <div style={{ fontSize: 16, color: "#94a3b8" }}>Loading...</div>
+      </div>
+    );
+  }
 
   if (!isAuthenticated) {
     return (
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100vh", background: "#0f172a", color: "white", fontFamily: "system-ui, sans-serif" }}>
-        <h2 style={{ marginBottom: 20 }}>Admin Login</h2>
-        <form onSubmit={handleLogin} style={{ display: "flex", flexDirection: "column", gap: 10, width: 300 }}>
-          <input 
-            type="password" 
-            placeholder="Enter password..." 
-            value={authPassword} 
-            onChange={(e) => setAuthPassword(e.target.value)}
-            style={{ padding: 12, borderRadius: 6, border: "1px solid #334155", background: "#1e293b", color: "white", outline: "none" }}
-          />
-          <button type="submit" disabled={isAuthBusy} style={{ padding: 12, borderRadius: 6, border: "none", background: "#3b82f6", color: "white", cursor: "pointer", fontWeight: "bold" }}>
-            {isAuthBusy ? "Checking..." : "Login"}
-          </button>
-        </form>
-        {authError && <p style={{ color: "#ef4444", marginTop: 15 }}>{authError}</p>}
+        <div style={{ textAlign: "center", maxWidth: 400 }}>
+          <h1 style={{ fontSize: 32, marginBottom: 12, fontWeight: 700 }}>CNPI Admin Panel</h1>
+          <p style={{ color: "#94a3b8", marginBottom: 32, fontSize: 14 }}>
+            Secure access with Google OAuth. Only authorized emails can access this panel.
+          </p>
+          
+          {/* Google Sign-In Button */}
+          <div 
+            style={{ 
+              display: "flex",
+              justifyContent: "center",
+              marginBottom: 16,
+              minHeight: 44
+            }}
+          >
+            {googleLoaded ? (
+              <div ref={googleButtonRef} />
+            ) : (
+              <div style={{ color: "#94a3b8", fontSize: 14 }}>Loading Google Sign-In...</div>
+            )}
+          </div>
+
+          {authError && <p style={{ color: "#ef4444", marginTop: 20, fontSize: 13 }}>{authError}</p>}
+          
+          <div style={{ marginTop: 40, padding: 20, background: "#1e293b", borderRadius: 8, border: "1px solid #334155" }}>
+            <div style={{ fontSize: 12, color: "#94a3b8", lineHeight: 1.6 }}>
+              <strong style={{ color: "#e2e8f0" }}>🔒 Security Features:</strong><br/>
+              • No backend redirects - API-based flow<br/>
+              • HTTPOnly cookies prevent XSS attacks<br/>
+              • Secure HTTPS-only cookies in production<br/>
+              • SameSite cookie protection against CSRF<br/>
+              • Email whitelist authorization<br/>
+              • Google token verification on backend
+            </div>
+          </div>
+        </div>
+        <Toaster toasts={toasts} />
       </div>
     );
   }
@@ -670,7 +837,7 @@ export default function AdminPage() {
         >
           documents table
         </span>
-        <div style={{ marginLeft: "auto", display: "flex", gap: 10, fontSize: 13, color: "#94a3b8" }}>
+        <div style={{ marginLeft: "auto", display: "flex", gap: 10, alignItems: "center", fontSize: 13, color: "#94a3b8" }}>
           {stats && (
             <>
               <span>
@@ -683,6 +850,32 @@ export default function AdminPage() {
               ))}
             </>
           )}
+          <div style={{ borderLeft: "1px solid #334155", paddingLeft: 12, marginLeft: 6, display: "flex", alignItems: "center", gap: 10 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <div style={{ width: 28, height: 28, borderRadius: "50%", background: "#3b82f6", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 600, color: "white" }}>
+                {userEmail.charAt(0).toUpperCase()}
+              </div>
+              <span style={{ fontSize: 12, color: "#e2e8f0" }}>{userEmail}</span>
+            </div>
+            <button
+              onClick={handleLogout}
+              style={{
+                padding: "6px 12px",
+                borderRadius: 6,
+                border: "1px solid #334155",
+                background: "#273449",
+                color: "#e2e8f0",
+                cursor: "pointer",
+                fontSize: 12,
+                fontWeight: 600,
+                transition: "background 0.2s"
+              }}
+              onMouseOver={(e) => e.currentTarget.style.background = "#1e293b"}
+              onMouseOut={(e) => e.currentTarget.style.background = "#273449"}
+            >
+              Logout
+            </button>
+          </div>
         </div>
       </header>
 

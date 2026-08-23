@@ -2,13 +2,19 @@
 
 from django.urls import path
 from . import views
+from . import auth_views
 
 urlpatterns = [
-    # Login / Logout
+    # Google OAuth Authentication (API-based, no redirect)
+    path("api/auth/google-login/", auth_views.google_login_view, name="admin-google-login"),
+    path("api/auth/status/", auth_views.auth_status_view, name="admin-auth-status"),
+    path("api/auth/logout/", auth_views.logout_view, name="admin-logout"),
+
+    # Legacy login/logout (if needed)
     path("login/", views.login_view, name="admin-panel-login"),
     path("logout/", views.logout_view, name="admin-panel-logout"),
 
-    # Main page — login না থাকলে redirect হবে
+    # Main page
     path("", views.index_view, name="admin-panel-index"),
 
     # API — documents

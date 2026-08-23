@@ -34,5 +34,8 @@ djangorestframework>=3.14.0
 django-cors-headers>=4.3.0
 gunicorn>=21.2.0
 
+# Authentication - Google OAuth token verification
+google-auth>=2.23.0
+
 # LangSmith (optional tracing)
 langchain-core>=0.3.0

@@ -79,6 +79,7 @@ INSTALLED_APPS = [
     # Local
     'rag_api',
     'admin_panel',
+    
 ]
 
 MIDDLEWARE = [
@@ -90,6 +91,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'admin_panel.middleware.AdminAuthenticationMiddleware',  # Admin panel protection
 ]
 
 ROOT_URLCONF = 'cnpi_api.urls'
@@ -114,13 +116,20 @@ WSGI_APPLICATION = 'cnpi_api.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
-# NOTE: Django's own DB (sqlite) is for Django internals only.
-#       The RAG system talks to PostgreSQL directly via psycopg2 (see Cnpi_RAG/utils/db_utils.py).
+# NOTE: The RAG system talks to PostgreSQL directly via psycopg2 (see Cnpi_RAG/utils/db_utils.py).
+#       Django also connects to the same Neon PostgreSQL for admin/models.
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.getenv('DB_NAME', 'neondb'),
+        'USER': os.getenv('DB_USER', 'neondb_owner'),
+        'PASSWORD': os.getenv('DB_PASSWORD'),
+        'HOST': os.getenv('DB_HOST'),
+        'PORT': os.getenv('DB_PORT', '5432'),
+        'OPTIONS': {
+            'sslmode': os.getenv('DB_SSLMODE', 'require'),
+        },
     }
 }
 
@@ -186,3 +195,36 @@ REST_FRAMEWORK = {
 # ---------------------------------------------------------------------------
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
+
+# ---------------------------------------------------------------------------
+# ---------------------------------------------------------------------------
+# Google OAuth Configuration (API-based, no redirect)
+# ---------------------------------------------------------------------------
+GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID', '')
+
+# Only allow specific email domains for admin panel
+ADMIN_ALLOWED_EMAILS = os.getenv('ADMIN_ALLOWED_EMAILS', '').split(',')
+
+# ---------------------------------------------------------------------------
+# Security Settings - HTTPOnly Cookies
+# ---------------------------------------------------------------------------
+SESSION_COOKIE_HTTPONLY = True  # JavaScript can't access session cookie
+SESSION_COOKIE_SECURE = not DEBUG  # Only send cookie over HTTPS in production
+SESSION_COOKIE_SAMESITE = 'Lax'  # CSRF protection
+SESSION_COOKIE_AGE = 86400  # 24 hours
+
+CSRF_COOKIE_HTTPONLY = True  # JavaScript can't access CSRF cookie
+CSRF_COOKIE_SECURE = not DEBUG
+CSRF_COOKIE_SAMESITE = 'Lax'
+
+# Additional security headers
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+X_FRAME_OPTIONS = 'DENY'
+
+# Production HTTPS settings (only if not DEBUG)
+if not DEBUG:
+    SECURE_SSL_REDIRECT = True
+    SECURE_HSTS_SECONDS = 31536000
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
