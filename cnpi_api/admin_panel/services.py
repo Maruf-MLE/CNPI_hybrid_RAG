@@ -83,8 +83,15 @@ def _get_conn():
 # Search
 # ---------------------------------------------------------------------------
 
-def semantic_search(query: str, top_k: int = 5) -> list[dict[str, Any]]:
+def semantic_search(query: str, top_k: int = 5, include_priority: bool = True) -> list[dict[str, Any]]:
     """Embed the question and run pgvector cosine similarity search.
+    
+    If include_priority=True (default), priority documents are always included first,
+    then the remaining slots are filled with query-based retrieval.
+    
+    For example, if top_k=10 and there are 3 priority docs:
+        - First 3 results: Priority documents (in priority_order)
+        - Next 7 results: Top-7 most relevant documents from semantic search
 
     Returns a list of dicts (best match first) with keys:
         doc_id, chunk_id, content, doc_type, topic, department, meta, score
@@ -97,34 +104,70 @@ def semantic_search(query: str, top_k: int = 5) -> list[dict[str, Any]]:
 
     top_k = max(1, min(int(top_k or 5), 50))
 
-    query_vector = embed_text(query)
-    vector_literal = _vec_to_pg_literal(query_vector)
+    # Step 1: Get priority documents if enabled
+    priority_docs = []
+    if include_priority:
+        try:
+            priority_docs = get_priority_documents_for_retrieval()
+            logger.info(f"Retrieved {len(priority_docs)} priority documents")
+        except Exception as e:
+            logger.warning(f"Failed to retrieve priority documents: {e}")
+    
+    # Calculate remaining slots for query-based retrieval
+    remaining_k = max(0, top_k - len(priority_docs))
+    
+    # Step 2: Query-based semantic search (exclude priority docs to avoid duplicates)
+    query_results = []
+    if remaining_k > 0:
+        query_vector = embed_text(query)
+        vector_literal = _vec_to_pg_literal(query_vector)
+        
+        # Exclude priority doc_ids from semantic search
+        priority_doc_ids = [doc['doc_id'] for doc in priority_docs]
+        exclude_clause = ""
+        if priority_doc_ids:
+            exclude_clause = f"WHERE doc_id NOT IN ({','.join(map(str, priority_doc_ids))})"
 
-    sql = f"""
-        SELECT
-            doc_id,
-            chunk_id,
-            content,
-            doc_type,
-            topic,
-            department,
-            meta,
-            1 - (embedding <=> %s::vector) AS score
-        FROM {TABLE}
-        ORDER BY embedding <=> %s::vector, created_at DESC
-        LIMIT %s;
-    """
+        sql = f"""
+            SELECT
+                doc_id,
+                chunk_id,
+                content,
+                doc_type,
+                topic,
+                department,
+                meta,
+                1 - (embedding <=> %s::vector) AS score
+            FROM {TABLE}
+            {exclude_clause}
+            ORDER BY embedding <=> %s::vector, created_at DESC
+            LIMIT %s;
+        """
 
-    conn = _get_conn()
-    try:
-        from psycopg2.extras import RealDictCursor
+        conn = _get_conn()
+        try:
+            from psycopg2.extras import RealDictCursor
 
-        with conn.cursor(cursor_factory=RealDictCursor) as cur:
-            cur.execute(sql, (vector_literal, vector_literal, top_k))
-            rows = cur.fetchall()
-        return [_row_to_dict(r) for r in rows]
-    finally:
-        conn.close()
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                cur.execute(sql, (vector_literal, vector_literal, remaining_k))
+                rows = cur.fetchall()
+            query_results = [_row_to_dict(r) for r in rows]
+        finally:
+            conn.close()
+    
+    # Step 3: Combine priority docs (first) + query results
+    # Add a score of 1.0 to priority docs to indicate they're always relevant
+    for doc in priority_docs:
+        doc['score'] = 1.0
+        doc['is_priority'] = True
+    
+    for doc in query_results:
+        doc['is_priority'] = False
+    
+    combined_results = priority_docs + query_results
+    logger.info(f"Returning {len(priority_docs)} priority + {len(query_results)} query-based = {len(combined_results)} total docs")
+    
+    return combined_results
 
 
 # ---------------------------------------------------------------------------
@@ -201,12 +244,14 @@ def create_document(
 
     new_doc_type = (doc_type or "general").strip() or "general"
 
-    # For notices, chunk_id is auto-generated after notice insert (notice-{notice_id})
-    # So we skip chunk_id validation for notices here; it will be set later.
+    # For notices and priority_documents, chunk_id is auto-generated after insert
+    # So we skip chunk_id validation for these types here; it will be set later.
     _is_notice = new_doc_type.lower() == "notices"
+    _is_priority = new_doc_type.lower() == "priority_documents"
+    _auto_chunk_id = _is_notice or _is_priority
 
     new_chunk_id = (chunk_id or "").strip()
-    if not _is_notice:
+    if not _auto_chunk_id:
         if not new_chunk_id:
             return {"error": "chunk_id is required."}
         if len(new_chunk_id) > 200:
@@ -237,8 +282,8 @@ def create_document(
 
     new_source = (source_file or "").strip() or None
 
-    # ---- check for existing chunk_id (only for non-notices) ----
-    if not _is_notice and new_chunk_id:
+    # ---- check for existing chunk_id (only for non-auto types) ----
+    if not _auto_chunk_id and new_chunk_id:
         existing = get_document(chunk_id=new_chunk_id)
         if existing is not None:
             return {
@@ -541,6 +586,156 @@ def create_document(
             return {"error": f"Database insert failed: {exc}"}
     
     # ================================================================
+    # SPECIAL CASE: priority_documents with auto-generated chunk_id
+    # ================================================================
+    if new_doc_type.lower() == "priority_documents" and not new_chunk_id:
+        # First insert to get doc_id, then update with auto-generated chunk_id
+        import uuid
+        temp_chunk_id = f"temp_priority_{uuid.uuid4().hex[:8]}"
+        
+        sql = f"""
+            INSERT INTO {TABLE}
+                (chunk_id, content, doc_type, topic, department, embedding, meta, source_file, temporal_analysis)
+            VALUES
+                (%s, %s, %s, %s, %s, %s::vector, %s::jsonb, %s, %s::jsonb)
+            RETURNING doc_id, chunk_id;
+        """
+        params = (
+            temp_chunk_id,
+            new_content,
+            new_doc_type,
+            new_topic,
+            new_dept,
+            vec_literal,
+            meta_json,
+            new_source,
+            temporal_analysis_json,
+        )
+        
+        conn = _get_conn()
+        try:
+            with conn.cursor() as cur:
+                cur.execute(sql, params)
+                returned = cur.fetchone()
+                conn.commit()
+            
+            if not returned:
+                return {"error": "Insert returned no row."}
+            
+            doc_id = returned[0]
+            
+            # Generate final chunk_id: priority-{doc_id}
+            final_chunk_id = f"priority-{doc_id}"
+            
+            # Update with final chunk_id
+            update_sql = f"""
+                UPDATE {TABLE}
+                SET chunk_id = %s
+                WHERE doc_id = %s
+                RETURNING doc_id, chunk_id;
+            """
+            
+            with conn.cursor() as cur:
+                cur.execute(update_sql, (final_chunk_id, doc_id))
+                updated = cur.fetchone()
+                conn.commit()
+            
+            if not updated:
+                return {"error": "chunk_id update failed."}
+            
+            chunk_id_returned = updated[1]
+            logger.info(f"✅ Auto-generated chunk_id: {chunk_id_returned}")
+            
+            # Auto-add to priority_documents table
+            added_to_priority = False
+            notice_id = None
+            try:
+                logger.info(f"create_document: Auto-adding doc_id={doc_id} to priority list...")
+                priority_sql = """
+                    INSERT INTO public.priority_documents 
+                    (doc_id, priority_order, reason, created_at, updated_at, is_active)
+                    VALUES (%s, %s, %s, NOW(), NOW(), TRUE)
+                    ON CONFLICT (doc_id) DO NOTHING
+                    RETURNING priority_id;
+                """
+                priority_reason = f"Auto-added via admin panel (doc_type=priority_documents)"
+                
+                with conn.cursor() as cur:
+                    cur.execute(priority_sql, (doc_id, 0, priority_reason))
+                    priority_result = cur.fetchone()
+                    conn.commit()
+                
+                if priority_result:
+                    added_to_priority = True
+                    logger.info(f"✅ Successfully added to priority list with priority_id={priority_result[0]}")
+                else:
+                    logger.warning(f"Document {doc_id} already exists in priority list")
+                    added_to_priority = True
+                
+                # Also sync to notices table (WITHOUT inserting into documents again)
+                logger.info(f"create_document: Syncing priority document to notices table...")
+                institution_id = 1  # Default CNPI institution
+                category = new_dept if new_dept else "General"
+                title_bn = new_topic if new_topic else "নতুন প্রায়োরিটি ডকুমেন্ট"
+                
+                # Insert into notices table
+                if temporal_analysis_json:
+                    sql_notices = """
+                        INSERT INTO public.notices
+                            (institution_id, category, title_bn, content_bn, temporal_analysis, created_at)
+                        VALUES
+                            (%s, %s, %s, %s, %s::jsonb, NOW())
+                        RETURNING notice_id;
+                    """
+                    params_notices = (institution_id, category, title_bn, new_content, temporal_analysis_json)
+                else:
+                    sql_notices = """
+                        INSERT INTO public.notices
+                            (institution_id, category, title_bn, content_bn, created_at)
+                        VALUES
+                            (%s, %s, %s, %s, NOW())
+                        RETURNING notice_id;
+                    """
+                    params_notices = (institution_id, category, title_bn, new_content)
+                
+                with conn.cursor() as cur:
+                    cur.execute(sql_notices, params_notices)
+                    notice_returned = cur.fetchone()
+                    conn.commit()
+                
+                if notice_returned:
+                    notice_id = notice_returned[0]
+                    logger.info(f"✅ Successfully synced to notices table with notice_id={notice_id}")
+                    
+            except Exception as exc:
+                logger.warning(f"Failed to auto-add to priority list or sync to notices: {exc}")
+            
+            doc = get_document(doc_id=doc_id)
+            return {
+                "created": True,
+                "doc_id": doc_id,
+                "chunk_id": chunk_id_returned,
+                "embedding_generated": True,
+                "translation_performed": translation_performed,
+                "temporal_analysis_performed": temporal_analysis_json is not None,
+                "metadata_extraction_success": metadata_extraction_success,
+                "context_added_date": context_added_date,
+                "context_added_time": context_added_time,
+                "document": doc,
+                "embedding_content": embedding_content,
+                "stored_content": new_content,
+                "added_to_priority": added_to_priority,
+                "notice_id": notice_id,  # New field
+                "synced_to_notices": notice_id is not None,  # New field
+            }
+        except Exception as exc:
+            conn.rollback()
+            logger.exception("create_document failed for priority_documents")
+            return {"error": f"Database insert failed: {exc}"}
+        finally:
+            conn.close()
+    
+    # ================================================================
     # NORMAL CASE: Insert only into documents table
     # ================================================================
     sql = f"""
@@ -570,11 +765,48 @@ def create_document(
             conn.commit()
         if not returned:
             return {"error": "Insert returned no row."}
-        doc = get_document(doc_id=returned[0])
+        
+        doc_id = returned[0]
+        chunk_id_returned = returned[1]
+        
+        # ================================================================
+        # SPECIAL CASE: Auto-add to priority_documents if doc_type is 'priority_documents'
+        # ================================================================
+        added_to_priority = False
+        if new_doc_type.lower() == "priority_documents":
+            try:
+                logger.info(f"create_document: Auto-adding doc_id={doc_id} to priority list...")
+                # Add to priority_documents table
+                priority_sql = """
+                    INSERT INTO public.priority_documents 
+                    (doc_id, priority_order, reason, created_at, updated_at, is_active)
+                    VALUES (%s, %s, %s, NOW(), NOW(), TRUE)
+                    ON CONFLICT (doc_id) DO NOTHING
+                    RETURNING priority_id;
+                """
+                priority_reason = f"Auto-added via admin panel (doc_type=priority_documents)"
+                
+                with conn.cursor() as cur:
+                    cur.execute(priority_sql, (doc_id, 0, priority_reason))
+                    priority_result = cur.fetchone()
+                    conn.commit()
+                
+                if priority_result:
+                    added_to_priority = True
+                    logger.info(f"✅ Successfully added to priority list with priority_id={priority_result[0]}")
+                else:
+                    logger.warning(f"Document {doc_id} already exists in priority list")
+                    added_to_priority = True  # Already in list
+                    
+            except Exception as exc:
+                logger.warning(f"Failed to auto-add to priority list: {exc}")
+                # Don't fail the whole operation if priority add fails
+        
+        doc = get_document(doc_id=doc_id)
         return {
             "created": True,
-            "doc_id": returned[0],
-            "chunk_id": returned[1],
+            "doc_id": doc_id,
+            "chunk_id": chunk_id_returned,
             "embedding_generated": True,
             "translation_performed": translation_performed,
             "temporal_analysis_performed": temporal_analysis_json is not None,
@@ -584,6 +816,7 @@ def create_document(
             "document": doc,
             "embedding_content": embedding_content,  # Content used for embedding
             "stored_content": new_content,  # Content stored in database
+            "added_to_priority": added_to_priority,  # New field
         }
     except Exception as exc:
         conn.rollback()
@@ -1047,5 +1280,281 @@ def document_stats() -> dict[str, Any]:
             cur.execute(sql_by_dept)
             by_dept = [dict(r) for r in cur.fetchall()]
         return {"total": total, "by_doc_type": by_type, "by_department": by_dept}
+    finally:
+        conn.close()
+
+
+# ---------------------------------------------------------------------------
+# Priority Documents Management
+# ---------------------------------------------------------------------------
+
+def get_priority_documents(active_only: bool = True) -> list[dict[str, Any]]:
+    """
+    Get all priority documents with their full document details.
+    
+    Args:
+        active_only: If True, return only active priority docs
+    
+    Returns:
+        List of dicts containing priority info + document data
+    """
+    where_clause = "WHERE pd.is_active = TRUE" if active_only else ""
+    
+    sql = f"""
+        SELECT 
+            pd.priority_id,
+            pd.doc_id,
+            pd.priority_order,
+            pd.reason,
+            pd.created_at AS priority_created_at,
+            pd.is_active,
+            d.chunk_id,
+            d.content,
+            d.doc_type,
+            d.topic,
+            d.department,
+            d.meta,
+            d.created_at AS doc_created_at
+        FROM public.priority_documents pd
+        INNER JOIN {TABLE} d ON pd.doc_id = d.doc_id
+        {where_clause}
+        ORDER BY pd.priority_order, pd.created_at DESC
+    """
+    
+    conn = _get_conn()
+    try:
+        from psycopg2.extras import RealDictCursor
+        with conn.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute(sql)
+            return [dict(r) for r in cur.fetchall()]
+    finally:
+        conn.close()
+
+
+def add_priority_document(
+    doc_id: int,
+    priority_order: int = 0,
+    reason: str = None
+) -> dict[str, Any]:
+    """
+    Add a document to priority list.
+    
+    Args:
+        doc_id: Document ID to mark as priority
+        priority_order: Order/rank (lower = higher priority)
+        reason: Optional reason for prioritization
+    
+    Returns:
+        Dict with created priority document info
+    """
+    # First check if document exists
+    doc = get_document(doc_id=doc_id)
+    if not doc:
+        raise ValueError(f"Document with doc_id={doc_id} not found")
+    
+    # Check if already in priority list
+    check_sql = """
+        SELECT priority_id, is_active 
+        FROM public.priority_documents 
+        WHERE doc_id = %s
+    """
+    
+    conn = _get_conn(allow_write=True)
+    try:
+        from psycopg2.extras import RealDictCursor
+        with conn.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute(check_sql, (doc_id,))
+            existing = cur.fetchone()
+            
+            if existing:
+                if existing['is_active']:
+                    raise ValueError(f"Document {doc_id} is already in priority list")
+                else:
+                    # Reactivate if it was deactivated
+                    update_sql = """
+                        UPDATE public.priority_documents 
+                        SET is_active = TRUE, 
+                            priority_order = %s,
+                            reason = %s,
+                            updated_at = NOW()
+                        WHERE priority_id = %s
+                        RETURNING priority_id, doc_id, priority_order, reason, created_at, is_active
+                    """
+                    cur.execute(update_sql, (priority_order, reason, existing['priority_id']))
+                    result = dict(cur.fetchone())
+            else:
+                # Insert new priority document
+                insert_sql = """
+                    INSERT INTO public.priority_documents 
+                    (doc_id, priority_order, reason, created_at, updated_at, is_active)
+                    VALUES (%s, %s, %s, NOW(), NOW(), TRUE)
+                    RETURNING priority_id, doc_id, priority_order, reason, created_at, is_active
+                """
+                cur.execute(insert_sql, (doc_id, priority_order, reason))
+                result = dict(cur.fetchone())
+            
+            conn.commit()
+            logger.info(f"Added document {doc_id} to priority list with order {priority_order}")
+            return result
+    except Exception as e:
+        conn.rollback()
+        logger.error(f"Error adding priority document: {e}")
+        raise
+    finally:
+        conn.close()
+
+
+def remove_priority_document(priority_id: int = None, doc_id: int = None) -> dict[str, str]:
+    """
+    Remove a document from priority list (soft delete - sets is_active=False).
+    
+    Args:
+        priority_id: Priority document ID (preferred)
+        doc_id: Or document ID to remove
+    
+    Returns:
+        Success message dict
+    """
+    if not priority_id and not doc_id:
+        raise ValueError("Either priority_id or doc_id must be provided")
+    
+    if priority_id:
+        where_clause = "priority_id = %s"
+        param = priority_id
+    else:
+        where_clause = "doc_id = %s"
+        param = doc_id
+    
+    sql = f"""
+        UPDATE public.priority_documents 
+        SET is_active = FALSE, updated_at = NOW()
+        WHERE {where_clause} AND is_active = TRUE
+        RETURNING priority_id, doc_id
+    """
+    
+    conn = _get_conn(allow_write=True)
+    try:
+        from psycopg2.extras import RealDictCursor
+        with conn.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute(sql, (param,))
+            result = cur.fetchone()
+            
+            if not result:
+                raise ValueError(f"No active priority document found with {'priority_id' if priority_id else 'doc_id'}={param}")
+            
+            conn.commit()
+            logger.info(f"Removed priority document: {dict(result)}")
+            return {"success": True, "message": f"Priority document removed successfully"}
+    except Exception as e:
+        conn.rollback()
+        logger.error(f"Error removing priority document: {e}")
+        raise
+    finally:
+        conn.close()
+
+
+def update_priority_order(priority_id: int, new_order: int) -> dict[str, Any]:
+    """
+    Update the priority order of a priority document.
+    
+    Args:
+        priority_id: Priority document ID
+        new_order: New priority order value
+    
+    Returns:
+        Updated priority document info
+    """
+    sql = """
+        UPDATE public.priority_documents 
+        SET priority_order = %s, updated_at = NOW()
+        WHERE priority_id = %s AND is_active = TRUE
+        RETURNING priority_id, doc_id, priority_order, reason, created_at, is_active
+    """
+    
+    conn = _get_conn(allow_write=True)
+    try:
+        from psycopg2.extras import RealDictCursor
+        with conn.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute(sql, (new_order, priority_id))
+            result = cur.fetchone()
+            
+            if not result:
+                raise ValueError(f"Priority document {priority_id} not found or inactive")
+            
+            conn.commit()
+            logger.info(f"Updated priority order for {priority_id} to {new_order}")
+            return dict(result)
+    except Exception as e:
+        conn.rollback()
+        logger.error(f"Error updating priority order: {e}")
+        raise
+    finally:
+        conn.close()
+
+
+def get_priority_documents_for_retrieval() -> list[dict[str, Any]]:
+    """
+    Get all active priority documents for RAG retrieval.
+    Returns full document data ready to be used in context.
+    
+    Returns:
+        List of document dicts with all necessary fields
+    """
+    sql = f"""
+        SELECT 
+            d.doc_id,
+            d.chunk_id,
+            d.content,
+            d.doc_type,
+            d.topic,
+            d.department,
+            d.meta,
+            d.embedding,
+            pd.priority_order
+        FROM public.priority_documents pd
+        INNER JOIN {TABLE} d ON pd.doc_id = d.doc_id
+        WHERE pd.is_active = TRUE
+        ORDER BY pd.priority_order, pd.created_at DESC
+    """
+    
+    conn = _get_conn()
+    try:
+        from psycopg2.extras import RealDictCursor
+        with conn.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute(sql)
+            return [dict(r) for r in cur.fetchall()]
+    finally:
+        conn.close()
+
+
+def priority_documents_stats() -> dict[str, Any]:
+    """
+    Get statistics about priority documents.
+    
+    Returns:
+        Dict with total count and breakdown by doc_type
+    """
+    sql = """
+        SELECT 
+            COUNT(*) AS total_active,
+            COUNT(CASE WHEN d.doc_type IS NOT NULL THEN 1 END) AS with_type,
+            json_agg(
+                json_build_object(
+                    'doc_type', d.doc_type,
+                    'count', COUNT(*)
+                ) ORDER BY COUNT(*) DESC
+            ) FILTER (WHERE d.doc_type IS NOT NULL) AS by_type
+        FROM public.priority_documents pd
+        INNER JOIN public.documents d ON pd.doc_id = d.doc_id
+        WHERE pd.is_active = TRUE
+    """
+    
+    conn = _get_conn()
+    try:
+        from psycopg2.extras import RealDictCursor
+        with conn.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute(sql)
+            result = cur.fetchone()
+            return dict(result) if result else {"total_active": 0, "by_type": []}
     finally:
         conn.close()

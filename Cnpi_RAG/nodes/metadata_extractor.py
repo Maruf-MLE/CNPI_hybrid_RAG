@@ -6,10 +6,11 @@ Extracts retrieval-optimized metadata from college notices using LLM.
 
 Generates:
   - title_en: English title
-  - search_summary: Bengali retrieval summary
-  - key_facts: List of atomic facts in Bengali
+  - search_summary: English retrieval summary
+  - key_facts: List of atomic facts in English
 
 Output is used to create embedding-ready content for better semantic search.
+All metadata is extracted in English regardless of input language.
 """
 
 import json
@@ -138,7 +139,7 @@ The summary MUST:
 9. Include important consequences or required actions.
 10. Include alternative wording for important concepts when this can improve retrieval.
 
-The `search_summary` MUST be written in Bengali.
+The `search_summary` MUST be written in English.
 
 For example, if the notice says:
 
@@ -146,11 +147,11 @@ For example, if the notice says:
 
 A good search summary is:
 
-"২২ আগস্ট ২০২৬ তারিখে শিক্ষক প্রশিক্ষণ কর্মসূচির কারণে সকল ক্লাস বন্ধ থাকবে/অনুষ্ঠিত হবে না।"
+"All classes will be suspended on 22 August 2026 due to teacher training program."
 
 This is better for retrieval than a generic summary such as:
 
-"এই নোটিশে একটি গুরুত্বপূর্ণ একাডেমিক বিষয় জানানো হয়েছে।"
+"This notice contains important academic information."
 
 # ==================================================
 # SEARCH SUMMARY RULES
@@ -166,11 +167,11 @@ Notice:
 
 Good:
 
-"আগামীকাল সকল ক্লাস বন্ধ থাকবে। শিক্ষক প্রশিক্ষণ কর্মসূচির কারণে ক্লাস অনুষ্ঠিত হবে না।"
+"All classes will be suspended tomorrow. Classes will not be held due to teacher training program."
 
 Bad:
 
-"এই নোটিশে কলেজের একটি গুরুত্বপূর্ণ সিদ্ধান্ত জানানো হয়েছে।"
+"This notice announces an important college decision."
 
 The bad example contains almost no retrieval value.
 
@@ -186,17 +187,17 @@ For example, if the notice says:
 
 The search summary should contain concepts that can match questions such as:
 
-* আজকে ক্লাস হবে?
-* আজ ক্লাস বন্ধ?
-* আজকের ক্লাস বাতিল হয়েছে?
-* আজ কি কলেজে ক্লাস আছে?
-* ২২ আগস্ট ক্লাস হবে কি?
-* আজকের একাডেমিক কার্যক্রম বন্ধ কি?
-* ক্লাস কেন হবে না?
+* Are there classes today?
+* Is class suspended today?
+* Has today's class been cancelled?
+* Are there any classes at college today?
+* Will there be class on 22 August?
+* Are academic activities suspended today?
+* Why won't there be class?
 
 Do NOT output these questions.
 
-Instead, naturally include the underlying facts and useful equivalent terminology in the summary.
+Instead, naturally include the underlying facts and useful equivalent terminology in the English summary.
 
 # ==================================================
 # FIELD 3 — key_facts
@@ -235,15 +236,15 @@ If the notice says:
 
 "২২ আগস্ট ২০২৬ তারিখে সকল ক্লাস অনুষ্ঠিত হবে না।"
 
-The key facts can be:
+The key facts in English should be:
 
-* তারিখ: ২২ আগস্ট ২০২৬
-* ক্লাসের অবস্থা: অনুষ্ঠিত হবে না
-* প্রযোজ্য: সকল শিক্ষার্থী
+* Date: 22 August 2026
+* Class status: Will not be held / Suspended
+* Applicable: All students
 
 If the notice explicitly provides the reason:
 
-* কারণ: শিক্ষক প্রশিক্ষণ কর্মসূচি
+* Reason: Teacher training program
 
 # ==================================================
 # IMPORTANT — DO NOT OVER-EXTRACT
@@ -324,34 +325,50 @@ If both an exact date and a relative date are present, preserve both when useful
 
 The notice may be in Bengali, English, or mixed Bengali-English.
 
-Output language rules:
+**CRITICAL OUTPUT LANGUAGE REQUIREMENT:**
 
 * `title_en`: MUST be in English.
-* `search_summary`: MUST be in Bengali.
-* `key_facts`: MUST be in Bengali.
+* `search_summary`: MUST be in English.
+* `key_facts`: MUST be in English.
 
-For `title_en`:
+**ALL OUTPUT MUST BE IN ENGLISH ONLY.**
+
+If the input notice is in Bengali, translate the extracted information to natural, clear English.
+
+For all fields:
 
 * Use clear, natural English.
 * Do not translate word-by-word if that produces unnatural English.
-* Keep institutional terminology accurate.
+* Keep institutional terminology accurate and in English.
+* Preserve technical terms in their commonly used English form:
+  - CNPI (institution name)
+  - CSE, CST, ICT, ET, ENT, RAC, FT, MT (department codes)
+  - Class, Exam, Registration, Routine, Semester, etc.
 
-For `search_summary` and `key_facts`:
+Translation guidelines:
 
-* Use Bengali.
-* Keep important technical or institutional terms in their commonly used form when appropriate.
+* Translate Bengali notices to fluent English while preserving meaning
+* Use simple, clear English that works well for embedding and search
+* Keep dates, times, and numerical information unchanged
+* Preserve proper nouns (institution names, building names, etc.)
 
-Examples:
+Example:
 
-* CNPI
-* CSE
-* CST
-* ICT
-* Exam
-* Class
-* Registration
+Input (Bengali): "আগামী ২২ আগস্ট ২০২৬ তারিখে শিক্ষক প্রশিক্ষণ কর্মসূচির কারণে সকল ক্লাস অনুষ্ঠিত হবে না।"
 
-Do not translate technical terms unnaturally.
+Output (English):
+```json
+{
+  "title_en": "Class Suspension Notice",
+  "search_summary": "All classes will be suspended on 22 August 2026 due to teacher training program.",
+  "key_facts": [
+    "Date: 22 August 2026",
+    "Event: Teacher training program",
+    "Status: All classes suspended",
+    "Applicable: All students"
+  ]
+}
+```
 
 # ==================================================
 # IMPORTANT RETRIEVAL PRINCIPLE
@@ -361,16 +378,16 @@ The generated representation should contain the information that distinguishes t
 
 For example, if a notice is specifically about:
 
-"২২ আগস্ট ক্লাস বন্ধ"
+"২২ আগস্ট ক্লাস বন্ধ" (22 August class suspended)
 
-then the representation should strongly contain:
+then the English representation should strongly contain:
 
-* ২২ আগস্ট
-* ক্লাস
-* বন্ধ
-* অনুষ্ঠিত হবে না
-* কারণ
-* শিক্ষক প্রশিক্ষণ
+* 22 August
+* Class
+* Suspended
+* Will not be held
+* Reason
+* Teacher training
 
 Do not allow unrelated details in the notice to dominate the representation.
 
@@ -417,7 +434,7 @@ Before returning the JSON, verify:
 11. Could a short user query retrieve this notice using the generated representation?
 12. Is every generated fact supported by the original notice?
 13. Is `title_en` in English?
-14. Are `search_summary` and `key_facts` in Bengali?
+14. Are `search_summary` and `key_facts` in English?
 15. Is the JSON valid?
 
 If any generated information cannot be supported by the original notice, remove it.

@@ -944,3 +944,173 @@ _LOGIN_PAGE = """<!DOCTYPE html>
 </body>
 </html>
 """
+
+
+# ---------------------------------------------------------------------------
+# API: Priority Documents
+# ---------------------------------------------------------------------------
+
+@csrf_exempt
+@api_view(["GET"])
+def priority_docs_list_view(request: HttpRequest) -> JsonResponse:
+    """
+    Get list of all priority documents.
+    Query params:
+        - active_only: true/false (default: true)
+    """
+    active_only = request.GET.get("active_only", "true").lower() == "true"
+    
+    try:
+        priority_docs = services.get_priority_documents(active_only=active_only)
+        return JsonResponse({
+            "success": True,
+            "count": len(priority_docs),
+            "priority_documents": priority_docs
+        })
+    except Exception as e:
+        logger.exception("Error fetching priority documents")
+        return _json_error(str(e), status=500)
+
+
+@csrf_exempt
+@api_view(["POST"])
+def priority_docs_add_view(request: HttpRequest) -> JsonResponse:
+    """
+    Add a document to priority list.
+    JSON body:
+        - doc_id: int (required)
+        - priority_order: int (optional, default: 0)
+        - reason: str (optional)
+    """
+    data = _read_json_body(request)
+    doc_id = data.get("doc_id")
+    
+    if not doc_id:
+        return _json_error("doc_id is required")
+    
+    try:
+        doc_id = int(doc_id)
+    except (ValueError, TypeError):
+        return _json_error("doc_id must be an integer")
+    
+    priority_order = data.get("priority_order", 0)
+    reason = data.get("reason")
+    
+    try:
+        priority_order = int(priority_order)
+    except (ValueError, TypeError):
+        priority_order = 0
+    
+    try:
+        result = services.add_priority_document(
+            doc_id=doc_id,
+            priority_order=priority_order,
+            reason=reason
+        )
+        return JsonResponse({
+            "success": True,
+            "message": "Document added to priority list successfully",
+            "priority_document": result
+        })
+    except ValueError as e:
+        return _json_error(str(e), status=400)
+    except Exception as e:
+        logger.exception("Error adding priority document")
+        return _json_error(str(e), status=500)
+
+
+@csrf_exempt
+@api_view(["POST"])
+def priority_docs_remove_view(request: HttpRequest) -> JsonResponse:
+    """
+    Remove a document from priority list.
+    JSON body:
+        - priority_id: int (preferred)
+        OR
+        - doc_id: int
+    """
+    data = _read_json_body(request)
+    priority_id = data.get("priority_id")
+    doc_id = data.get("doc_id")
+    
+    if not priority_id and not doc_id:
+        return _json_error("Either priority_id or doc_id is required")
+    
+    try:
+        if priority_id:
+            priority_id = int(priority_id)
+        if doc_id:
+            doc_id = int(doc_id)
+    except (ValueError, TypeError):
+        return _json_error("priority_id and doc_id must be integers")
+    
+    try:
+        result = services.remove_priority_document(
+            priority_id=priority_id,
+            doc_id=doc_id
+        )
+        return JsonResponse({
+            "success": True,
+            "message": result["message"]
+        })
+    except ValueError as e:
+        return _json_error(str(e), status=404)
+    except Exception as e:
+        logger.exception("Error removing priority document")
+        return _json_error(str(e), status=500)
+
+
+@csrf_exempt
+@api_view(["POST"])
+def priority_docs_update_order_view(request: HttpRequest) -> JsonResponse:
+    """
+    Update the priority order of a priority document.
+    JSON body:
+        - priority_id: int (required)
+        - priority_order: int (required)
+    """
+    data = _read_json_body(request)
+    priority_id = data.get("priority_id")
+    priority_order = data.get("priority_order")
+    
+    if not priority_id or priority_order is None:
+        return _json_error("priority_id and priority_order are required")
+    
+    try:
+        priority_id = int(priority_id)
+        priority_order = int(priority_order)
+    except (ValueError, TypeError):
+        return _json_error("priority_id and priority_order must be integers")
+    
+    try:
+        result = services.update_priority_order(
+            priority_id=priority_id,
+            new_order=priority_order
+        )
+        return JsonResponse({
+            "success": True,
+            "message": "Priority order updated successfully",
+            "priority_document": result
+        })
+    except ValueError as e:
+        return _json_error(str(e), status=404)
+    except Exception as e:
+        logger.exception("Error updating priority order")
+        return _json_error(str(e), status=500)
+
+
+@csrf_exempt
+@api_view(["GET"])
+def priority_docs_stats_view(request: HttpRequest) -> JsonResponse:
+    """
+    Get statistics about priority documents.
+    """
+    try:
+        stats = services.priority_documents_stats()
+        return JsonResponse({
+            "success": True,
+            "stats": stats
+        })
+    except Exception as e:
+        logger.exception("Error fetching priority documents stats")
+        return _json_error(str(e), status=500)

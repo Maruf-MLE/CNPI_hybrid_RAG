@@ -48,7 +48,21 @@ interface Captain {
   is_active: boolean;
 }
 
-type Tab = "update" | "add" | "captain";
+interface PriorityDoc {
+  priority_id: number;
+  doc_id: number;
+  priority_order: number;
+  reason?: string;
+  created_at: string;
+  is_active: boolean;
+  chunk_id: string;
+  content: string;
+  doc_type: string;
+  topic?: string;
+  department?: string;
+}
+
+type Tab = "update" | "add" | "captain" | "priority";
 type ToastKind = "ok" | "err" | "info";
 
 interface Toast {
@@ -200,6 +214,17 @@ export default function AdminPage() {
   const [captains, setCaptains] = useState<Captain[]>([]);
   const [captainsLoaded, setCaptainsLoaded] = useState(false);
 
+  // Priority tab
+  const [priorityDocs, setPriorityDocs] = useState<PriorityDoc[]>([]);
+  const [priorityBusy, setPriorityBusy] = useState(false);
+  const [priorityLoaded, setPriorityLoaded] = useState(false);
+  const [prioritySearchQuery, setPrioritySearchQuery] = useState("");
+  const [prioritySearchResults, setPrioritySearchResults] = useState<DocResult[]>([]);
+  const [prioritySearchBusy, setPrioritySearchBusy] = useState(false);
+  const [selectedDocForPriority, setSelectedDocForPriority] = useState<DocResult | null>(null);
+  const [priorityOrder, setPriorityOrder] = useState(0);
+  const [priorityReason, setPriorityReason] = useState("");
+
   // ── toast helper ─────────────────────────────────────────────────────────
 
   const toast = useCallback((msg: string, kind: ToastKind = "info") => {
@@ -314,8 +339,11 @@ export default function AdminPage() {
 
   const doCreate = useCallback(async () => {
     const isNotice = newDocType === "notices";
-    const chunk_id = isNotice ? "" : newChunkId.trim();
-    if (!isNotice && !chunk_id)
+    const isPriority = newDocType === "priority_documents";
+    const autoChunkId = isNotice || isPriority;
+    
+    const chunk_id = autoChunkId ? "" : newChunkId.trim();
+    if (!autoChunkId && !chunk_id)
       return toast("chunk_id is required.", "err");
     if (newContent.trim().length < 11)
       return toast("Content must be at least 11 characters.", "err");
@@ -347,10 +375,13 @@ export default function AdminPage() {
       const dateInfo = d.context_added_date
         ? ` · ${d.context_added_date} ${d.context_added_time} BST`
         : "";
-      const noticeInfo = d.inserted_into_notices
+      const noticeInfo = d.inserted_into_notices || d.synced_to_notices
         ? ` · notice_id=${d.notice_id}`
         : "";
-      toast(`Created doc_id=${d.doc_id}${xlat}${metaExtracted}${dateInfo}${noticeInfo}`, "ok");
+      const priorityInfo = d.added_to_priority
+        ? " · ⭐ added to priority list"
+        : "";
+      toast(`Created doc_id=${d.doc_id}${xlat}${metaExtracted}${dateInfo}${noticeInfo}${priorityInfo}`, "ok");
       
       // Show both embedding content and stored content
       const embeddingContent = d.embedding_content || "";
@@ -361,6 +392,8 @@ export default function AdminPage() {
           <div style="font-size:12px;color:#94a3b8;margin-bottom:10px">
             doc_id: ${esc(d.doc_id)} · chunk_id: <b>${esc(d.chunk_id)}</b>
             ${d.metadata_extraction_success ? ' · <span style="color:#22c55e">✓ LLM Metadata Extracted</span>' : ''}
+            ${d.added_to_priority ? ' · <span style="color:#38bdf8">⭐ Added to Priority List</span>' : ''}
+            ${d.synced_to_notices ? ' · <span style="color:#22c55e">📢 Synced to Notices</span>' : ''}
           </div>
           
           ${embeddingContent ? `
@@ -515,7 +548,134 @@ export default function AdminPage() {
   const switchTab = (t: Tab) => {
     setTab(t);
     if (t === "captain") loadCaptains();
+    if (t === "priority") loadPriorityDocs();
   };
+
+  // ── priority documents ────────────────────────────────────────────────────
+
+  const loadPriorityDocs = useCallback(async () => {
+    setPriorityBusy(true);
+    try {
+      const { ok, d } = await apiFetch(`${API}/priority-docs/?active_only=true`);
+      if (!ok) return toast((d.error as string) || "Load failed", "err");
+      setPriorityDocs((d.priority_documents as PriorityDoc[]) || []);
+      setPriorityLoaded(true);
+    } catch (e) {
+      toast("Network error: " + e, "err");
+    } finally {
+      setPriorityBusy(false);
+    }
+  }, [toast]);
+
+  const searchForPriority = useCallback(async () => {
+    if (!prioritySearchQuery.trim()) return toast("Enter search query", "err");
+    setPrioritySearchBusy(true);
+    try {
+      const query = prioritySearchQuery.trim();
+      
+      // Check if it's a direct lookup (doc_id or chunk_id)
+      const isDocId = /^\d+$/.test(query);
+      const isChunkId = !isDocId && query.length > 3;
+      
+      if (isDocId || (isChunkId && query.includes('_'))) {
+        // Direct document lookup
+        const qs = isDocId
+          ? `doc_id=${encodeURIComponent(query)}`
+          : `chunk_id=${encodeURIComponent(query)}`;
+        
+        const { ok, d } = await apiFetch(`${MAIN_API}/document/?${qs}`);
+        if (!ok) {
+          // If direct lookup fails, fall back to semantic search
+          const { ok: searchOk, d: searchD } = await apiFetch(`${MAIN_API}/search/`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ query, top_k: 10 }),
+          });
+          if (!searchOk) return toast((searchD.error as string) || "Search failed", "err");
+          setPrioritySearchResults((searchD.results as DocResult[]) || []);
+        } else {
+          // Direct lookup successful
+          const doc = d.document as DocResult;
+          setPrioritySearchResults([doc]);
+          toast(`Found: ${isDocId ? 'doc_id' : 'chunk_id'}=${query}`, "info");
+        }
+      } else {
+        // Semantic search
+        const { ok, d } = await apiFetch(`${MAIN_API}/search/`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ query, top_k: 10 }),
+        });
+        if (!ok) return toast((d.error as string) || "Search failed", "err");
+        setPrioritySearchResults((d.results as DocResult[]) || []);
+      }
+    } catch (e) {
+      toast("Network error: " + e, "err");
+    } finally {
+      setPrioritySearchBusy(false);
+    }
+  }, [prioritySearchQuery, toast]);
+
+  const addToPriority = useCallback(async () => {
+    if (!selectedDocForPriority) return toast("Select a document first", "err");
+    try {
+      const { ok, d } = await apiFetch(`${API}/priority-docs/add/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          doc_id: selectedDocForPriority.doc_id,
+          priority_order: priorityOrder,
+          reason: priorityReason.trim() || null,
+        }),
+      });
+      if (!ok) return toast((d.error as string) || "Failed to add", "err");
+      toast("Added to priority list!", "ok");
+      setSelectedDocForPriority(null);
+      setPrioritySearchResults([]);
+      setPrioritySearchQuery("");
+      setPriorityReason("");
+      loadPriorityDocs();
+    } catch (e) {
+      toast("Network error: " + e, "err");
+    }
+  }, [selectedDocForPriority, priorityOrder, priorityReason, toast, loadPriorityDocs]);
+
+  const removePriority = useCallback(
+    async (priority_id: number, chunk_id: string) => {
+      if (!window.confirm(`Remove "${chunk_id}" from priority list?`)) return;
+      try {
+        const { ok, d } = await apiFetch(`${API}/priority-docs/remove/`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ priority_id }),
+        });
+        if (!ok) return toast((d.error as string) || "Failed", "err");
+        toast("Removed from priority list", "ok");
+        loadPriorityDocs();
+      } catch (e) {
+        toast("Network error: " + e, "err");
+      }
+    },
+    [toast, loadPriorityDocs]
+  );
+
+  const updatePriorityOrder = useCallback(
+    async (priority_id: number, new_order: number) => {
+      try {
+        const { ok, d } = await apiFetch(`${API}/priority-docs/update-order/`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ priority_id, priority_order: new_order }),
+        });
+        if (!ok) return toast((d.error as string) || "Failed", "err");
+        toast("Priority order updated", "ok");
+        loadPriorityDocs();
+      } catch (e) {
+        toast("Network error: " + e, "err");
+      }
+    },
+    [toast, loadPriorityDocs]
+  );
 
   // ── styling constants ─────────────────────────────────────────────────────
 
@@ -1042,11 +1202,12 @@ export default function AdminPage() {
               flexShrink: 0,
             }}
           >
-            {(["update", "add", "captain"] as Tab[]).map((t) => {
+            {(["update", "add", "captain", "priority"] as Tab[]).map((t) => {
               const labels: Record<Tab, string> = {
                 update: "✏️ Update",
                 add: "➕ Add New",
                 captain: "🎖️ Captain",
+                priority: "⭐ Priority",
               };
               return (
                 <button
@@ -1212,19 +1373,33 @@ export default function AdminPage() {
               <div style={S.field}>
                 <label style={S.label}>
                   chunk_id{" "}
-                  <span style={{ color: newDocType === "notices" ? "#22c55e" : "#f59e0b", fontWeight: 400 }}>
+                  <span style={{ 
+                    color: (newDocType === "notices" || newDocType === "priority_documents") ? "#22c55e" : "#f59e0b", 
+                    fontWeight: 400 
+                  }}>
                     {newDocType === "notices"
                       ? "(auto-generated for notices)"
+                      : newDocType === "priority_documents"
+                      ? "(auto-generated for priority docs)"
                       : "(required, must be unique)"}
                   </span>
                 </label>
                 <input
-                  style={{ ...S.input, opacity: newDocType === "notices" ? 0.4 : 1 }}
+                  style={{ 
+                    ...S.input, 
+                    opacity: (newDocType === "notices" || newDocType === "priority_documents") ? 0.4 : 1 
+                  }}
                   type="text"
-                  placeholder={newDocType === "notices" ? "Auto-generated (notice-ID)" : "e.g. manual_cst_1"}
+                  placeholder={
+                    newDocType === "notices" 
+                      ? "Auto-generated (notice-ID)" 
+                      : newDocType === "priority_documents"
+                      ? "Auto-generated (priority-ID)"
+                      : "e.g. manual_cst_1"
+                  }
                   value={newChunkId}
                   onChange={(e) => setNewChunkId(e.target.value)}
-                  disabled={newDocType === "notices"}
+                  disabled={newDocType === "notices" || newDocType === "priority_documents"}
                 />
               </div>
 
@@ -1245,9 +1420,19 @@ export default function AdminPage() {
 
               <div style={S.two}>
                 <div style={S.field}>
-                  <label style={S.label}>doc_type (Table Name)</label>
+                  <label style={S.label}>
+                    doc_type (Table Name)
+                    {newDocType === "priority_documents" && (
+                      <span style={{ color: "#38bdf8", fontWeight: 400, marginLeft: 6 }}>
+                        ⭐ Will auto-add to priority list
+                      </span>
+                    )}
+                  </label>
                   <select
-                    style={S.select}
+                    style={{
+                      ...S.select,
+                      borderColor: newDocType === "priority_documents" ? "#38bdf8" : "#334155",
+                    }}
                     value={newDocType}
                     onChange={(e) => {
                       setNewDocType(e.target.value);
@@ -1257,16 +1442,37 @@ export default function AdminPage() {
                     }}
                   >
                     {[
-                      "documents", "notices", "buildings", "departments",
-                      "designations", "exam_routines", "facilities", "future_plans",
-                      "institutions", "lab_assignments", "labs", "people",
-                      "rooms", "routine_classes", "routines", "subjects",
+                      "documents",
+                      "priority_documents",
+                      "notices",
+                      "buildings",
+                      "departments",
+                      "designations",
+                      "exam_routines",
+                      "facilities",
+                      "future_plans",
+                      "institutions",
+                      "lab_assignments",
+                      "labs",
+                      "people",
+                      "rooms",
+                      "routine_classes",
+                      "routines",
+                      "subjects",
                     ].map((d) => (
                       <option key={d} value={d}>
-                        {d}
+                        {d === "priority_documents" ? "⭐ priority_documents" : d}
                       </option>
                     ))}
                   </select>
+                  {newDocType === "priority_documents" && (
+                    <div style={{ fontSize: 11, color: "#38bdf8", marginTop: 4, lineHeight: 1.5 }}>
+                      💡 This document will be:<br/>
+                      • Automatically added to the <b>priority list</b><br/>
+                      • Synced to <b>notices table</b><br/>
+                      • Retrieved in every query
+                    </div>
+                  )}
                 </div>
                 <div style={S.field}>
                   <label style={S.label}>department</label>
@@ -1695,6 +1901,299 @@ export default function AdminPage() {
                     </div>
                   ))
                 )}
+              </div>
+            </div>
+          )}
+
+          {/* ── TAB: Priority Documents ── */}
+          {tab === "priority" && (
+            <div style={{ ...S.body, display: "flex", flexDirection: "column", gap: 0 }}>
+              {/* Section 1: Search & Add */}
+              <div
+                style={{
+                  background: "#273449",
+                  border: "1px solid #334155",
+                  borderRadius: 10,
+                  padding: 14,
+                  marginBottom: 16,
+                  flexShrink: 0,
+                }}
+              >
+                <div style={{ fontSize: 13, fontWeight: 600, color: "#94a3b8", marginBottom: 12 }}>
+                  ➕ Add Document to Priority List
+                </div>
+
+                {/* Search for document */}
+                <div style={S.field}>
+                  <label style={S.label}>Search for document to add</label>
+                  <div style={{ display: "flex", gap: 8 }}>
+                    <input
+                      style={{ ...S.input, flex: 1 }}
+                      type="text"
+                      placeholder="Search by query, chunk_id, or doc_id (e.g., doc_001_chunk_01 or 123)"
+                      value={prioritySearchQuery}
+                      onChange={(e) => setPrioritySearchQuery(e.target.value)}
+                      onKeyDown={(e) => e.key === "Enter" && searchForPriority()}
+                    />
+                    <button
+                      style={{ ...S.btn, opacity: prioritySearchBusy ? 0.5 : 1 }}
+                      onClick={searchForPriority}
+                      disabled={prioritySearchBusy}
+                    >
+                      {prioritySearchBusy ? "…" : "Search"}
+                    </button>
+                  </div>
+                  <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 4 }}>
+                    💡 Tip: Enter chunk_id (e.g., doc_001_chunk_01) or doc_id (e.g., 123) for direct lookup
+                  </div>
+                </div>
+
+                {/* Search results */}
+                {prioritySearchResults.length > 0 && !selectedDocForPriority && (
+                  <div style={{ marginTop: 12, maxHeight: 200, overflow: "auto" }}>
+                    {prioritySearchResults.map((r) => (
+                      <div
+                        key={r.doc_id}
+                        onClick={() => setSelectedDocForPriority(r)}
+                        style={{
+                          background: "#0f172a",
+                          border: "1px solid #334155",
+                          borderRadius: 8,
+                          padding: 10,
+                          marginBottom: 8,
+                          cursor: "pointer",
+                          fontSize: 12,
+                        }}
+                      >
+                        <div style={{ color: "#94a3b8", marginBottom: 4 }}>
+                          doc_id: {r.doc_id} · chunk_id: {r.chunk_id}
+                        </div>
+                        <div style={{ color: "#e2e8f0", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                          {r.content.substring(0, 150)}...
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Selected document form */}
+                {selectedDocForPriority && (
+                  <div style={{ marginTop: 12 }}>
+                    <div style={{ background: "#0f172a", border: "1px solid #38bdf8", borderRadius: 8, padding: 10, marginBottom: 12 }}>
+                      <div style={{ fontSize: 11, color: "#38bdf8", marginBottom: 6 }}>
+                        ✓ Selected: doc_id={selectedDocForPriority.doc_id}
+                      </div>
+                      <div style={{ fontSize: 12, color: "#e2e8f0" }}>
+                        {selectedDocForPriority.content.substring(0, 100)}...
+                      </div>
+                    </div>
+
+                    <div style={S.two}>
+                      <div style={S.field}>
+                        <label style={S.label}>Priority Order (0 = highest)</label>
+                        <input
+                          style={S.input}
+                          type="number"
+                          min="0"
+                          value={priorityOrder}
+                          onChange={(e) => setPriorityOrder(parseInt(e.target.value) || 0)}
+                        />
+                      </div>
+                      <div style={S.field}>
+                        <label style={S.label}>Reason (optional)</label>
+                        <input
+                          style={S.input}
+                          type="text"
+                          placeholder="Why this is priority..."
+                          value={priorityReason}
+                          onChange={(e) => setPriorityReason(e.target.value)}
+                        />
+                      </div>
+                    </div>
+
+                    <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
+                      <button
+                        style={S.btnSecondary}
+                        onClick={() => {
+                          setSelectedDocForPriority(null);
+                          setPrioritySearchResults([]);
+                          setPriorityReason("");
+                        }}
+                      >
+                        Cancel
+                      </button>
+                      <button style={S.btn} onClick={addToPriority}>
+                        Add to Priority
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Section 2: Priority Documents List */}
+              <div style={{ marginBottom: 12, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <div style={{ fontSize: 13, fontWeight: 600, color: "#94a3b8" }}>
+                  ⭐ Priority Documents ({priorityDocs.length})
+                </div>
+                <button
+                  style={{ ...S.btn, padding: "7px 16px", opacity: priorityBusy ? 0.5 : 1 }}
+                  onClick={loadPriorityDocs}
+                  disabled={priorityBusy}
+                >
+                  {priorityBusy ? "…" : "Refresh"}
+                </button>
+              </div>
+
+              {/* Priority list */}
+              <div style={{ flex: 1, overflow: "auto" }}>
+                {!priorityLoaded ? (
+                  <div style={{ color: "#94a3b8", textAlign: "center", padding: 30, fontSize: 13 }}>
+                    Loading priority documents...
+                  </div>
+                ) : priorityDocs.length === 0 ? (
+                  <div style={{ color: "#94a3b8", textAlign: "center", padding: 30, fontSize: 13 }}>
+                    No priority documents. Add some above!
+                  </div>
+                ) : (
+                  priorityDocs.map((p) => (
+                    <div
+                      key={p.priority_id}
+                      style={{
+                        background: "#273449",
+                        border: "1px solid #38bdf8",
+                        borderRadius: 10,
+                        padding: 12,
+                        marginBottom: 10,
+                      }}
+                    >
+                      {/* Top row */}
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 6 }}>
+                        <div style={{ flex: 1 }}>
+                          <span
+                            style={{
+                              fontSize: 11,
+                              fontWeight: 700,
+                              padding: "2px 8px",
+                              borderRadius: 5,
+                              marginRight: 6,
+                              background: "#0c4a6e",
+                              border: "1px solid #38bdf8",
+                              color: "#38bdf8",
+                            }}
+                          >
+                            Priority #{p.priority_order}
+                          </span>
+                          <span style={{ fontSize: 11, color: "#94a3b8", fontFamily: "monospace" }}>
+                            doc_id: {p.doc_id}
+                          </span>
+                        </div>
+                        <input
+                          type="number"
+                          min="0"
+                          value={p.priority_order}
+                          onChange={(e) => updatePriorityOrder(p.priority_id, parseInt(e.target.value) || 0)}
+                          style={{
+                            width: 60,
+                            background: "#0f172a",
+                            color: "#38bdf8",
+                            border: "1px solid #334155",
+                            borderRadius: 6,
+                            padding: "4px 8px",
+                            fontSize: 12,
+                            textAlign: "center",
+                          }}
+                        />
+                      </div>
+
+                      {/* chunk_id */}
+                      <div style={{ fontSize: 11, color: "#94a3b8", fontFamily: "monospace", marginBottom: 6 }}>
+                        chunk_id: {p.chunk_id}
+                      </div>
+
+                      {/* Content preview */}
+                      <div
+                        style={{
+                          fontSize: 12,
+                          color: "#e2e8f0",
+                          background: "#0f172a",
+                          border: "1px solid #334155",
+                          borderRadius: 6,
+                          padding: 8,
+                          marginBottom: 8,
+                          maxHeight: 80,
+                          overflow: "auto",
+                          whiteSpace: "pre-wrap",
+                          wordBreak: "break-word",
+                        }}
+                      >
+                        {p.content}
+                      </div>
+
+                      {/* Badges */}
+                      <div style={{ display: "flex", gap: 6, marginBottom: 8, flexWrap: "wrap" }}>
+                        {p.doc_type && (
+                          <span style={{ fontSize: 11, background: "#0f172a", border: "1px solid #334155", padding: "2px 7px", borderRadius: 6, color: "#94a3b8" }}>
+                            type: {p.doc_type}
+                          </span>
+                        )}
+                        {p.department && (
+                          <span style={{ fontSize: 11, background: "#0f172a", border: "1px solid #334155", padding: "2px 7px", borderRadius: 6, color: "#94a3b8" }}>
+                            dept: {p.department}
+                          </span>
+                        )}
+                        {p.topic && (
+                          <span style={{ fontSize: 11, background: "#0f172a", border: "1px solid #334155", padding: "2px 7px", borderRadius: 6, color: "#94a3b8" }}>
+                            topic: {p.topic}
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Reason */}
+                      {p.reason && (
+                        <div style={{ fontSize: 11, color: "#94a3b8", marginBottom: 8, fontStyle: "italic" }}>
+                          💡 {p.reason}
+                        </div>
+                      )}
+
+                      {/* Bottom row */}
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                        <span style={{ fontSize: 11, color: "#64748b" }}>
+                          Added: {new Date(p.created_at).toLocaleDateString()}
+                        </span>
+                        <button
+                          style={S.btnDanger}
+                          onClick={() => removePriority(p.priority_id, p.chunk_id)}
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+
+              {/* Info box */}
+              <div
+                style={{
+                  marginTop: 12,
+                  padding: 12,
+                  background: "#0c4a6e",
+                  border: "1px solid #38bdf8",
+                  borderRadius: 8,
+                  fontSize: 12,
+                  color: "#bae6fd",
+                  flexShrink: 0,
+                }}
+              >
+                <div style={{ fontWeight: 600, marginBottom: 4 }}>ℹ️ How Priority Documents Work:</div>
+                <div style={{ lineHeight: 1.6 }}>
+                  • Priority documents are <b>always retrieved</b> in every query
+                  <br />
+                  • Lower priority order = higher priority (0 is highest)
+                  <br />
+                  • If top_k=10 and 3 priority docs → 3 priority + 7 query-based = 10 total
+                  <br />• Priority docs appear first in retrieval results
+                </div>
               </div>
             </div>
           )}

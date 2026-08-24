@@ -30,4 +30,11 @@ urlpatterns = [
     path("api/captains/update/", views.captain_update_view, name="admin-panel-captain-update"),
     path("api/captains/deactivate/", views.captain_deactivate_view, name="admin-panel-captain-deactivate"),
     path("api/captains/stats/", views.captain_stats_view, name="admin-panel-captain-stats"),
+
+    # API — priority documents
+    path("api/priority-docs/", views.priority_docs_list_view, name="admin-panel-priority-docs-list"),
+    path("api/priority-docs/add/", views.priority_docs_add_view, name="admin-panel-priority-docs-add"),
+    path("api/priority-docs/remove/", views.priority_docs_remove_view, name="admin-panel-priority-docs-remove"),
+    path("api/priority-docs/update-order/", views.priority_docs_update_order_view, name="admin-panel-priority-docs-update-order"),
+    path("api/priority-docs/stats/", views.priority_docs_stats_view, name="admin-panel-priority-docs-stats"),
 ]

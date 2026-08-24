@@ -369,3 +369,24 @@ class Notices(models.Model):
 
     def __str__(self):
         return self.title_bn[:50]
+
+
+class PriorityDocuments(models.Model):
+    priority_id = models.AutoField(primary_key=True)
+    document = models.ForeignKey(Documents, models.CASCADE, db_column='doc_id')
+    priority_order = models.IntegerField(default=0)
+    reason = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        managed = True
+        db_table = 'priority_documents'
+        verbose_name = 'Priority Document'
+        verbose_name_plural = 'Priority Documents'
+        ordering = ['priority_order', '-created_at']
+        unique_together = (('document',),)
+
+    def __str__(self):
+        return f"Priority #{self.priority_order} - {self.document.chunk_id[:30]}"

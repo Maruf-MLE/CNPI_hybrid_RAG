@@ -7,7 +7,7 @@ from .models import (
     Buildings, Institutions, Departments, Designations, People,
     Documents, Subjects, Rooms, Labs, ClassCaptains, Routines,
     RoutineClasses, ExamRoutines, LabAssignments, Facilities,
-    FuturePlans, Notices
+    FuturePlans, Notices, PriorityDocuments
 )
 
 
@@ -137,3 +137,13 @@ class NoticesAdmin(admin.ModelAdmin):
     list_filter = ('institution', 'category', 'created_at')
     readonly_fields = ('created_at',)
     date_hierarchy = 'created_at'
+
+
+@admin.register(PriorityDocuments)
+class PriorityDocumentsAdmin(admin.ModelAdmin):
+    list_display = ('priority_id', 'document', 'priority_order', 'is_active', 'created_at')
+    search_fields = ('document__chunk_id', 'document__content', 'reason')
+    list_filter = ('is_active', 'created_at')
+    readonly_fields = ('created_at', 'updated_at')
+    date_hierarchy = 'created_at'
+    ordering = ('priority_order', '-created_at')

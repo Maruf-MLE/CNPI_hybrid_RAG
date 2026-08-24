@@ -345,8 +345,16 @@ def hybrid_search(
     rrf_k: int = 30,
     vector_weight: float | None = None,
     bm25_weight: float | None = None,
+    include_priority: bool = True,
 ) -> list[dict[str, Any]]:
     """Combine vector search and BM25 search using Weighted Reciprocal Rank Fusion.
+    
+    If include_priority=True (default), priority documents are always included first,
+    then the remaining slots are filled with query-based hybrid retrieval.
+    
+    For example, if top_k=10 and there are 3 priority docs:
+        - First 3 results: Priority documents (in priority_order)
+        - Next 7 results: Top-7 most relevant documents from hybrid search
 
     RRF score = Σ weight_i * 1/(rrf_k + rank_i)   for each retrieval system i.
 
@@ -376,6 +384,8 @@ def hybrid_search(
         Override for vector/semantic weight. If None, uses METRIC_THRESHOLD.
     bm25_weight : float | None
         Override for BM25/keyword weight. If None, uses 1 - METRIC_THRESHOLD.
+    include_priority : bool
+        If True, always include priority documents first.
 
     Returns
     -------
@@ -384,6 +394,26 @@ def hybrid_search(
         content, metadata, rrf_score.
     """
     k = top_k or _TOP_K
+
+    # Step 1: Get priority documents if enabled
+    priority_docs = []
+    priority_doc_contents = set()
+    
+    if include_priority:
+        try:
+            priority_docs = _get_priority_documents()
+            priority_doc_contents = {doc.get("content", "") for doc in priority_docs}
+            print(f"[hybrid_search] Retrieved {len(priority_docs)} priority documents")
+        except Exception as exc:
+            print(f"[hybrid_search] Failed to retrieve priority documents: {exc}")
+    
+    # Calculate remaining slots for query-based retrieval
+    remaining_k = max(0, k - len(priority_docs))
+    
+    if remaining_k == 0:
+        # If priority docs fill all slots, return them directly
+        print(f"[hybrid_search] Returning only {len(priority_docs)} priority documents (no query-based retrieval)")
+        return priority_docs
 
     # Resolve weights from METRIC_THRESHOLD env var unless explicitly overridden
     if vector_weight is None:
@@ -395,6 +425,7 @@ def hybrid_search(
         f"[hybrid_search] weights → embedding: {vector_weight:.2f}, "
         f"bm25: {bm25_weight:.2f} (METRIC_THRESHOLD={_METRIC_THRESHOLD:.2f})"
     )
+    print(f"[hybrid_search] Retrieving {remaining_k} query-based results")
 
     # ⚡ PARALLEL EXECUTION: Fetch embedding and BM25 results simultaneously
     # This reduces latency by ~40-50% compared to sequential execution
@@ -403,8 +434,9 @@ def hybrid_search(
     
     with ThreadPoolExecutor(max_workers=2) as executor:
         # Submit both searches in parallel with keyword arguments
-        future_vec = executor.submit(vector_search, query_text=query_text, table_name=table_name, top_k=k * 3)
-        future_bm25 = executor.submit(bm25_search, query_text=query_text, table_name=table_name, top_k=k * 3)
+        # Use remaining_k * 3 to get more candidates for better ranking
+        future_vec = executor.submit(vector_search, query_text=query_text, table_name=table_name, top_k=remaining_k * 3)
+        future_bm25 = executor.submit(bm25_search, query_text=query_text, table_name=table_name, top_k=remaining_k * 3)
         
         # Collect results as they complete
         for future in as_completed([future_vec, future_bm25]):
@@ -426,6 +458,9 @@ def hybrid_search(
     seen_vec: set[str] = set()
     for rank, row in enumerate(vec_results, start=1):
         key = row.get("content", "")
+        # Skip if this document is already in priority list
+        if key in priority_doc_contents:
+            continue
         if key in seen_vec:
             continue  # Don't double-count duplicates
         seen_vec.add(key)
@@ -438,6 +473,9 @@ def hybrid_search(
     seen_bm25: set[str] = set()
     for rank, row in enumerate(bm25_results, start=1):
         key = row.get("content", "")
+        # Skip if this document is already in priority list
+        if key in priority_doc_contents:
+            continue
         if key in seen_bm25:
             continue  # Don't double-count duplicates
         seen_bm25.add(key)
@@ -446,7 +484,71 @@ def hybrid_search(
         scores[key]["rrf_score"] += bm25_weight * (1.0 / (rrf_k + rank))
 
     fused = sorted(scores.values(), key=lambda x: x["rrf_score"], reverse=True)
-    return fused[:k]
+    query_based_results = fused[:remaining_k]
+    
+    # Step 3: Combine priority docs (first) + query-based results
+    combined_results = priority_docs + query_based_results
+    print(f"[hybrid_search] Returning {len(priority_docs)} priority + {len(query_based_results)} query-based = {len(combined_results)} total docs")
+    
+    return combined_results
+
+
+def _get_priority_documents() -> list[dict[str, Any]]:
+    """
+    Get all active priority documents for RAG retrieval.
+    Returns full document data ready to be used in context.
+    
+    Returns
+    -------
+    list[dict]
+        List of document dicts with content, metadata, and rrf_score.
+    """
+    from utils.db_utils import get_db_connection
+    
+    sql = """
+        SELECT 
+            d.content,
+            d.meta AS metadata,
+            pd.priority_order
+        FROM public.priority_documents pd
+        INNER JOIN public.documents d ON pd.doc_id = d.doc_id
+        WHERE pd.is_active = TRUE
+          AND (
+            d.temporal_analysis IS NULL
+            OR d.temporal_analysis->>'expiration_date' IS NULL
+            OR (d.temporal_analysis->>'expiration_date')::date >= CURRENT_DATE
+          )
+        ORDER BY pd.priority_order, pd.created_at DESC
+    """
+    
+    conn = get_db_connection()
+    if conn is None:
+        print("_get_priority_documents: DB connection failed, returning empty list.")
+        return []
+    
+    try:
+        from psycopg2.extras import RealDictCursor
+        with conn.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute(sql)
+            rows = cur.fetchall()
+        
+        # Convert to format compatible with hybrid_search output
+        # Priority docs get maximum RRF score (1.0) to indicate they're always relevant
+        priority_docs = []
+        for row in rows:
+            priority_docs.append({
+                "content": row["content"],
+                "metadata": row["metadata"],
+                "rrf_score": 1.0,  # Maximum score for priority docs
+                "is_priority": True,
+            })
+        
+        return priority_docs
+    except Exception as exc:
+        print(f"_get_priority_documents error: {exc}")
+        return []
+    finally:
+        conn.close()
 
 
 # =============================================================================
