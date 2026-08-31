@@ -98,6 +98,17 @@ async function apiFetch(
 // ─── Toast component ─────────────────────────────────────────────────────────
 
 function Toaster({ toasts }: { toasts: Toast[] }) {
+  const [isMobileToast, setIsMobileToast] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobileToast(window.innerWidth <= 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
   const colors: Record<ToastKind, React.CSSProperties> = {
     ok: {
       background: "#064e3b",
@@ -119,8 +130,9 @@ function Toaster({ toasts }: { toasts: Toast[] }) {
     <div
       style={{
         position: "fixed",
-        bottom: 18,
-        right: 18,
+        bottom: isMobileToast ? 10 : 18,
+        right: isMobileToast ? 10 : 18,
+        left: isMobileToast ? 10 : "auto",
         zIndex: 9999,
         display: "flex",
         flexDirection: "column",
@@ -131,10 +143,10 @@ function Toaster({ toasts }: { toasts: Toast[] }) {
         <div
           key={t.id}
           style={{
-            padding: "10px 14px",
+            padding: isMobileToast ? "12px 14px" : "10px 14px",
             borderRadius: 8,
-            fontSize: 13,
-            maxWidth: 360,
+            fontSize: isMobileToast ? 14 : 13,
+            maxWidth: isMobileToast ? "100%" : 360,
             boxShadow: "0 6px 20px rgba(0,0,0,.4)",
             ...colors[t.kind],
           }}
@@ -159,6 +171,9 @@ export default function AdminPage() {
   const [tab, setTab] = useState<Tab>("update");
   const toastIdRef = useRef(0);
   const [toasts, setToasts] = useState<Toast[]>([]);
+  
+  // Mobile responsive state
+  const [isMobile, setIsMobile] = useState(false);
 
   // Stats
   const [stats, setStats] = useState<Stats | null>(null);
@@ -190,6 +205,8 @@ export default function AdminPage() {
   const [newDepartment, setNewDepartment] = useState("");
   const [newTopic, setNewTopic] = useState("");
   const [newMeta, setNewMeta] = useState("");
+  const [newImage, setNewImage] = useState<File | null>(null);
+  const [newImagePreview, setNewImagePreview] = useState<string>("");
   const [addBusy, setAddBusy] = useState(false);
   const [addResult, setAddResult] = useState<string>("");
 
@@ -335,6 +352,43 @@ export default function AdminPage() {
     }
   }, [lookupKey, content, docType, topic, department, regen, toast]);
 
+  // ── handle image upload ──────────────────────────────────────────────────
+
+  const handleImageChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) {
+      setNewImage(null);
+      setNewImagePreview("");
+      return;
+    }
+
+    // Validate file type
+    if (!file.type.startsWith("image/")) {
+      toast("Please select a valid image file.", "err");
+      return;
+    }
+
+    // Validate file size (max 10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      toast("Image size must be less than 10MB.", "err");
+      return;
+    }
+
+    setNewImage(file);
+    
+    // Create preview
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setNewImagePreview(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  }, [toast]);
+
+  const removeImage = useCallback(() => {
+    setNewImage(null);
+    setNewImagePreview("");
+  }, []);
+
   // ── create ────────────────────────────────────────────────────────────────
 
   const doCreate = useCallback(async () => {
@@ -345,22 +399,65 @@ export default function AdminPage() {
     const chunk_id = autoChunkId ? "" : newChunkId.trim();
     if (!autoChunkId && !chunk_id)
       return toast("chunk_id is required.", "err");
-    if (newContent.trim().length < 11)
-      return toast("Content must be at least 11 characters.", "err");
-    const body = {
-      chunk_id,
-      content: newContent.trim(),
-      doc_type: newDocType,
-      topic: newTopic.trim() || null,
-      department: newDepartment || null,
-      meta: newMeta.trim() || null,
-      source_file: "admin_panel",
-    };
+    
+    // Allow empty content if image is provided
+    if (!newImage && newContent.trim().length < 11)
+      return toast("Content must be at least 11 characters, or provide an image.", "err");
+    
+    // If only image provided (no text content), that's OK
+    if (newImage && newContent.trim().length === 0) {
+      // Image will be processed and text will be extracted by backend
+    }
+    
     setAddBusy(true);
     setAddResult(
-      '<div style="color:#94a3b8;text-align:center;padding:20px">⏳ Translating & processing…</div>'
+      '<div style="color:#94a3b8;text-align:center;padding:20px">⏳ Processing' + 
+      (newImage ? ' image & extracting text' : '') + '…</div>'
     );
+    
     try {
+      let body: Record<string, unknown>;
+      let headers: Record<string, string>;
+      
+      // If image is provided, use FormData for multipart upload
+      if (newImage) {
+        const formData = new FormData();
+        formData.append("image", newImage);
+        if (chunk_id) formData.append("chunk_id", chunk_id);
+        if (newContent.trim()) formData.append("content", newContent.trim());
+        formData.append("doc_type", newDocType);
+        if (newTopic.trim()) formData.append("topic", newTopic.trim());
+        if (newDepartment) formData.append("department", newDepartment);
+        if (newMeta.trim()) formData.append("meta", newMeta.trim());
+        formData.append("source_file", "admin_panel");
+        
+        const response = await fetch(`${MAIN_API}/create/`, {
+          method: "POST",
+          credentials: 'include',
+          body: formData,
+        });
+        const d = await response.json();
+        
+        if (!response.ok) {
+          setAddResult("");
+          return toast((d.error as string) || "Create failed", "err");
+        }
+        
+        handleCreateSuccess(d);
+        return;
+      }
+      
+      // Otherwise, use JSON for text-only
+      body = {
+        chunk_id,
+        content: newContent.trim(),
+        doc_type: newDocType,
+        topic: newTopic.trim() || null,
+        department: newDepartment || null,
+        meta: newMeta.trim() || null,
+        source_file: "admin_panel",
+      };
+      
       const { ok, d } = await apiFetch(`${MAIN_API}/create/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -370,61 +467,133 @@ export default function AdminPage() {
         setAddResult("");
         return toast((d.error as string) || "Create failed", "err");
       }
-      const xlat = d.translation_performed ? " · translated Bengali→English" : "";
-      const metaExtracted = d.metadata_extraction_success ? " · LLM extracted" : "";
-      const dateInfo = d.context_added_date
-        ? ` · ${d.context_added_date} ${d.context_added_time} BST`
-        : "";
-      const noticeInfo = d.inserted_into_notices || d.synced_to_notices
-        ? ` · notice_id=${d.notice_id}`
-        : "";
-      const priorityInfo = d.added_to_priority
-        ? " · ⭐ added to priority list"
-        : "";
-      toast(`Created doc_id=${d.doc_id}${xlat}${metaExtracted}${dateInfo}${noticeInfo}${priorityInfo}`, "ok");
       
-      // Show both embedding content and stored content
-      const embeddingContent = d.embedding_content || "";
-      const storedContent = (d.document as { content?: string })?.content || d.stored_content || "";
-      
-      setAddResult(
-        `<div style="background:#1e293b;border:1px solid #334155;border-radius:10px;padding:12px">
-          <div style="font-size:12px;color:#94a3b8;margin-bottom:10px">
-            doc_id: ${esc(d.doc_id)} · chunk_id: <b>${esc(d.chunk_id)}</b>
-            ${d.metadata_extraction_success ? ' · <span style="color:#22c55e">✓ LLM Metadata Extracted</span>' : ''}
-            ${d.added_to_priority ? ' · <span style="color:#38bdf8">⭐ Added to Priority List</span>' : ''}
-            ${d.synced_to_notices ? ' · <span style="color:#22c55e">📢 Synced to Notices</span>' : ''}
-          </div>
-          
-          ${embeddingContent ? `
-          <div style="margin-bottom:14px">
-            <div style="font-size:11px;color:#38bdf8;font-weight:600;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px">
-              🔍 Embedding Content (Used for Search)
-            </div>
-            <div style="background:#0f172a;border:1px solid #334155;border-radius:8px;padding:10px;font-size:12px;white-space:pre-wrap;font-family:monospace;max-height:180px;overflow:auto;line-height:1.6">
-              ${esc(embeddingContent)}
-            </div>
-          </div>
-          ` : ''}
-          
-          <div>
-            <div style="font-size:11px;color:#94a3b8;font-weight:600;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px">
-              💾 Stored Content (Saved in Database)
-            </div>
-            <div style="background:#0f172a;border:1px solid #334155;border-radius:8px;padding:10px;font-size:12px;white-space:pre-wrap;font-family:monospace;max-height:180px;overflow:auto;line-height:1.6">
-              ${esc(storedContent)}
-            </div>
-          </div>
-        </div>`
-      );
-      loadStats();
+      handleCreateSuccess(d);
     } catch (e) {
       toast("Network error: " + e, "err");
       setAddResult("");
     } finally {
       setAddBusy(false);
     }
-  }, [newDocType, newChunkId, newContent, newTopic, newDepartment, newMeta, toast, loadStats]);
+  }, [newDocType, newChunkId, newContent, newTopic, newDepartment, newMeta, newImage, toast, loadStats]);
+
+  const handleCreateSuccess = useCallback((d: Record<string, unknown>) => {
+    const xlat = d.translation_performed ? " · translated Bengali→English" : "";
+    const metaExtracted = d.metadata_extraction_success ? " · LLM extracted" : "";
+    const imageExtracted = d.image_text_extracted ? " · 🖼️ image text extracted" : "";
+    const dateInfo = d.context_added_date
+      ? ` · ${d.context_added_date} ${d.context_added_time} BST`
+      : "";
+    const noticeInfo = d.inserted_into_notices || d.synced_to_notices
+      ? ` · notice_id=${d.notice_id}`
+      : "";
+    const priorityInfo = d.added_to_priority
+      ? " · ⭐ added to priority list"
+      : "";
+    const temporalInfo = d.temporal_analysis_performed ? " · ⏰ temporal analyzed" : "";
+    toast(`Created doc_id=${d.doc_id}${xlat}${imageExtracted}${metaExtracted}${dateInfo}${noticeInfo}${priorityInfo}${temporalInfo}`, "ok");
+    
+    // Show both embedding content and stored content
+    const embeddingContent = d.embedding_content || "";
+    const storedContent = (d.document as { content?: string })?.content || d.stored_content || "";
+    
+    // Parse temporal analysis
+    const temporalAnalysis = d.temporal_analysis as Record<string, any> | null;
+    
+    // Build temporal analysis display
+    let temporalDisplay = "";
+    if (temporalAnalysis && typeof temporalAnalysis === 'object') {
+      const temporalJson = JSON.stringify(temporalAnalysis, null, 2);
+      temporalDisplay = `
+        <div style="margin-bottom:14px">
+          <div style="font-size:11px;color:#f59e0b;font-weight:600;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px">
+            ⏰ Temporal Analysis
+          </div>
+          <div style="background:#0f172a;border:1px solid #334155;border-radius:8px;padding:10px;font-size:12px">
+            ${temporalAnalysis.valid_from ? `
+              <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #334155">
+                <span style="color:#94a3b8;font-weight:600">Valid From:</span>
+                <span style="color:#e2e8f0">${esc(temporalAnalysis.valid_from)}</span>
+              </div>
+            ` : ''}
+            ${temporalAnalysis.valid_until ? `
+              <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #334155">
+                <span style="color:#94a3b8;font-weight:600">Valid Until:</span>
+                <span style="color:#e2e8f0">${esc(temporalAnalysis.valid_until)}</span>
+              </div>
+            ` : ''}
+            ${temporalAnalysis.temporal_type ? `
+              <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #334155">
+                <span style="color:#94a3b8;font-weight:600">Type:</span>
+                <span style="color:#e2e8f0">${esc(temporalAnalysis.temporal_type)}</span>
+              </div>
+            ` : ''}
+            ${temporalAnalysis.urgency_level ? `
+              <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #334155">
+                <span style="color:#94a3b8;font-weight:600">Urgency:</span>
+                <span style="color:#e2e8f0">${esc(temporalAnalysis.urgency_level)}</span>
+              </div>
+            ` : ''}
+            ${temporalAnalysis.is_active !== undefined ? `
+              <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #334155">
+                <span style="color:#94a3b8;font-weight:600">Active:</span>
+                <span style="color:${temporalAnalysis.is_active ? '#22c55e' : '#ef4444'}">${temporalAnalysis.is_active ? '✓ Yes' : '✗ No'}</span>
+              </div>
+            ` : ''}
+            
+            <details style="margin-top:10px">
+              <summary style="cursor:pointer;color:#94a3b8;font-size:11px;padding:6px 0;user-select:none">
+                📋 View Complete JSON
+              </summary>
+              <div style="background:#0b1220;border:1px solid #334155;border-radius:6px;padding:10px;margin-top:8px;font-family:monospace;font-size:11px;white-space:pre-wrap;word-break:break-word;max-height:300px;overflow:auto;line-height:1.6;color:#22c55e">
+                ${esc(temporalJson)}
+              </div>
+            </details>
+          </div>
+        </div>
+      `;
+    }
+    
+    setAddResult(
+      `<div style="background:#1e293b;border:1px solid #334155;border-radius:10px;padding:12px">
+        <div style="font-size:12px;color:#94a3b8;margin-bottom:10px">
+          doc_id: ${esc(d.doc_id)} · chunk_id: <b>${esc(d.chunk_id)}</b>
+          ${d.image_text_extracted ? ' · <span style="color:#a78bfa">🖼️ Image Text Extracted</span>' : ''}
+          ${d.metadata_extraction_success ? ' · <span style="color:#22c55e">✓ LLM Metadata Extracted</span>' : ''}
+          ${d.added_to_priority ? ' · <span style="color:#38bdf8">⭐ Added to Priority List</span>' : ''}
+          ${d.synced_to_notices ? ' · <span style="color:#22c55e">📢 Synced to Notices</span>' : ''}
+          ${d.temporal_analysis_performed ? ' · <span style="color:#f59e0b">⏰ Temporal Analyzed</span>' : ''}
+        </div>
+        
+        ${temporalDisplay}
+        
+        ${embeddingContent ? `
+        <div style="margin-bottom:14px">
+          <div style="font-size:11px;color:#38bdf8;font-weight:600;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px">
+            🔍 Embedding Content (Used for Search)
+          </div>
+          <div style="background:#0f172a;border:1px solid #334155;border-radius:8px;padding:10px;font-size:12px;white-space:pre-wrap;font-family:monospace;max-height:180px;overflow:auto;line-height:1.6">
+            ${esc(embeddingContent)}
+          </div>
+        </div>
+        ` : ''}
+        
+        <div>
+          <div style="font-size:11px;color:#94a3b8;font-weight:600;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px">
+            💾 Stored Content (Saved in Database)
+          </div>
+          <div style="background:#0f172a;border:1px solid #334155;border-radius:8px;padding:10px;font-size:12px;white-space:pre-wrap;font-family:monospace;max-height:180px;overflow:auto;line-height:1.6">
+            ${esc(storedContent)}
+          </div>
+        </div>
+      </div>`
+    );
+    loadStats();
+    
+    // Clear form including image
+    setNewImage(null);
+    setNewImagePreview("");
+  }, [loadStats]);
 
   // ── captains ──────────────────────────────────────────────────────────────
 
@@ -894,6 +1063,18 @@ export default function AdminPage() {
     }
   }, [googleLoaded, isAuthenticated, handleGoogleCallback]);
 
+  // Mobile responsive detection
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
   const handleLogout = async () => {
     try {
       await fetch(`${BACKEND}/admin-panel/api/auth/logout/`, {
@@ -969,64 +1150,87 @@ export default function AdminPage() {
   // ── render ────────────────────────────────────────────────────────────────
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100%", overflow: "hidden" }}>
+    <div style={{ display: "flex", flexDirection: "column", height: "100vh", overflow: "hidden", background: "#0f172a" }}>
       {/* HEADER */}
       <header
         style={{
           display: "flex",
           alignItems: "center",
-          gap: 14,
-          padding: "14px 20px",
+          gap: isMobile ? 8 : 14,
+          padding: isMobile ? "10px 12px" : "14px 20px",
           borderBottom: "1px solid #334155",
           background: "#1e293b",
           flexShrink: 0,
+          flexWrap: isMobile ? "wrap" : "nowrap",
         }}
       >
-        <h1 style={{ fontSize: 18, margin: 0, fontWeight: 600 }}>
+        <h1 style={{ fontSize: isMobile ? 14 : 18, margin: 0, fontWeight: 600, width: isMobile ? "100%" : "auto", textAlign: isMobile ? "center" : "left" }}>
           CNPI RAG – Admin Panel
         </h1>
         <span
           style={{
-            fontSize: 12,
+            fontSize: isMobile ? 10 : 12,
             color: "#94a3b8",
             background: "#273449",
-            padding: "3px 8px",
+            padding: isMobile ? "2px 6px" : "3px 8px",
             borderRadius: 6,
             border: "1px solid #334155",
+            margin: isMobile ? "0 auto" : 0,
           }}
         >
           documents table
         </span>
-        <div style={{ marginLeft: "auto", display: "flex", gap: 10, alignItems: "center", fontSize: 13, color: "#94a3b8" }}>
+        <div style={{ 
+          marginLeft: isMobile ? 0 : "auto", 
+          display: "flex", 
+          gap: isMobile ? 6 : 10, 
+          alignItems: "center", 
+          fontSize: isMobile ? 11 : 13, 
+          color: "#94a3b8",
+          width: isMobile ? "100%" : "auto",
+          marginTop: isMobile ? 8 : 0,
+          flexWrap: "wrap",
+          justifyContent: isMobile ? "center" : "flex-start",
+        }}>
           {stats && (
             <>
               <span>
                 Total: <b style={{ color: "#e2e8f0" }}>{stats.total}</b>
               </span>
-              {(stats.by_doc_type || []).slice(0, 3).map((t) => (
+              {(stats.by_doc_type || []).slice(0, isMobile ? 2 : 3).map((t) => (
                 <span key={t.doc_type}>
                   {t.doc_type}: <b style={{ color: "#e2e8f0" }}>{t.cnt}</b>
                 </span>
               ))}
             </>
           )}
-          <div style={{ borderLeft: "1px solid #334155", paddingLeft: 12, marginLeft: 6, display: "flex", alignItems: "center", gap: 10 }}>
+          <div style={{ 
+            borderLeft: isMobile ? "none" : "1px solid #334155", 
+            paddingLeft: isMobile ? 0 : 12, 
+            marginLeft: isMobile ? 0 : 6, 
+            display: "flex", 
+            alignItems: "center", 
+            gap: isMobile ? 6 : 10,
+            width: isMobile ? "100%" : "auto",
+            justifyContent: isMobile ? "center" : "flex-start",
+            marginTop: isMobile ? 8 : 0,
+          }}>
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <div style={{ width: 28, height: 28, borderRadius: "50%", background: "#3b82f6", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 600, color: "white" }}>
+              <div style={{ width: isMobile ? 24 : 28, height: isMobile ? 24 : 28, borderRadius: "50%", background: "#3b82f6", display: "flex", alignItems: "center", justifyContent: "center", fontSize: isMobile ? 11 : 12, fontWeight: 600, color: "white" }}>
                 {userEmail.charAt(0).toUpperCase()}
               </div>
-              <span style={{ fontSize: 12, color: "#e2e8f0" }}>{userEmail}</span>
+              {!isMobile && <span style={{ fontSize: 12, color: "#e2e8f0" }}>{userEmail}</span>}
             </div>
             <button
               onClick={handleLogout}
               style={{
-                padding: "6px 12px",
+                padding: isMobile ? "6px 10px" : "6px 12px",
                 borderRadius: 6,
                 border: "1px solid #334155",
                 background: "#273449",
                 color: "#e2e8f0",
                 cursor: "pointer",
-                fontSize: 12,
+                fontSize: isMobile ? 11 : 12,
                 fontWeight: 600,
                 transition: "background 0.2s"
               }}
@@ -1043,11 +1247,11 @@ export default function AdminPage() {
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "1.1fr 1fr",
-          gap: 16,
-          padding: 16,
+          gridTemplateColumns: isMobile ? "1fr" : "1.1fr 1fr",
+          gap: isMobile ? 12 : 16,
+          padding: isMobile ? 8 : 16,
           flex: 1,
-          overflow: "hidden",
+          overflow: "auto",
         }}
       >
         {/* ── LEFT: Search ── */}
@@ -1418,6 +1622,61 @@ export default function AdminPage() {
                 />
               </div>
 
+              <div style={S.field}>
+                <label style={S.label}>
+                  Image Upload{" "}
+                  <span style={{ color: "#94a3b8", fontWeight: 400 }}>
+                    (optional – Gemini will extract text from image)
+                  </span>
+                </label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  style={{
+                    ...S.input,
+                    padding: "8px 11px",
+                    cursor: "pointer",
+                  }}
+                />
+                {newImagePreview && (
+                  <div style={{
+                    marginTop: 10,
+                    position: "relative",
+                    display: "inline-block",
+                  }}>
+                    <img
+                      src={newImagePreview}
+                      alt="Preview"
+                      style={{
+                        maxWidth: "100%",
+                        maxHeight: 200,
+                        borderRadius: 8,
+                        border: "1px solid #334155",
+                      }}
+                    />
+                    <button
+                      onClick={removeImage}
+                      style={{
+                        position: "absolute",
+                        top: 8,
+                        right: 8,
+                        background: "#450a0a",
+                        color: "#fca5a5",
+                        border: "1px solid #7f1d1d",
+                        borderRadius: 6,
+                        padding: "4px 8px",
+                        fontSize: 12,
+                        fontWeight: 600,
+                        cursor: "pointer",
+                      }}
+                    >
+                      Remove
+                    </button>
+                  </div>
+                )}
+              </div>
+
               <div style={S.two}>
                 <div style={S.field}>
                   <label style={S.label}>
@@ -1517,6 +1776,7 @@ export default function AdminPage() {
                   onClick={() => {
                     setNewChunkId(""); setNewContent(""); setNewDocType("documents");
                     setNewTopic(""); setNewDepartment(""); setNewMeta(""); setAddResult("");
+                    setNewImage(null); setNewImagePreview("");
                   }}
                 >
                   Clear
