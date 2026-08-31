@@ -229,6 +229,7 @@ def create_document(
     department: str | None = None,
     meta: dict | str | None = None,
     source_file: str | None = "admin_panel",
+    image_data: bytes | None = None,
 ) -> dict[str, Any]:
     """Insert a new document row with an auto-generated embedding.
 
@@ -236,11 +237,13 @@ def create_document(
     - content is required and must be > 10 chars (table CHECK constraint).
     - department, if provided, must be one of the valid short codes.
     - meta may be a dict or a JSON string (defaults to {}).
+    - image_data: optional image bytes for OCR/text extraction via Gemini
 
     Returns {created, doc_id, chunk_id, embedding_generated, document} or {error}.
     If the chunk_id already exists, returns an error pointing to update instead.
     """
     from utils.embedding_utils import embed_text  # noqa: WPS433
+    from utils.llm_utils import extract_text_from_image  # noqa: WPS433
 
     new_doc_type = (doc_type or "general").strip() or "general"
 
@@ -258,8 +261,38 @@ def create_document(
             return {"error": "chunk_id must be at most 200 characters."}
 
     new_content = (content or "").strip()
+    
+    # Step 0 — Extract text from image if provided
+    # ----------------------------------------------------------------
+    image_text_extracted = False
+    extracted_image_text = ""
+    if image_data:
+        try:
+            logger.info("create_document: Image provided – extracting text with Gemini vision.")
+            extracted_text = extract_text_from_image(image_data)
+            if extracted_text and not extracted_text.startswith("Error:"):
+                extracted_image_text = extracted_text
+                # Use extracted text as content if no text content provided
+                if not new_content or len(new_content) < 11:
+                    new_content = extracted_text
+                    logger.info(f"create_document: Using extracted image text as content ({len(extracted_text)} chars).")
+                else:
+                    # Append extracted text to existing content
+                    new_content = f"{new_content}\n\n[Extracted from Image]\n{extracted_text}"
+                    logger.info(f"create_document: Appended extracted image text to content ({len(extracted_text)} chars).")
+                image_text_extracted = True
+            else:
+                logger.warning(f"create_document: Image text extraction failed or returned error: {extracted_text}")
+                if not new_content or len(new_content) < 11:
+                    return {"error": "Failed to extract text from image and no text content provided. Please provide text content or a clearer image."}
+        except Exception as exc:
+            logger.exception(f"create_document: Image text extraction failed: {exc}")
+            if not new_content or len(new_content) < 11:
+                return {"error": f"Image text extraction failed: {exc}. Please provide text content or try a different image."}
+    
+    # Validate content length after image extraction
     if len(new_content) < 11:
-        return {"error": "content is required and must be at least 11 characters."}
+        return {"error": "content is required and must be at least 11 characters (or provide an image with extractable text)."}
 
     new_topic = (topic or "").strip() or None
     new_dept = (department or "").strip() or None
@@ -578,6 +611,7 @@ def create_document(
                 "document": doc,
                 "embedding_content": embedding_content,  # Content used for embedding
                 "stored_content": new_content,  # Content stored in database
+                "temporal_analysis": json.loads(temporal_analysis_json) if temporal_analysis_json else None,  # Add temporal analysis to response
             }
         except Exception as exc:
             conn.rollback()
@@ -727,6 +761,7 @@ def create_document(
                 "added_to_priority": added_to_priority,
                 "notice_id": notice_id,  # New field
                 "synced_to_notices": notice_id is not None,  # New field
+                "temporal_analysis": json.loads(temporal_analysis_json) if temporal_analysis_json else None,  # Add temporal analysis to response
             }
         except Exception as exc:
             conn.rollback()
@@ -811,12 +846,14 @@ def create_document(
             "translation_performed": translation_performed,
             "temporal_analysis_performed": temporal_analysis_json is not None,
             "metadata_extraction_success": metadata_extraction_success,
+            "image_text_extracted": image_text_extracted,  # New field
             "context_added_date": context_added_date,
             "context_added_time": context_added_time,
             "document": doc,
             "embedding_content": embedding_content,  # Content used for embedding
             "stored_content": new_content,  # Content stored in database
             "added_to_priority": added_to_priority,  # New field
+            "temporal_analysis": json.loads(temporal_analysis_json) if temporal_analysis_json else None,  # Add temporal analysis to response
         }
     except Exception as exc:
         conn.rollback()

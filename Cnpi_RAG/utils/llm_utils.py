@@ -4,6 +4,8 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage, BaseMessage
 import os
 from typing import Union
+import base64
+from pathlib import Path
 
 # Load environment variables from .env file
 from dotenv import load_dotenv
@@ -197,6 +199,103 @@ def call_llm_with_history(
     except Exception as e:
         print(f"Error calling LLM with history: {e}")
         return f"Error: Unable to process request. {str(e)}", chat_history
+
+
+def extract_text_from_image(
+    image_data: Union[bytes, str, Path],
+    prompt: str = None,
+    model: str = None
+) -> str:
+    """Extract text from an image using Gemini's vision capabilities.
+    
+    Parameters:
+        image_data: Image data as bytes, base64 string, or file path
+        prompt: Custom prompt for text extraction (optional)
+        model: Model to use (default: same as _MODEL_NAME - gemini-3.5-flash-lite)
+    
+    Returns:
+        str: Extracted text from the image
+    """
+    # Lazy imports to avoid circular dependency and module loading issues
+    try:
+        import google.generativeai as genai
+    except ImportError:
+        return "Error: google-generativeai package not installed. Run: pip install google-generativeai"
+    
+    try:
+        from PIL import Image
+        import io
+        
+        # Use the same model as the rest of the system
+        if model is None:
+            model = _MODEL_NAME
+        
+        print(f"[extract_text_from_image] Starting image text extraction with {model}...")
+        
+        # Configure Gemini API
+        api_key = os.getenv("GEMINI_API_KEY")
+        if not api_key:
+            return "Error: GEMINI_API_KEY not found in environment variables"
+        
+        genai.configure(api_key=api_key)
+        
+        # Prepare image
+        if isinstance(image_data, (str, Path)):
+            # If it's a file path
+            if os.path.exists(image_data):
+                image = Image.open(image_data)
+            else:
+                # Assume it's base64
+                image_bytes = base64.b64decode(image_data)
+                image = Image.open(io.BytesIO(image_bytes))
+        elif isinstance(image_data, bytes):
+            image = Image.open(io.BytesIO(image_data))
+        else:
+            raise ValueError("image_data must be bytes, base64 string, or file path")
+        
+        print(f"[extract_text_from_image] Image loaded successfully. Size: {image.size}")
+        
+        # Default prompt optimized for Bengali/English OCR
+        if prompt is None:
+            prompt = """Extract ALL text from this image accurately. 
+
+Instructions:
+1. Extract both Bengali (বাংলা) and English text
+2. Maintain the original structure and formatting
+3. Include all visible text including titles, paragraphs, lists, tables, notices, etc.
+4. If there's no readable text, return "No text found in image"
+5. Return ONLY the extracted text, nothing else
+
+Extracted Text:"""
+        
+        # Use Gemini model with vision capability
+        model_instance = genai.GenerativeModel(model)
+        
+        print(f"[extract_text_from_image] Calling Gemini API for text extraction...")
+        
+        # Generate content with image and prompt
+        response = model_instance.generate_content([prompt, image])
+        
+        # Block until response is ready
+        response.resolve()
+        
+        extracted_text = response.text.strip()
+        
+        print(f"[extract_text_from_image] Successfully extracted {len(extracted_text)} characters")
+        if extracted_text:
+            print(f"[extract_text_from_image] Preview: {extracted_text[:150]}...")
+        
+        if not extracted_text or extracted_text.lower() == "no text found in image":
+            return "Error: No text could be extracted from the image"
+        
+        return extracted_text
+        
+    except Exception as e:
+        import traceback
+        error_details = traceback.format_exc()
+        print(f"[extract_text_from_image] Error: {str(e)}")
+        print(f"[extract_text_from_image] Full traceback:\n{error_details}")
+        return f"Error: Unable to extract text from image. {str(e)}"
 
 
 # =============================================================================

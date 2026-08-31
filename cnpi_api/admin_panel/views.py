@@ -193,28 +193,60 @@ def update_view(request: HttpRequest) -> JsonResponse:
 def create_view(request: HttpRequest) -> JsonResponse:
     """Insert a new document row with an auto-generated embedding.
 
-    JSON body:
+    Accepts either:
+    1. JSON body (text only):
         {
             "chunk_id": "manual_cst_1",   // required, must be unique
-            "content": "text...",          // required, >= 11 chars
+            "content": "text...",          // required, >= 11 chars (or provide image)
             "doc_type": "general",         // optional, default "general"
             "topic": "...",                // optional
             "department": "CST",           // optional
             "meta": {"key": "val"},        // optional, dict or JSON string
             "source_file": "admin_panel"   // optional
         }
+    
+    2. FormData (multipart, with optional image):
+        - image: file upload (optional)
+        - chunk_id, content, doc_type, topic, department, meta, source_file (same as JSON)
     """
-    data = _read_json_body(request)
-    if not data:
-        return _json_error("Expected a JSON body.")
+    
+    # Check if this is a multipart/form-data request (image upload)
+    content_type = request.META.get('CONTENT_TYPE', '')
+    
+    if 'multipart/form-data' in content_type:
+        # Handle multipart form data with image
+        chunk_id = request.POST.get("chunk_id", "").strip()
+        content = request.POST.get("content", "").strip()
+        doc_type = request.POST.get("doc_type", "general")
+        topic = request.POST.get("topic")
+        department = request.POST.get("department")
+        meta = request.POST.get("meta")
+        source_file = request.POST.get("source_file", "admin_panel")
+        
+        # Handle image upload
+        image_data = None
+        if 'image' in request.FILES:
+            image_file = request.FILES['image']
+            try:
+                image_data = image_file.read()
+                logger.info(f"Received image upload: {image_file.name}, size: {len(image_data)} bytes")
+            except Exception as exc:
+                logger.exception("Failed to read uploaded image")
+                return _json_error(f"Failed to read image file: {exc}", status=400)
+    else:
+        # Handle JSON body (text only)
+        data = _read_json_body(request)
+        if not data:
+            return _json_error("Expected a JSON body or multipart form data.")
 
-    chunk_id = data.get("chunk_id")
-    content = data.get("content")
-    doc_type = data.get("doc_type", "general")
-    topic = data.get("topic")
-    department = data.get("department")
-    meta = data.get("meta")
-    source_file = data.get("source_file", "admin_panel")
+        chunk_id = data.get("chunk_id")
+        content = data.get("content")
+        doc_type = data.get("doc_type", "general")
+        topic = data.get("topic")
+        department = data.get("department")
+        meta = data.get("meta")
+        source_file = data.get("source_file", "admin_panel")
+        image_data = None
 
     try:
         result = services.create_document(
@@ -225,6 +257,7 @@ def create_view(request: HttpRequest) -> JsonResponse:
             department=department,
             meta=meta,
             source_file=source_file,
+            image_data=image_data,
         )
     except Exception as exc:  # noqa: BLE001
         logger.exception("create_document failed")
@@ -524,6 +557,122 @@ _HTML_PAGE = r"""<!DOCTYPE html>
   .ba-box h4{margin:0 0 6px;font-size:11px;color:var(--muted);font-family:inherit;text-transform:uppercase}
   details{margin-top:10px}
   summary{cursor:pointer;font-size:12px;color:var(--muted)}
+  .temporal-info{background:var(--panel2);border:1px solid var(--border);border-radius:8px;padding:10px;margin-top:8px;font-size:12px}
+  .temporal-info h5{margin:0 0 6px;font-size:11px;color:var(--accent);text-transform:uppercase}
+  .temporal-info .temp-item{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border)}
+  .temporal-info .temp-item:last-child{border-bottom:none}
+  .temporal-info .temp-label{color:var(--muted);font-weight:600}
+  .temporal-info .temp-value{color:var(--text)}
+  
+  /* Mobile Responsive - Improved */
+  @media (max-width: 1024px) {
+    .layout{grid-template-columns:1fr;height:auto;min-height:calc(100vh - 58px)}
+    .pane{min-height:400px;max-height:none}
+  }
+  
+  @media (max-width: 768px) {
+    body{font-size:14px}
+    header{flex-wrap:wrap;padding:10px 12px;gap:8px}
+    header h1{font-size:15px;width:100%;text-align:center}
+    header .badge{font-size:10px;padding:2px 6px;margin:0 auto}
+    #stats{width:100%;margin:8px 0 0 0;justify-content:center;flex-wrap:wrap;font-size:11px;gap:8px}
+    #stats span{flex:0 0 auto}
+    
+    .layout{grid-template-columns:1fr;height:auto;padding:8px;gap:12px;min-height:calc(100vh - 80px)}
+    
+    .pane{border-radius:10px;min-height:300px;max-height:none}
+    .pane h2{font-size:14px;padding:10px 12px}
+    .pane .body{padding:12px;overflow-x:hidden}
+    
+    .tabs{display:flex;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+    .tabs::-webkit-scrollbar{display:none}
+    .tab{flex:1 0 auto;min-width:120px;font-size:13px;padding:10px 12px;white-space:nowrap}
+    
+    .tabpane{min-height:300px}
+    
+    .field{margin-bottom:14px}
+    .field label{font-size:13px;margin-bottom:6px}
+    
+    .row{flex-direction:column;gap:10px;margin-bottom:14px}
+    .row button{width:100%;padding:14px;font-size:15px;font-weight:600}
+    .row input,.row select{width:100%}
+    .row[style*="align-items"]{align-items:stretch!important}
+    .row[style*="align-items"] label{margin-bottom:10px}
+    .row[style*="align-items"] > div{margin-left:0!important;width:100%}
+    
+    .two{grid-template-columns:1fr;gap:10px}
+    
+    input,textarea,select{font-size:16px;padding:12px;border-radius:8px}
+    textarea{min-height:150px}
+    
+    button{padding:14px 20px;font-size:15px;border-radius:8px;font-weight:600}
+    button.secondary{padding:12px 18px}
+    
+    .hint{font-size:12px;margin-top:-8px;margin-bottom:12px;line-height:1.4}
+    
+    .result{padding:12px;margin-bottom:12px;border-radius:10px}
+    .result .top{flex-direction:column;align-items:flex-start;gap:6px;margin-bottom:8px}
+    .result .ids{font-size:11px;word-break:break-all}
+    .result .score{font-size:12px;margin-top:4px}
+    .result .content{max-height:250px;font-size:13px;line-height:1.6;padding:4px 0}
+    .result .tags{gap:6px;margin-top:10px}
+    .tag{font-size:11px;padding:3px 8px}
+    
+    .temporal-info{padding:12px;margin-top:10px}
+    .temporal-info h5{font-size:12px;margin-bottom:8px}
+    .temporal-info .temp-item{padding:6px 0;flex-direction:column;gap:2px;align-items:flex-start}
+    .temporal-info .temp-label{font-size:11px}
+    .temporal-info .temp-value{font-size:13px;margin-top:2px}
+    
+    .before-after{grid-template-columns:1fr;gap:10px;margin-top:12px}
+    .ba-box{max-height:250px;padding:12px;font-size:12px}
+    .ba-box h4{font-size:11px;margin-bottom:8px}
+    
+    #toast{bottom:10px;right:10px;left:10px}
+    .toast{max-width:100%;font-size:13px;padding:12px 14px}
+    
+    .empty{padding:40px 20px;font-size:14px;line-height:1.6}
+    
+    details{margin-top:12px}
+    summary{font-size:13px;padding:8px 0}
+    .meta{font-size:11px;line-height:1.5;padding:8px 0}
+  }
+  
+  @media (max-width: 480px) {
+    header h1{font-size:14px}
+    header .badge{font-size:9px}
+    #stats{font-size:10px;gap:6px}
+    
+    .pane{border-radius:8px}
+    .pane h2{font-size:13px;padding:8px 10px}
+    .pane .body{padding:10px}
+    
+    .tab{min-width:100px;font-size:12px;padding:8px 10px}
+    
+    input,textarea,select{font-size:16px;padding:10px}
+    button{padding:12px 16px;font-size:14px}
+    
+    .result{padding:10px}
+    .result .ids{font-size:10px}
+    .result .content{font-size:12px;max-height:200px}
+    .tag{font-size:10px;padding:2px 6px}
+    
+    .temporal-info{padding:10px}
+    .temporal-info h5{font-size:11px}
+    .temporal-info .temp-item{padding:5px 0}
+    .temporal-info .temp-label{font-size:10px}
+    .temporal-info .temp-value{font-size:12px}
+    
+    .hint{font-size:11px}
+    .empty{padding:30px 15px;font-size:13px}
+  }
+  
+  @media (max-width: 360px) {
+    .layout{padding:6px;gap:10px}
+    .pane .body{padding:8px}
+    input,textarea,select{font-size:16px;padding:8px}
+    button{padding:10px 14px;font-size:14px}
+  }
 </style>
 </head>
 <body>
@@ -847,7 +996,22 @@ async function doCreate(){
     const noticeBadge = d.inserted_into_notices
       ? `<span class="tag" style="color:var(--accent);border-color:var(--accent)">✓ inserted into notices table (notice_id: ${d.notice_id})</span>`
       : "";
-    $("addResult").innerHTML = `<div class="result active"><div class="top"><span class="ids">doc_id: ${d.doc_id} · chunk_id: <b>${d.chunk_id}</b></span><span class="score">✔ created</span></div><div class="content">${esc(d.document?.content||"")}</div><div class="tags">${xlBadge}${dateBadge}${noticeBadge}</div></div>`;
+    
+    // Build temporal analysis display
+    let temporalInfo = "";
+    if(d.temporal_analysis && typeof d.temporal_analysis === 'object'){
+      const t = d.temporal_analysis;
+      temporalInfo = `<div class="temporal-info">
+        <h5>⏰ Temporal Analysis</h5>
+        ${t.valid_from ? `<div class="temp-item"><span class="temp-label">Valid From:</span><span class="temp-value">${esc(t.valid_from)}</span></div>` : ''}
+        ${t.valid_until ? `<div class="temp-item"><span class="temp-label">Valid Until:</span><span class="temp-value">${esc(t.valid_until)}</span></div>` : ''}
+        ${t.temporal_type ? `<div class="temp-item"><span class="temp-label">Type:</span><span class="temp-value">${esc(t.temporal_type)}</span></div>` : ''}
+        ${t.urgency_level ? `<div class="temp-item"><span class="temp-label">Urgency:</span><span class="temp-value">${esc(t.urgency_level)}</span></div>` : ''}
+        ${t.is_active !== undefined ? `<div class="temp-item"><span class="temp-label">Active:</span><span class="temp-value">${t.is_active ? '✓ Yes' : '✗ No'}</span></div>` : ''}
+      </div>`;
+    }
+    
+    $("addResult").innerHTML = `<div class="result active"><div class="top"><span class="ids">doc_id: ${d.doc_id} · chunk_id: <b>${d.chunk_id}</b></span><span class="score">✔ created</span></div><div class="content">${esc(d.document?.content||"")}</div><div class="tags">${xlBadge}${dateBadge}${noticeBadge}</div>${temporalInfo}</div>`;
     loadStats();
   }catch(e){ toast("Network error: "+e, "err"); }
   finally{ setLoading(btn,false); }

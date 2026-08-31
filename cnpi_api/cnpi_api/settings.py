@@ -193,7 +193,10 @@ REST_FRAMEWORK = {
 # ---------------------------------------------------------------------------
 # CORS — allow all origins in dev (tighten for production)
 # ---------------------------------------------------------------------------
-CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOWED_ORIGINS = [
+    "https://cnpichat.netlify.app",
+    "https://warm-fenglisu-e6e0f6.netlify.app",
+]
 CORS_ALLOW_CREDENTIALS = True
 
 # ---------------------------------------------------------------------------
@@ -228,3 +231,28 @@ if not DEBUG:
     SECURE_HSTS_SECONDS = 31536000
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
+
+# ---------------------------------------------------------------------------
+# Render public URL
+# ---------------------------------------------------------------------------
+# Render automatically sets RENDER_EXTERNAL_URL.  We also accept a manual
+# RENDER_PUBLIC_URL override (set in .env.render / Render Environment tab).
+RENDER_PUBLIC_URL = (
+    os.getenv("RENDER_PUBLIC_URL")
+    or os.getenv("RENDER_EXTERNAL_URL")
+    or ""
+)
+
+# ---------------------------------------------------------------------------
+# Heartbeat / Keep-Alive
+# ---------------------------------------------------------------------------
+# Secret sent in the X-Heartbeat-Secret header by cron callers.
+# Set a strong random value in production; leave blank for local dev.
+# Generate: python -c "import secrets; print(secrets.token_urlsafe(32))"
+HEARTBEAT_SECRET = os.getenv("HEARTBEAT_SECRET", "")
+
+# The URL that heartbeat management command / service will ping.
+HEARTBEAT_TARGET_URL = os.getenv(
+    "HEARTBEAT_TARGET_URL",
+    f"{RENDER_PUBLIC_URL}/api/ping/" if RENDER_PUBLIC_URL else "",
+)
