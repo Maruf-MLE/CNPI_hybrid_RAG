@@ -12,6 +12,7 @@ google-generativeai>=0.8.0
 # Database
 psycopg2-binary>=2.9.9
 pgvector>=0.3.0
+asyncpg>=0.29.0  # Async PostgreSQL driver for performance
 
 # Embeddings
 # Local mode uses sentence-transformers; production (hf_api) uses HF Inference API

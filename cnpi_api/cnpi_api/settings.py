@@ -127,8 +127,24 @@ DATABASES = {
         'PASSWORD': os.getenv('DB_PASSWORD'),
         'HOST': os.getenv('DB_HOST'),
         'PORT': os.getenv('DB_PORT', '5432'),
+        # =====================================================================
+        # CONNECTION POOLING OPTIMIZATION
+        # =====================================================================
+        # CONN_MAX_AGE: Keep database connections alive for reuse (seconds)
+        #   - 0 (default): Close connection after each request (slow)
+        #   - 600: Reuse connections for 10 minutes (50-80s faster)
+        #   - None: Keep connections forever (not recommended)
+        'CONN_MAX_AGE': int(os.getenv('CONN_MAX_AGE', '600')),
+        
+        # ATOMIC_REQUESTS: Wrap each view in a transaction (optional)
+        'ATOMIC_REQUESTS': False,
+        
         'OPTIONS': {
             'sslmode': os.getenv('DB_SSLMODE', 'require'),
+            # Connection timeout (5 seconds)
+            'connect_timeout': int(os.getenv('DB_CONNECT_TIMEOUT', '5')),
+            # Statement timeout (30 seconds) - kill slow queries
+            'options': f'-c statement_timeout={int(os.getenv("DB_STATEMENT_TIMEOUT", "30000"))}',
         },
     }
 }
@@ -196,6 +212,7 @@ REST_FRAMEWORK = {
 CORS_ALLOWED_ORIGINS = [
     "https://cnpichat.netlify.app",
     "https://warm-fenglisu-e6e0f6.netlify.app",
+    'http://localhost:3000',
 ]
 CORS_ALLOW_CREDENTIALS = True
 
