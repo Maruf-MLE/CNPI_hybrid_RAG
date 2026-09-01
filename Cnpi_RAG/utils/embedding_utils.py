@@ -429,14 +429,17 @@ def hybrid_search(
 
     # ⚡ PARALLEL EXECUTION: Fetch embedding and BM25 results simultaneously
     # This reduces latency by ~40-50% compared to sequential execution
+    # For production: Use remaining_k * 2 instead of * 3 to reduce DB load
     vec_results = []
     bm25_results = []
     
+    # Reduce candidate multiplier for production to minimize DB query time
+    candidate_multiplier = 2  # Changed from 3 to reduce load
+    
     with ThreadPoolExecutor(max_workers=2) as executor:
         # Submit both searches in parallel with keyword arguments
-        # Use remaining_k * 3 to get more candidates for better ranking
-        future_vec = executor.submit(vector_search, query_text=query_text, table_name=table_name, top_k=remaining_k * 3)
-        future_bm25 = executor.submit(bm25_search, query_text=query_text, table_name=table_name, top_k=remaining_k * 3)
+        future_vec = executor.submit(vector_search, query_text=query_text, table_name=table_name, top_k=remaining_k * candidate_multiplier)
+        future_bm25 = executor.submit(bm25_search, query_text=query_text, table_name=table_name, top_k=remaining_k * candidate_multiplier)
         
         # Collect results as they complete
         for future in as_completed([future_vec, future_bm25]):

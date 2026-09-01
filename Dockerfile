@@ -58,4 +58,13 @@ WORKDIR /app/cnpi_api
 
 # Render sets the PORT env var at runtime.  Shell form (not exec array)
 # so that ${PORT:-8000} is expanded by /bin/sh before gunicorn starts.
-CMD gunicorn --bind 0.0.0.0:${PORT:-8000} --workers 1 --timeout 300 --preload cnpi_api.wsgi:application
+# Use environment variables for timeout and worker lifecycle settings
+CMD gunicorn --bind 0.0.0.0:${PORT:-8000} \
+    --workers 1 \
+    --timeout ${GUNICORN_TIMEOUT:-300} \
+    --max-requests ${GUNICORN_MAX_REQUESTS:-100} \
+    --max-requests-jitter ${GUNICORN_MAX_REQUESTS_JITTER:-20} \
+    --worker-class sync \
+    --keep-alive 5 \
+    --preload \
+    cnpi_api.wsgi:application
