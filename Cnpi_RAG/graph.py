@@ -77,7 +77,7 @@ def context_retrieve_node(state: RAGState) -> dict:
 from nodes.sql_retrieve_check import sql_retrieve_check_node
 from nodes.sql_retrieve_create import sql_retrieve_create_node
 from nodes.sql_retrieve_context import sql_retrieve_context_node
-from nodes.sql_retrieve_response import sql_retrieve_response_node
+from nodes.sql_retrieve_response_optimized import sql_retrieve_response_node
 from nodes.sql_retrieve_support_check import sql_retrieve_support_check_node
 from nodes.no_answer_found import no_answer_found_node
 
