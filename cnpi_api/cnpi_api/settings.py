@@ -143,8 +143,8 @@ DATABASES = {
             'sslmode': os.getenv('DB_SSLMODE', 'require'),
             # Connection timeout (5 seconds)
             'connect_timeout': int(os.getenv('DB_CONNECT_TIMEOUT', '5')),
-            # Statement timeout (30 seconds) - kill slow queries
-            'options': f'-c statement_timeout={int(os.getenv("DB_STATEMENT_TIMEOUT", "30000"))}',
+            # Note: statement_timeout removed - Neon pooled connections don't support it
+            # Set statement_timeout per-query instead using SET LOCAL if needed
         },
     }
 }
