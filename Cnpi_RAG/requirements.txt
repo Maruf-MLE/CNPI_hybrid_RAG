@@ -20,7 +20,7 @@ faiss-cpu>=1.8.0
 
 # 搜索功能
 scikit-learn>=1.4.0
-pymorphy2>=2.9.1
+pymorphy2>=0.9.1
 nltk>=3.8.1
 
 # 网页搜索
