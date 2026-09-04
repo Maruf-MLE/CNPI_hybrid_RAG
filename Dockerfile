@@ -21,21 +21,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements first (Docker layer caching)
-COPY requirements.txt .
+COPY Cnpi_RAG/requirements.txt .
 
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Only pre-download the embedding model when running in local mode.
-# In hf_api mode (default for Render) the model is never loaded, so we skip
-# this step to keep the image small and the build fast.
-ARG EMBEDDING_PROVIDER=hf_api
-RUN if [ "$EMBEDDING_PROVIDER" = "local" ]; then \
-        python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('BAAI/bge-m3')" \
-        || echo "WARN: Could not pre-download embedding model"; \
-    else \
-        echo "Skipping model pre-download (EMBEDDING_PROVIDER=hf_api)"; \
-    fi
+# Embedding: Google Gemini Embedding 2 (API-based, no model download needed)
+# The embedding model runs via Google's API using GEMINI_API_KEY environment variable.
+# No local model download required, which keeps the Docker image small and fast to build.
 
 # Copy project files
 COPY Cnpi_RAG/ ./Cnpi_RAG/
@@ -48,7 +41,6 @@ ENV PYTHONUNBUFFERED=1
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV DJANGO_SETTINGS_MODULE=cnpi_api.settings
 ENV DEBUG=False
-ENV EMBEDDING_PROVIDER=hf_api
 
 # Run Django with gunicorn
 # --workers 1: Render 4GB RAM — 1 worker is safest with RAG + LLM calls
