@@ -61,11 +61,6 @@ def get_llm(
     every node in the graph shares the *same* underlying connection instead
     of creating a new ChatGoogleGenerativeAI instance on import.
 
-    gemini-3.5-flash-lite is a "thinking" model — it only works correctly
-    when thinking_config is sent with the request.  Without it the request
-    falls through to a quota path with limit 0 (429 RESOURCE_EXHAUSTED).
-    We set thinking_level="MINIMAL" to match the working raw SDK call.
-
     Parameters:
         model: optional override; defaults to project-wide model name.
         temperature: optional sampling temperature (0.0-2.0).  When omitted,
@@ -84,9 +79,6 @@ def get_llm(
         kwargs = dict(
             model=model,
             google_api_key=os.getenv("GEMINI_API_KEY"),
-            thinking_level="minimal",
-            # We don't set streaming=True as it might conflict with some LangChain LCEL setups,
-            # unless specifically needed by the graph implementation.
         )
         if temperature is not None:
             kwargs["temperature"] = temperature
@@ -211,7 +203,7 @@ def extract_text_from_image(
     Parameters:
         image_data: Image data as bytes, base64 string, or file path
         prompt: Custom prompt for text extraction (optional)
-        model: Model to use (default: same as _MODEL_NAME - gemini-3.5-flash-lite)
+        model: Model to use (default: same as _MODEL_NAME - gemini-2.0-flash)
     
     Returns:
         str: Extracted text from the image

@@ -1034,18 +1034,15 @@ export default function AdminPage() {
     }
   }, [toast]);
 
-  // Initialize Google Sign-In when SDK is loaded
+  // Initialize Google Sign-In: also re-run when SDK loads after the button div is already mounted
   useEffect(() => {
-    if (googleLoaded && !isAuthenticated && googleButtonRef.current) {
+    if (googleLoaded && !isAuthenticated && !isAuthBusy && googleButtonRef.current) {
       try {
-        // Clear existing button first
         googleButtonRef.current.innerHTML = '';
-        
         (window as any).google.accounts.id.initialize({
           client_id: GOOGLE_CLIENT_ID,
           callback: handleGoogleCallback,
         });
-        
         (window as any).google.accounts.id.renderButton(
           googleButtonRef.current,
           {
@@ -1053,7 +1050,7 @@ export default function AdminPage() {
             size: "large",
             text: "signin_with",
             shape: "rectangular",
-            width: 280
+            width: 280,
           }
         );
       } catch (error) {
@@ -1061,7 +1058,7 @@ export default function AdminPage() {
         setAuthError('Failed to load Google Sign-In');
       }
     }
-  }, [googleLoaded, isAuthenticated, handleGoogleCallback]);
+  }, [googleLoaded, isAuthenticated, isAuthBusy, handleGoogleCallback]);
 
   // Mobile responsive detection
   useEffect(() => {
