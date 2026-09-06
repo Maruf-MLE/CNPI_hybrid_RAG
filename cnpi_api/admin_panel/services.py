@@ -230,6 +230,7 @@ def create_document(
     meta: dict | str | None = None,
     source_file: str | None = "admin_panel",
     image_data: bytes | None = None,
+    num_questions: int = 10,
 ) -> dict[str, Any]:
     """Insert a new document row with an auto-generated embedding.
 
@@ -408,6 +409,7 @@ def create_document(
                 content=content_with_timestamp,
                 title_en=None,
                 topic=new_topic,
+                num_questions=num_questions,
             )
             
             if extracted_metadata:

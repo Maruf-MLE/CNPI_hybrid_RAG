@@ -222,6 +222,11 @@ def create_view(request: HttpRequest) -> JsonResponse:
         department = request.POST.get("department")
         meta = request.POST.get("meta")
         source_file = request.POST.get("source_file", "admin_panel")
+        try:
+            num_questions = int(request.POST.get("num_questions", 10))
+            num_questions = max(5, min(30, num_questions))
+        except (TypeError, ValueError):
+            num_questions = 10
         
         # Handle image upload
         image_data = None
@@ -247,6 +252,11 @@ def create_view(request: HttpRequest) -> JsonResponse:
         meta = data.get("meta")
         source_file = data.get("source_file", "admin_panel")
         image_data = None
+        try:
+            num_questions = int(data.get("num_questions", 10))
+            num_questions = max(5, min(30, num_questions))
+        except (TypeError, ValueError):
+            num_questions = 10
 
     try:
         result = services.create_document(
@@ -258,6 +268,7 @@ def create_view(request: HttpRequest) -> JsonResponse:
             meta=meta,
             source_file=source_file,
             image_data=image_data,
+            num_questions=num_questions,
         )
     except Exception as exc:  # noqa: BLE001
         logger.exception("create_document failed")
@@ -787,6 +798,10 @@ _HTML_PAGE = r"""<!DOCTYPE html>
         </div>
         <div class="field"><label>topic</label><input id="newTopic" type="text" placeholder="topic" /></div>
         <div class="field">
+          <label>Number of Questions for Embedding <span style="color:var(--muted)">(min 5, max 30 — LLM generates these for semantic search)</span></label>
+          <input id="newNumQuestions" type="number" min="5" max="30" value="10" placeholder="10" style="width:120px;" />
+        </div>
+        <div class="field">
           <label>meta <span style="color:var(--muted)">(JSON, optional)</span></label>
           <input id="newMeta" type="text" placeholder='{"key":"value"}' />
         </div>
@@ -968,14 +983,17 @@ async function doCreate(){
   if(!isNotice && !chunk_id) return toast("chunk_id is required.", "err");
   const content = $("newContent").value.trim();
   if(content.length < 11) return toast("Content must be at least 11 characters.", "err");
+    const numQRaw = parseInt($(\"newNumQuestions\").value, 10);
+    const numQuestions = (!isNaN(numQRaw) && numQRaw >= 5 && numQRaw <= 30) ? numQRaw : 10;
     const body = {
       chunk_id,
       content,
       doc_type: docType,
-      topic: $("newTopic").value.trim() || null,
-      department: $("newDepartment").value || null,
-      meta: $("newMeta").value.trim() || null,
-      source_file: "admin_panel",
+      topic: $(\"newTopic\").value.trim() || null,
+      department: $(\"newDepartment\").value || null,
+      meta: $(\"newMeta\").value.trim() || null,
+      source_file: \"admin_panel\",
+      num_questions: numQuestions,
     };
   const btn = $("addBtn"); setLoading(btn,true);
   $("addResult").innerHTML = '<div class="empty"><span class="loader"></span>Translating &amp; processing\u2026 (this may take a few seconds)</div>';
@@ -1033,7 +1051,7 @@ $("lookupKey").addEventListener("keydown", e=>{ if(e.key==="Enter") loadDoc(); }
 $("saveBtn").onclick = doUpdate;
 $("clearBtn").onclick = ()=>{ ["lookupKey","content","docType","topic","department"].forEach(id=>$(id).value=""); $("updateResult").innerHTML=""; };
 $("addBtn").onclick = doCreate;
-$("addClearBtn").onclick = ()=>{ ["newChunkId","newContent","newDocType","newTopic","newDepartment","newMeta"].forEach(id=>$(id).value=""); $("addResult").innerHTML=""; };
+$(\"addClearBtn\").onclick = ()=>{ [\"newChunkId\",\"newContent\",\"newDocType\",\"newTopic\",\"newDepartment\",\"newMeta\"].forEach(id=>$(id).value=\"\"); $(\"newNumQuestions\").value=\"10\"; $(\"addResult\").innerHTML=\"\"; };
 document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>switchTab(t.dataset.tab));
 
 loadStats();

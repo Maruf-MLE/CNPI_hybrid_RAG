@@ -721,6 +721,7 @@ def extract_notice_metadata(
     content: str,
     title_en: str | None = None,
     topic: str | None = None,
+    num_questions: int = 10,
 ) -> dict[str, Any] | None:
     """
     Extract retrieval-optimized metadata from a notice using LLM.
@@ -729,6 +730,7 @@ def extract_notice_metadata(
         content: The notice content (with timestamp header)
         title_en: Optional existing English title
         topic: Optional topic field to use as title fallback
+        num_questions: How many questions the LLM should generate (min 5, max 30)
         
     Returns:
         Dict with keys: title_en, search_summary, key_facts, questions
@@ -737,17 +739,49 @@ def extract_notice_metadata(
     try:
         from utils.llm_utils import call_llm
         
+        # Clamp num_questions to safe range
+        num_questions = max(5, min(30, int(num_questions)))
+        min_q = num_questions
+        max_q = num_questions + 5  # allow a small upper buffer
+        
+        # Build a dynamic version of the system prompt with the requested question count
+        dynamic_prompt = METADATA_EXTRACTION_SYSTEM_PROMPT
+        dynamic_prompt = dynamic_prompt.replace(
+            "Generate **AT LEAST 8 questions** for every notice.",
+            f"Generate **AT LEAST {min_q} questions** for every notice.",
+        )
+        dynamic_prompt = dynamic_prompt.replace(
+            "Prefer approximately 8–15 high-quality questions.",
+            f"Prefer approximately {min_q}–{max_q} high-quality questions.",
+        )
+        dynamic_prompt = dynamic_prompt.replace(
+            "The `questions` array MUST contain at least 8 questions.",
+            f"The `questions` array MUST contain at least {min_q} questions.",
+        )
+        dynamic_prompt = dynamic_prompt.replace(
+            "The minimum 8 questions MUST NOT simply be the same question with minor wording changes.",
+            f"The minimum {min_q} questions MUST NOT simply be the same question with minor wording changes.",
+        )
+        dynamic_prompt = dynamic_prompt.replace(
+            "Are there at least 8 questions?",
+            f"Are there at least {min_q} questions?",
+        )
+        dynamic_prompt = dynamic_prompt.replace(
+            "Does the `questions` array contain at least 8 high-quality questions?",
+            f"Does the `questions` array contain at least {min_q} high-quality questions?",
+        )
+        
         # Prepare user message
         user_content = f"""title_en: {title_en or topic or ""}
 
 content_bn:
 {content}"""
         
-        logger.info("Calling LLM (Gemini) for metadata extraction...")
+        logger.info(f"Calling LLM (Gemini) for metadata extraction (num_questions={num_questions})...")
         
         # Call LLM using llm_utils (Gemini)
         response_text = call_llm(
-            system_message=METADATA_EXTRACTION_SYSTEM_PROMPT,
+            system_message=dynamic_prompt,
             user_prompt=user_content,
             model="gemini-3.5-flash-lite"
         )

@@ -205,6 +205,7 @@ export default function AdminPage() {
   const [newDepartment, setNewDepartment] = useState("");
   const [newTopic, setNewTopic] = useState("");
   const [newMeta, setNewMeta] = useState("");
+  const [newNumQuestions, setNewNumQuestions] = useState(10);
   const [newImage, setNewImage] = useState<File | null>(null);
   const [newImagePreview, setNewImagePreview] = useState<string>("");
   const [addBusy, setAddBusy] = useState(false);
@@ -430,6 +431,7 @@ export default function AdminPage() {
         if (newDepartment) formData.append("department", newDepartment);
         if (newMeta.trim()) formData.append("meta", newMeta.trim());
         formData.append("source_file", "admin_panel");
+        formData.append("num_questions", String(newNumQuestions));
         
         const response = await fetch(`${MAIN_API}/create/`, {
           method: "POST",
@@ -456,6 +458,7 @@ export default function AdminPage() {
         department: newDepartment || null,
         meta: newMeta.trim() || null,
         source_file: "admin_panel",
+        num_questions: newNumQuestions,
       };
       
       const { ok, d } = await apiFetch(`${MAIN_API}/create/`, {
@@ -475,7 +478,7 @@ export default function AdminPage() {
     } finally {
       setAddBusy(false);
     }
-  }, [newDocType, newChunkId, newContent, newTopic, newDepartment, newMeta, newImage, toast, loadStats]);
+  }, [newDocType, newChunkId, newContent, newTopic, newDepartment, newMeta, newNumQuestions, newImage, toast, loadStats]);
 
   const handleCreateSuccess = useCallback((d: Record<string, unknown>) => {
     const xlat = d.translation_performed ? " · translated Bengali→English" : "";
@@ -1757,6 +1760,24 @@ export default function AdminPage() {
               </div>
 
               <div style={S.field}>
+                <label style={S.label}>
+                  Number of Questions for Embedding{" "}
+                  <span style={{ color: "#999", fontSize: "0.9em" }}>
+                    (min 5, max 30 — LLM generates these for semantic search)
+                  </span>
+                </label>
+                <input
+                  style={{ ...S.input, width: "120px" }}
+                  type="number"
+                  min="5"
+                  max="30"
+                  placeholder="10"
+                  value={newNumQuestions}
+                  onChange={(e) => setNewNumQuestions(Math.max(5, Math.min(30, parseInt(e.target.value) || 10)))}
+                />
+              </div>
+
+              <div style={S.field}>
                 <label style={S.label}>meta (JSON, optional)</label>
                 <input
                   style={S.input}
@@ -1773,6 +1794,7 @@ export default function AdminPage() {
                   onClick={() => {
                     setNewChunkId(""); setNewContent(""); setNewDocType("documents");
                     setNewTopic(""); setNewDepartment(""); setNewMeta(""); setAddResult("");
+                    setNewNumQuestions(10);
                     setNewImage(null); setNewImagePreview("");
                   }}
                 >
