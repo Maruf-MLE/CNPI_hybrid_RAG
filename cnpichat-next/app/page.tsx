@@ -203,22 +203,22 @@ export default function Home() {
 
           return (
             <div key={idx} className={`message-group ${isBot ? "bot" : "user"}`}>
-              {showSender && <span className="message-sender">CNPIchat</span>}
-              <div className="message-row">
-                {isBot ? (
+              {showSender && (
+                <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
                   <div className="message-avatar">
-                    {showSender ? (
-                      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M5 10C5 8.89543 5.89543 8 7 8H17C18.1046 8 19 8.89543 19 10V16C19 17.1046 18.1046 18 17 18H7C5.89543 18 5 17.1046 5 16V10Z" fill="#A662C6" />
-                        <circle cx="9" cy="12" r="1.5" fill="white" />
-                        <circle cx="15" cy="12" r="1.5" fill="white" />
-                        <path d="M10 15H14" stroke="white" strokeWidth="1.5" strokeLinecap="round" />
-                        <path d="M12 4V8" stroke="#A662C6" strokeWidth="2" strokeLinecap="round" />
-                        <circle cx="12" cy="4" r="1.5" fill="#A662C6" />
-                      </svg>
-                    ) : <div style={{ width: 36, height: 36 }}></div>}
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M5 10C5 8.89543 5.89543 8 7 8H17C18.1046 8 19 8.89543 19 10V16C19 17.1046 18.1046 18 17 18H7C5.89543 18 5 17.1046 5 16V10Z" fill="#A662C6" />
+                      <circle cx="9" cy="12" r="1.5" fill="white" />
+                      <circle cx="15" cy="12" r="1.5" fill="white" />
+                      <path d="M10 15H14" stroke="white" strokeWidth="1.5" strokeLinecap="round" />
+                      <path d="M12 4V8" stroke="#A662C6" strokeWidth="2" strokeLinecap="round" />
+                      <circle cx="12" cy="4" r="1.5" fill="#A662C6" />
+                    </svg>
                   </div>
-                ) : null}
+                  <span className="message-sender">CNPIchat</span>
+                </div>
+              )}
+              <div className="message-row">
                 <div className={`message ${isBot ? "bot-message" : "user-message"}`}>
                   <ReactMarkdown remarkPlugins={[remarkGfm]}>
                     {msg.content}
@@ -226,52 +226,51 @@ export default function Home() {
                   
                   {/* Context dates and source button for AI messages */}
                   {isBot && msg.contexts && msg.contexts.length > 0 && (
-                    <div style={{ marginTop: "12px" }}>
-                      {/* Show highest scored context date */}
-                      {(() => {
-                        // Find the context with the highest score
-                        const highestScoredContext = msg.contexts.reduce((max, ctx) => 
-                          ctx.score > max.score ? ctx : max
-                        , msg.contexts[0]);
-                        
-                        return (
-                          <div style={{ 
-                            fontSize: "0.85em", 
-                            color: "#666", 
-                            marginBottom: "8px",
-                            display: "flex",
-                            alignItems: "center",
-                            gap: "6px"
-                          }}>
-                            <span>📅</span>
-                            <span>তথ্যের তারিখ: {highestScoredContext.date}</span>
-                          </div>
-                        );
-                      })()}
-                      
-                      {/* Source button */}
-                      <button
-                        onClick={() => setShowContextsModal(showContextsModal === idx ? null : idx)}
-                        style={{
-                          padding: "6px 14px",
-                          backgroundColor: "#A662C6",
-                          color: "white",
-                          border: "none",
-                          borderRadius: "6px",
-                          cursor: "pointer",
-                          fontSize: "0.85em",
-                          fontWeight: "500",
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "6px",
-                          transition: "background-color 0.2s"
-                        }}
-                        onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#8B4FA8"}
-                        onMouseOut={(e) => e.currentTarget.style.backgroundColor = "#A662C6"}
-                      >
-                        <span>📄</span>
-                        <span>Source ({msg.contexts.length})</span>
-                      </button>
+                     <div style={{ marginTop: "12px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px", flexWrap: "wrap" }}>
+                       {/* Show highest scored context date */}
+                       {(() => {
+                         // Find the context with the highest score
+                         const highestScoredContext = msg.contexts.reduce((max, ctx) => 
+                           ctx.score > max.score ? ctx : max
+                         , msg.contexts[0]);
+                         
+                         return (
+                           <div style={{ 
+                             fontSize: "0.85em", 
+                             color: "#666", 
+                             display: "flex",
+                             alignItems: "center",
+                             gap: "6px"
+                           }}>
+                             <span>📅</span>
+                             <span>তথ্যের তারিখ: {highestScoredContext.date}</span>
+                           </div>
+                         );
+                       })()}
+                       
+                       {/* Source button */}
+                       <button
+                         onClick={() => setShowContextsModal(showContextsModal === idx ? null : idx)}
+                         style={{
+                           padding: "6px 14px",
+                           backgroundColor: "#A662C6",
+                           color: "white",
+                           border: "none",
+                           borderRadius: "6px",
+                           cursor: "pointer",
+                           fontSize: "0.85em",
+                           fontWeight: "500",
+                           display: "flex",
+                           alignItems: "center",
+                           gap: "6px",
+                           transition: "background-color 0.2s"
+                         }}
+                         onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#8B4FA8"}
+                         onMouseOut={(e) => e.currentTarget.style.backgroundColor = "#A662C6"}
+                       >
+                         <span>📄</span>
+                         <span>Source ({msg.contexts.length})</span>
+                       </button>
                       
                       {/* Contexts Modal */}
                       {showContextsModal === idx && (
