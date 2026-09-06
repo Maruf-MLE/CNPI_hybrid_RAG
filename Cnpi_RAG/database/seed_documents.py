@@ -171,50 +171,10 @@ def get_db_connection():
     )
 
 
-def get_embedding_model():
-    """Return the embedding backend (local model OR HF API client).
-
-    Delegates to utils.embedding_utils so that EMBEDDING_PROVIDER is
-    respected — local SentenceTransformer in dev, HF Inference API in
-    production (no model download, minimal RAM).
-    """
-    if not hasattr(get_embedding_model, "_model"):
-        provider = os.getenv("EMBEDDING_PROVIDER", "local").lower()
-        print(f"  Embedding provider: {provider}")
-        if provider == "hf_api":
-            # No model to load — HF API does the work remotely.
-            get_embedding_model._model = "hf_api"
-            print("  [OK] Using HuggingFace Inference API (no local model)")
-        else:
-            from sentence_transformers import SentenceTransformer
-            print("  Loading embedding model (first time only)...")
-            model_name = os.getenv("EMBEDDING_MODEL", "BAAI/bge-m3")
-            get_embedding_model._model = SentenceTransformer(model_name)
-            print(f"  Model loaded: {model_name}")
-    return get_embedding_model._model
-
-
 def embed_batch(texts: list[str]) -> list[list[float]]:
-    """Embed a list of texts, returns list of float vectors.
-
-    Uses EMBEDDING_PROVIDER to choose backend:
-      - local  → in-process SentenceTransformer
-      - hf_api → HuggingFace Inference API (delegates to utils.embedding_utils)
-    """
-    provider = os.getenv("EMBEDDING_PROVIDER", "local").lower()
-    if provider == "hf_api":
-        from utils.embedding_utils import embed_batch as _embed
-        return _embed(texts)
-
-    model = get_embedding_model()
-    # bge-m3 works well with normalize_embeddings=True for cosine similarity
-    vectors = model.encode(
-        texts,
-        convert_to_numpy=True,
-        show_progress_bar=False,
-        normalize_embeddings=True,
-    )
-    return [v.tolist() for v in vectors]
+    """Embed a list of texts using Gemini Embedding 2, returns list of float vectors."""
+    from utils.embedding_utils import embed_batch as _embed
+    return _embed(texts)
 
 
 def normalize_department(raw: str | None) -> str | None:
