@@ -92,7 +92,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'admin_panel.middleware.AdminAuthenticationMiddleware',  # Admin panel protection
+    # 'admin_panel.middleware.AdminAuthenticationMiddleware',  # Admin panel protection
 ]
 
 ROOT_URLCONF = 'cnpi_api.urls'

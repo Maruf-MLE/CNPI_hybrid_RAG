@@ -1,0 +1,12 @@
+{
+    "chunk_id": "new_doc_test_001",
+    "content": "This is a new document content. It must be at least 11 characters long.",
+    "doc_type": "general",
+    "topic": "Notice about upcoming exams",
+    "department": "CST",
+    "meta": {
+        "author": "admin",
+        "priority": "high"
+    },
+    "source_file": "admin_panel"
+}
