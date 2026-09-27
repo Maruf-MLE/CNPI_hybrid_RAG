@@ -52,16 +52,17 @@ SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", os.getenv("SECRET_KEY", "django-inse
 DEBUG = os.getenv("DEBUG", "True").lower() in ("true", "1", "yes")
 
 # ALLOWED_HOSTS — production
-ALLOWED_HOSTS = ["*"] if DEBUG else [
-    "localhost",
-    "127.0.0.1",
-    ".onrender.com",
-    ".hf.space",
-    ".netlify.app",
-    "cnpi-hybrid-rag-1.onrender.com",
-    "warm-fenglisu-e6e0f6.netlify.app",
-    "cnpichat.netlify.app",
-]
+ALLOWED_HOSTS = ["*"]
+# ALLOWED_HOSTS = ["*"] if DEBUG else [
+#     "localhost",
+#     "127.0.0.1",
+#     ".onrender.com",
+#     ".hf.space",
+#     ".netlify.app",
+#     "cnpi-hybrid-rag-1.onrender.com",
+#     "warm-fenglisu-e6e0f6.netlify.app",
+#     "cnpichat.netlify.app",
+# ]
 
 
 # Application definition
@@ -209,12 +210,13 @@ REST_FRAMEWORK = {
 # ---------------------------------------------------------------------------
 # CORS — allow all origins in dev (tighten for production)
 # ---------------------------------------------------------------------------
-CORS_ALLOWED_ORIGINS = [
-    "https://cnpichat.netlify.app",
-    "https://warm-fenglisu-e6e0f6.netlify.app",
-    'http://localhost:3000',
-]
+# CORS_ALLOWED_ORIGINS = [
+#     "https://cnpichat.netlify.app",
+#     "https://warm-fenglisu-e6e0f6.netlify.app",
+#     'http://localhost:3000',
+# ]
 CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_ALL_ORIGINS = True
 
 # ---------------------------------------------------------------------------
 # ---------------------------------------------------------------------------
