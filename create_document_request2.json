@@ -1,0 +1,7 @@
+{
+    "chunk_id": "prod_test_doc_002",
+    "content": "This is a production test document added via API call.",
+    "doc_type": "general",
+    "topic": "API Test",
+    "department": "CST"
+}

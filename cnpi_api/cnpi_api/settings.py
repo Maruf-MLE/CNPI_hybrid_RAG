@@ -80,7 +80,7 @@ INSTALLED_APPS = [
     # Local
     'rag_api',
     'admin_panel',
-    
+    'messenger_bot',
 ]
 
 MIDDLEWARE = [
@@ -275,3 +275,16 @@ HEARTBEAT_TARGET_URL = os.getenv(
     "HEARTBEAT_TARGET_URL",
     f"{RENDER_PUBLIC_URL}/api/ping/" if RENDER_PUBLIC_URL else "",
 )
+
+# ---------------------------------------------------------------------------
+# Facebook Messenger Webhook
+# ---------------------------------------------------------------------------
+# FB_VERIFY_TOKEN   : any random string you choose; put it in Meta dashboard
+# FB_APP_SECRET     : Meta App Settings > Basic > App Secret
+# FB_PAGE_ACCESS_TOKEN : Page Access Token from Messenger settings
+# FB_ALLOWED_PSIDS  : comma-separated Page-Scoped User IDs allowed to send messages
+#                     e.g. "123456789,987654321"
+FB_VERIFY_TOKEN = os.getenv("FB_VERIFY_TOKEN", "")
+FB_APP_SECRET = os.getenv("FB_APP_SECRET", "")
+FB_PAGE_ACCESS_TOKEN = os.getenv("FB_PAGE_ACCESS_TOKEN", "")
+FB_ALLOWED_PSIDS = os.getenv("FB_ALLOWED_PSIDS", "")
