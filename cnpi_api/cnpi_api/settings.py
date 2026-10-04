@@ -288,3 +288,38 @@ FB_VERIFY_TOKEN = os.getenv("FB_VERIFY_TOKEN", "")
 FB_APP_SECRET = os.getenv("FB_APP_SECRET", "")
 FB_PAGE_ACCESS_TOKEN = os.getenv("FB_PAGE_ACCESS_TOKEN", "")
 FB_ALLOWED_PSIDS = os.getenv("FB_ALLOWED_PSIDS", "")
+
+# ---------------------------------------------------------------------------
+# Logging — ensure messenger_bot logs appear in Render regardless of DEBUG
+# ---------------------------------------------------------------------------
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "simple": {
+            "format": "%(levelname)s %(name)s: %(message)s",
+        },
+    },
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "simple",
+        },
+    },
+    "loggers": {
+        "messenger_bot": {
+            "handlers": ["console"],
+            "level": "INFO",
+            "propagate": False,
+        },
+        "django": {
+            "handlers": ["console"],
+            "level": "WARNING",
+            "propagate": False,
+        },
+    },
+    "root": {
+        "handlers": ["console"],
+        "level": "WARNING",
+    },
+}
