@@ -238,14 +238,24 @@ def webhook_view(request: HttpRequest) -> HttpResponse:
 
         expected_token = _get_setting("FB_VERIFY_TOKEN")
 
+        logger.info(
+            "Webhook GET — path=%s mode=%r has_token=%s has_challenge=%s",
+            request.path,
+            mode,
+            bool(token),
+            bool(challenge),
+        )
+
         if mode == "subscribe" and token == expected_token and expected_token:
             logger.info("Webhook verification successful")
             return HttpResponse(challenge, content_type="text/plain", status=200)
 
         logger.warning(
-            "Webhook verification failed — mode=%r token_match=%s",
+            "Webhook verification failed — mode=%r token_match=%s expected_len=%d got_len=%d",
             mode,
             token == expected_token,
+            len(expected_token),
+            len(token),
         )
         return HttpResponse("Forbidden", status=403)
 
@@ -253,6 +263,13 @@ def webhook_view(request: HttpRequest) -> HttpResponse:
     if request.method == "POST":
         raw_body: bytes = request.body
         signature_header: str = request.META.get("HTTP_X_HUB_SIGNATURE_256", "")
+
+        logger.info(
+            "Webhook POST — path=%s sig_present=%s body_len=%d",
+            request.path,
+            bool(signature_header),
+            len(raw_body),
+        )
 
         if not _verify_signature(raw_body, signature_header):
             logger.warning("Webhook signature verification failed")
