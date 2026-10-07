@@ -234,7 +234,8 @@ def _handle_payload(body: dict[str, Any]) -> None:
     Parse the webhook payload and dispatch each valid messaging event to
     _process_messaging_event.  Called inside a daemon background thread.
     """
-    allowed_psids_raw = _get_setting("ANSWER_BOT_ALLOWED_PSIDS")
+    # Get allowed PSIDs (empty string means all users allowed)
+    allowed_psids_raw = getattr(settings, "ANSWER_BOT_ALLOWED_PSIDS", "")
     allowed_psids: set[str] = (
         {p.strip() for p in allowed_psids_raw.split(",") if p.strip()}
         if allowed_psids_raw
