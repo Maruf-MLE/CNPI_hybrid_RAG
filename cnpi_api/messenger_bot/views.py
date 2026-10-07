@@ -29,6 +29,8 @@ import requests
 
 from admin_panel import services as admin_services
 from messenger_bot.models import ProcessedMessage
+from messenger_bot.image_handler import process_image_message
+from messenger_bot.commands import is_command, handle_command
 
 logger = logging.getLogger(__name__)
 
@@ -114,27 +116,69 @@ def _verify_signature(body: bytes, header_value: str) -> bool:
 def _process_messaging_event(psid: str, message: dict[str, Any]) -> None:
     """
     Called from a background thread for each valid messaging event.
-    1. Calls services.create_document() directly (no HTTP round-trip).
-    2. Replies to the user via Send API.
+    1. Handles bot commands (/help, /priority, etc.)
+    2. Handles text messages and images (with OCR)
+    3. Calls services.create_document() directly
+    4. Replies to the user via Send API
     """
-    text: str = message.get("text", "").strip()
-
-    # No text content (image, sticker, etc.)
-    if not text:
+    page_token = _get_setting("FB_PAGE_ACCESS_TOKEN")
+    
+    # Check for image attachment
+    caption, image_data = process_image_message(message, page_token)
+    text = caption or ""
+    
+    # Handle bot commands first
+    if text and is_command(text):
+        result = handle_command(psid, text, _send_message)
+        if result and result.get("handled"):
+            return
+        # If command returns "priority" type, continue to save as priority doc
+        if result and result.get("type") == "priority":
+            # Next message should be priority — store in cache/session
+            # For simplicity, we'll just treat current message as priority if /priority is in args
+            pass  # Implement state management if needed
+    
+    # If no text and no image, reject
+    if not text and not image_data:
         _send_message(
             psid,
-            "শুধু টেক্সট মেসেজ সমর্থিত। ছবি বা স্টিকার পাঠানো যাবে না।",
+            "অনুগ্রহ করে টেক্সট মেসেজ বা ছবি পাঠান।\n\nType /help for commands.",
         )
         return
-
-    # Call create_document directly — no HTTP overhead, no auth needed
-    logger.info("Calling create_document for PSID %s, content length=%d", psid, len(text))
+    
+    # Determine doc_type based on command or default
+    doc_type = "notices"  # default
+    is_priority = False
+    
+    # Check if message starts with /priority command followed by content
+    if text.startswith("/priority "):
+        is_priority = True
+        text = text[len("/priority "):].strip()
+        doc_type = "priority_documents"
+    
+    # If only image (no caption), inform user we're processing
+    if image_data and not text:
+        _send_message(psid, "⏳ আপনার ছবি থেকে টেক্সট extract করছি...")
+    
+    # Call create_document with image support
+    logger.info(
+        "Calling create_document for PSID %s, text_len=%d, has_image=%s, priority=%s",
+        psid, len(text), bool(image_data), is_priority
+    )
+    
+    # Add PSID to meta for tracking
+    meta = {"psid": psid, "via": "messenger_bot"}
+    if is_priority:
+        meta["priority"] = True
+    
     try:
         result = admin_services.create_document(
-            chunk_id=None,          # let the service decide or raise if required
-            content=text,
-            doc_type="notices",     # Messenger messages → notices table (auto chunk_id)
+            chunk_id=None,
+            content=text or None,
+            doc_type=doc_type,
             source_file="messenger_bot",
+            image_data=image_data,
+            meta=meta,  # Pass meta with PSID
         )
     except Exception:
         logger.error(
@@ -149,7 +193,7 @@ def _process_messaging_event(psid: str, message: dict[str, Any]) -> None:
         logger.error(
             "create_document returned error for PSID %s: %s", psid, result["error"]
         )
-        _send_message(psid, "❌ মেসেজ প্রসেস করা যায়নি। আবার চেষ্টা করুন।")
+        _send_message(psid, f"❌ Error: {result['error']}")
         return
 
     # Build success reply
@@ -160,6 +204,14 @@ def _process_messaging_event(psid: str, message: dict[str, Any]) -> None:
         extra += f" (doc_id: {doc_id})"
     if notice_id:
         extra += f" (notice_id: {notice_id})"
+    
+    # Mention if OCR was used
+    if image_data:
+        extra += " 📷"
+    
+    # Mention if priority
+    if is_priority:
+        extra += " ⭐ Priority"
 
     _send_message(psid, f"✅ আপনার মেসেজ সফলভাবে সেভ হয়েছে।{extra}")
     logger.info("Successfully processed message for PSID %s%s", psid, extra)
