@@ -383,6 +383,29 @@ body {
   align-items: center;
 }
 
+.footer-links {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.footer-link {
+  color: #999;
+  text-decoration: none;
+  font-size: 11px;
+  transition: color 0.2s;
+}
+
+.footer-link:hover {
+  color: var(--primary);
+  text-decoration: underline;
+}
+
+.footer-divider {
+  color: #ddd;
+  font-size: 11px;
+}
+
 .brand-name {
   color: var(--primary);
   font-weight: 600;

@@ -456,7 +456,15 @@ export default function Home() {
           </button>
         </div>
         <div className="footer-branding">
-          <div></div>
+          <div className="footer-links">
+            <a href="/privacy" target="_blank" rel="noopener noreferrer" className="footer-link">
+              Privacy
+            </a>
+            <span className="footer-divider">•</span>
+            <a href="/terms" target="_blank" rel="noopener noreferrer" className="footer-link">
+              Terms
+            </a>
+          </div>
           <div className="brand-name">
             We're <svg width="10" height="14" viewBox="0 0 10 14" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ margin: "0 2px" }}>
               <path d="M4.5 0L0 8H4.5L3.5 14L9.5 5.5H5L4.5 0Z" fill="#FFC107" />
