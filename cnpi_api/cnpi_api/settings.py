@@ -81,6 +81,7 @@ INSTALLED_APPS = [
     'rag_api',
     'admin_panel',
     'messenger_bot',
+    'answer_bot',
 ]
 
 MIDDLEWARE = [
@@ -277,7 +278,7 @@ HEARTBEAT_TARGET_URL = os.getenv(
 )
 
 # ---------------------------------------------------------------------------
-# Facebook Messenger Webhook
+# Facebook Messenger Webhook (Document Saver Bot)
 # ---------------------------------------------------------------------------
 # FB_VERIFY_TOKEN   : any random string you choose; put it in Meta dashboard
 # FB_APP_SECRET     : Meta App Settings > Basic > App Secret
@@ -288,6 +289,21 @@ FB_VERIFY_TOKEN = os.getenv("FB_VERIFY_TOKEN", "")
 FB_APP_SECRET = os.getenv("FB_APP_SECRET", "")
 FB_PAGE_ACCESS_TOKEN = os.getenv("FB_PAGE_ACCESS_TOKEN", "")
 FB_ALLOWED_PSIDS = os.getenv("FB_ALLOWED_PSIDS", "")
+
+# ---------------------------------------------------------------------------
+# Answer Bot Webhook (RAG-powered Q&A Bot)
+# ---------------------------------------------------------------------------
+# Separate Facebook Page/App for Answer Bot
+# ANSWER_BOT_VERIFY_TOKEN   : verification token for Answer Bot webhook
+# ANSWER_BOT_APP_SECRET     : App Secret for Answer Bot
+# ANSWER_BOT_PAGE_ACCESS_TOKEN : Page Access Token for Answer Bot
+# ANSWER_BOT_ALLOWED_PSIDS  : comma-separated PSIDs (leave empty to allow all)
+# RAG_API_URL               : RAG API endpoint (default: local http://127.0.0.1:8000/api/chat/)
+ANSWER_BOT_VERIFY_TOKEN = os.getenv("ANSWER_BOT_VERIFY_TOKEN", "")
+ANSWER_BOT_APP_SECRET = os.getenv("ANSWER_BOT_APP_SECRET", "")
+ANSWER_BOT_PAGE_ACCESS_TOKEN = os.getenv("ANSWER_BOT_PAGE_ACCESS_TOKEN", "")
+ANSWER_BOT_ALLOWED_PSIDS = os.getenv("ANSWER_BOT_ALLOWED_PSIDS", "")
+RAG_API_URL = os.getenv("RAG_API_URL", "http://127.0.0.1:8000/api/chat/")
 
 # ---------------------------------------------------------------------------
 # Logging — ensure messenger_bot logs appear in Render regardless of DEBUG
@@ -308,6 +324,11 @@ LOGGING = {
     },
     "loggers": {
         "messenger_bot": {
+            "handlers": ["console"],
+            "level": "INFO",
+            "propagate": False,
+        },
+        "answer_bot": {
             "handlers": ["console"],
             "level": "INFO",
             "propagate": False,
