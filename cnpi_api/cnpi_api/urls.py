@@ -11,9 +11,8 @@ from django.views.generic import RedirectView
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/", include("rag_api.urls")),
+    path("api/", include("fiwano_bot.urls")),  # Fiwano webhook
     path("admin-panel/", include("admin_panel.urls")),
-    # ManyChat webhook and health check — must be at root
-    path("", include("manychat_api.urls")),
     # Facebook Messenger webhook — must be at root so Meta can reach it
     # without any auth middleware or session checks blocking the request.
     path("", include("messenger_bot.urls")),

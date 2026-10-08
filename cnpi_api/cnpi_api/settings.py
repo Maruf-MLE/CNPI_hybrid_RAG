@@ -82,7 +82,7 @@ INSTALLED_APPS = [
     'admin_panel',
     'messenger_bot',
     'answer_bot',
-    'manychat_api',
+    'fiwano_bot',
 ]
 
 MIDDLEWARE = [
@@ -307,6 +307,16 @@ ANSWER_BOT_ALLOWED_PSIDS = os.getenv("ANSWER_BOT_ALLOWED_PSIDS", "")
 RAG_API_URL = os.getenv("RAG_API_URL", "http://127.0.0.1:8000/api/chat/")
 
 # ---------------------------------------------------------------------------
+# Fiwano Integration (Facebook Messenger via Fiwano API)
+# ---------------------------------------------------------------------------
+# FIWANO_API_KEY        : API key from Fiwano portal (starts with mip_live_)
+# FIWANO_WEBHOOK_SECRET : Webhook secret for signature verification (from Fiwano channel)
+# FIWANO_API_BASE_URL   : Fiwano API base URL (default: https://fiwano.com/api/v1)
+FIWANO_API_KEY = os.getenv("FIWANO_API_KEY", "")
+FIWANO_WEBHOOK_SECRET = os.getenv("FIWANO_WEBHOOK_SECRET", "")
+FIWANO_API_BASE_URL = os.getenv("FIWANO_API_BASE_URL", "https://fiwano.com/api/v1")
+
+# ---------------------------------------------------------------------------
 # Logging — ensure messenger_bot logs appear in Render regardless of DEBUG
 # ---------------------------------------------------------------------------
 LOGGING = {
@@ -330,6 +340,11 @@ LOGGING = {
             "propagate": False,
         },
         "answer_bot": {
+            "handlers": ["console"],
+            "level": "INFO",
+            "propagate": False,
+        },
+        "fiwano_bot": {
             "handlers": ["console"],
             "level": "INFO",
             "propagate": False,
