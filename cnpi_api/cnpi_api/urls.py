@@ -16,8 +16,8 @@ urlpatterns = [
     # Facebook Messenger webhook — must be at root so Meta can reach it
     # without any auth middleware or session checks blocking the request.
     path("", include("messenger_bot.urls")),
-    # Answer Bot webhook — RAG-powered Q&A bot (separate from messenger_bot)
-    path("", include("answer_bot.urls")),
+    # Answer Bot removed - using Fiwano instead
+    # path("", include("answer_bot.urls")),
     # Redirect /admin000 to admin panel
     path("admin000/", RedirectView.as_view(url="/admin-panel/", permanent=False)),
 ]

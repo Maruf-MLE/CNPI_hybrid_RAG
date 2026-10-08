@@ -81,7 +81,7 @@ INSTALLED_APPS = [
     'rag_api',
     'admin_panel',
     'messenger_bot',
-    'answer_bot',
+    # 'answer_bot',  # Removed - using Fiwano instead
     'fiwano_bot',
 ]
 
@@ -339,11 +339,11 @@ LOGGING = {
             "level": "INFO",
             "propagate": False,
         },
-        "answer_bot": {
-            "handlers": ["console"],
-            "level": "INFO",
-            "propagate": False,
-        },
+        # "answer_bot": {  # Removed - using Fiwano instead
+        #     "handlers": ["console"],
+        #     "level": "INFO",
+        #     "propagate": False,
+        # },
         "fiwano_bot": {
             "handlers": ["console"],
             "level": "INFO",
