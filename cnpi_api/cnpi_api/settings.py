@@ -82,6 +82,7 @@ INSTALLED_APPS = [
     'admin_panel',
     'messenger_bot',
     'answer_bot',
+    'manychat_api',
 ]
 
 MIDDLEWARE = [

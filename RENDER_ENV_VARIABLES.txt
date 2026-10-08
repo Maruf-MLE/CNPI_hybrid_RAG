@@ -1,0 +1,57 @@
+# URGENT: Add these to Render Environment Variables NOW
+
+# Go to: https://dashboard.render.com/
+# Select: cnpi-hybrid-rag-1 service
+# Environment → Add Environment Variable
+
+# ============================================================
+# QUICK FIX: Use same credentials as messenger_bot
+# ============================================================
+
+ANSWER_BOT_VERIFY_TOKEN=cnpi_bot_Xk29fLq7
+ANSWER_BOT_APP_SECRET=c305f2981fc7d328db653e91d93ba5fe
+ANSWER_BOT_PAGE_ACCESS_TOKEN=EAAWc3pczaFIBSgpwIVgq2zCmSZCfSqyRJjSYnDiRCcOP55bcxTv2mKSZB7EZBZCp1dciZBsU70hQslPdrcAOtBYCz4cUxRS5GmrcpYvcMB7bxcBwlSC9sSZAGTIDE66B939FMKry2wJjtr7wF7dvZA3ZBwh9qPRNOkozuZCqbDXa6EGZCPRhUWhAZCQBycMllZAWZBpHSDmTBUw3dKwZDZD
+ANSWER_BOT_ALLOWED_PSIDS=
+RAG_API_URL=https://cnpi-hybrid-rag-1.onrender.com/api/chat/
+
+# ============================================================
+# After adding, click "Save Changes" — service will restart
+# ============================================================
+
+# ============================================================
+# Then in Meta Dashboard, Subscribe Page to Webhook:
+# ============================================================
+
+# 1. Go to CNGPIchat App → Messenger → Settings
+# 2. Find "Webhooks" section
+# 3. Under your webhook callback URL, find "Edit Page Subscription"
+# 4. Click "Add Callback" or "Edit Callback"
+# 5. SELECT YOUR PAGE (the one with ID: 714316161776174)
+# 6. SUBSCRIBE TO: messages, messaging_postbacks, messaging_optins
+# 7. Click "Save"
+
+# ============================================================
+# Test:
+# ============================================================
+
+# Send message to your Facebook Page
+# You should see in Render logs:
+
+# INFO answer_bot: Answer Bot Webhook POST — path=/answer-webhook/ sig_present=True body_len=xxx
+# INFO answer_bot: Processing message from PSID xxx (all users allowed)
+# INFO answer_bot: Processing question from PSID xxx: your question
+# INFO answer_bot: Sent answer to PSID xxx — status=found
+
+# ============================================================
+# IMPORTANT NOTE:
+# ============================================================
+
+# Same Facebook Page CANNOT have TWO webhook URLs at once!
+# You must choose:
+# 
+# OPTION A: Keep messenger_bot (/webhook/) — saves documents
+# OPTION B: Switch to answer_bot (/answer-webhook/) — answers questions
+# 
+# To use BOTH bots, you need TWO separate Facebook Pages:
+# - Page 1: Document Saver Bot → /webhook/
+# - Page 2: Answer Bot → /answer-webhook/
