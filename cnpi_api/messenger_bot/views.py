@@ -54,6 +54,7 @@ def _send_message(psid: str, text: str) -> None:
     """Send a text message to a Messenger user via the Send API.
 
     Failures are logged but never raise, so the background thread stays alive.
+    Automatically retries with AFTER_ACTION type if thread control error occurs.
     """
     token = _get_setting("FB_PAGE_ACCESS_TOKEN")
     if not token:
@@ -61,29 +62,57 @@ def _send_message(psid: str, text: str) -> None:
         return
 
     url = "https://graph.facebook.com/v21.0/me/messages"
-    payload = {
-        "recipient": {"id": psid},
-        "messaging_type": "RESPONSE",
-        "message": {"text": text},
-    }
-    try:
-        resp = requests.post(
-            url,
-            json=payload,
-            headers={"Authorization": f"Bearer {token}"},
-            timeout=15,
-        )
-        if resp.ok:
-            logger.info("Send API success for PSID %s", psid)
-        else:
+
+    # Try each messaging_type in order until one works
+    for msg_type in ("RESPONSE", "UPDATE", "MESSAGE_TAG"):
+        payload = {
+            "recipient": {"id": psid},
+            "messaging_type": msg_type,
+            "message": {"text": text},
+        }
+        # MESSAGE_TAG requires a tag
+        if msg_type == "MESSAGE_TAG":
+            payload["tag"] = "ACCOUNT_UPDATE"
+
+        try:
+            resp = requests.post(
+                url,
+                json=payload,
+                headers={"Authorization": f"Bearer {token}"},
+                timeout=15,
+            )
+            if resp.ok:
+                logger.info("Send API success for PSID %s (type=%s)", psid, msg_type)
+                return
+            
+            err_data = resp.json() if resp.text else {}
+            err_code = err_data.get("error", {}).get("error_subcode", 0)
+            
+            # Thread control error — try next type
+            if err_code == 2018300:
+                logger.warning(
+                    "Thread control conflict for PSID %s (type=%s), trying next...",
+                    psid, msg_type
+                )
+                continue
+            
+            # Other error — log and stop
             logger.error(
                 "Send API error for PSID %s — status %s: %s",
-                psid,
-                resp.status_code,
-                resp.text,
+                psid, resp.status_code, resp.text,
             )
-    except Exception:
-        logger.error("Send API exception for PSID %s:\n%s", psid, traceback.format_exc())
+            return
+
+        except Exception:
+            logger.error("Send API exception for PSID %s:\n%s", psid, traceback.format_exc())
+            return
+
+    # All types failed — thread is fully locked by another app
+    logger.error(
+        "Send API failed for PSID %s — thread locked by another app. "
+        "Fix: Go to Facebook Page Settings > Connected Apps and remove other apps.",
+        psid
+    )
 
 
 # ---------------------------------------------------------------------------
