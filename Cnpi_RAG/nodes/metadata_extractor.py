@@ -353,6 +353,189 @@ Good:
 "Will CNPI classes be held tomorrow?"
 
 # ==================================================
+# CRITICAL CONTEXTUAL ENTITY REQUIREMENTS
+# ==================================================
+
+When generating questions, you MUST identify and include ALL relevant contextual entities that are explicitly mentioned in the notice.
+
+## MANDATORY ENTITIES TO PRESERVE IN QUESTIONS:
+
+When the notice explicitly mentions ANY of the following entities, you MUST include them in EVERY relevant question:
+
+1. **DEPARTMENT** (e.g., CST, ET, ENT, RAC, FT, MT, ICT, Civil, Electrical, Computer Science & Technology)
+2. **SEMESTER** (e.g., First Semester, Second Semester, Third Semester, Fourth Semester, Fifth Semester, Sixth Semester, Seventh Semester, 1st, 2nd, 3rd, 4th, 5th, 6th, 7th)
+3. **SHIFT** (e.g., Day Shift, Second Shift, Morning Shift, Evening Shift, First Shift)
+4. **GROUP** (e.g., Group A, Group B, Group 1, Group 2, Section A, Section B)
+
+## ENTITY PRESERVATION RULES:
+
+### Rule 1: COMPLETE ENTITY INCLUSION
+If the notice mentions a department, semester, AND shift together, then EVERY question about that topic MUST include all three entities.
+
+**Example Notice:**
+"Sunday Class Routine of CNPI - Computer Science & Technology (Second Shift), Sixth Semester"
+
+**Bad Questions (Missing Entities):**
+❌ "What is the Sunday class routine for CNPI CST sixth semester?" (Missing: Second Shift)
+❌ "What is the class routine for CNPI?" (Missing: CST, Sixth Semester, Second Shift)
+❌ "Who teaches CST Networking for CNPI CST sixth semester on Sunday?" (Missing: Second Shift)
+
+**Good Questions (All Entities Present):**
+✅ "What is the Sunday class routine for CNPI CST department sixth semester second shift?"
+✅ "Who teaches Computer Networking for CNPI CST sixth semester second shift on Sunday?"
+✅ "What time does the database management system class start for CNPI CST sixth semester second shift on Sunday?"
+✅ "Which room is assigned for CNPI CST sixth semester second shift Sunday classes?"
+
+### Rule 2: GROUP INCLUSION
+If the notice mentions a group/section identifier (Group A, Group B, Section A, etc.), include it in EVERY relevant question.
+
+**Example Notice:**
+"Examination schedule for CNPI CST Department, Fifth Semester, Day Shift, Group A"
+
+**Bad Questions:**
+❌ "What is the exam schedule for CNPI CST fifth semester day shift?" (Missing: Group A)
+
+**Good Questions:**
+✅ "What is the exam schedule for CNPI CST fifth semester day shift Group A?"
+✅ "When does the CNPI CST fifth semester day shift Group A exam start?"
+
+### Rule 3: CONSISTENCY ACROSS ALL QUESTIONS
+If Question 1 mentions "CST sixth semester second shift", then ALL other questions about the same topic MUST also mention "CST sixth semester second shift".
+
+Do NOT drop entities in later questions.
+
+**Bad (Inconsistent):**
+❌ Q1: "What is the routine for CNPI CST sixth semester second shift?"
+❌ Q2: "Who is the class teacher for CNPI CST sixth semester?" (Missing: second shift)
+❌ Q3: "Which room is used for CNPI classes on Sunday?" (Missing: CST, sixth semester, second shift)
+
+**Good (Consistent):**
+✅ Q1: "What is the routine for CNPI CST sixth semester second shift?"
+✅ Q2: "Who is the class teacher for CNPI CST sixth semester second shift?"
+✅ Q3: "Which room is used for CNPI CST sixth semester second shift classes on Sunday?"
+
+### Rule 4: NATURAL LANGUAGE VARIATIONS
+You may use natural variations of entity names, but you MUST NOT drop them:
+
+**Department Variations (All Valid):**
+- "CST department"
+- "Computer Science & Technology department"
+- "CST"
+
+**Semester Variations (All Valid):**
+- "sixth semester"
+- "6th semester"
+- "semester 6"
+
+**Shift Variations (All Valid):**
+- "second shift"
+- "2nd shift"
+- "evening shift" (if the notice indicates second shift is evening)
+- "day shift"
+- "morning shift"
+
+**Group Variations (All Valid):**
+- "Group A"
+- "Section A"
+- "Group 1"
+
+### Rule 5: ENTITY IDENTIFICATION FROM NOTICE
+Before generating questions, you MUST:
+
+1. **Scan the notice** for all mentions of department, semester, shift, and group.
+2. **Extract the exact entities** mentioned.
+3. **Create a checklist** of which entities are present.
+4. **Include ALL identified entities** in every relevant question.
+
+**Identification Example:**
+
+Notice: "Sunday Class Routine of CNPI - Computer Science & Technology (Second Shift), Sixth Semester (Session: 2026-27)"
+
+Identified Entities:
+✓ Institution: CNPI
+✓ Department: Computer Science & Technology (CST)
+✓ Shift: Second Shift
+✓ Semester: Sixth Semester
+✓ Day: Sunday
+✓ Session: 2026-27
+✗ Group: Not mentioned
+
+Required in EVERY question about this routine:
+- CNPI
+- CST / Computer Science & Technology
+- Second Shift
+- Sixth Semester
+
+### Rule 6: VERIFICATION BEFORE RETURNING
+Before returning the final JSON, verify EVERY question:
+
+For each question, ask:
+1. Does the notice mention a department? → Is it in this question?
+2. Does the notice mention a semester? → Is it in this question?
+3. Does the notice mention a shift? → Is it in this question?
+4. Does the notice mention a group? → Is it in this question?
+
+If ANY answer is "No" when it should be "Yes", FIX the question.
+
+## ENTITY PRIORITY ORDER:
+
+When space or naturalness is a concern, preserve entities in this priority:
+
+1. CNPI (always required)
+2. Department (if mentioned in notice)
+3. Semester (if mentioned in notice)
+4. Shift (if mentioned in notice)
+5. Group (if mentioned in notice)
+6. Other details (day, time, room, etc.)
+
+However, if ALL of these entities are mentioned in the notice, then ALL must appear in EVERY relevant question.
+
+## COMPLETE EXAMPLE:
+
+**Notice:**
+"Sunday Class Routine of CNPI - Computer Science & Technology (Second Shift), Sixth Semester (Session: 2026-27) is given below: [routine details]"
+
+**Entities Present:**
+- CNPI ✓
+- Department: CST ✓
+- Shift: Second Shift ✓
+- Semester: Sixth Semester ✓
+- Group: Not mentioned ✗
+
+**CORRECT Questions (All Required Entities):**
+1. "What is the Sunday class routine for CNPI CST department sixth semester second shift?"
+2. "Who is the class teacher for CNPI CST sixth semester second shift?"
+3. "Which room is assigned for CNPI CST sixth semester second shift Sunday classes?"
+4. "What subject is taught during the 1st class on Sunday for CNPI CST sixth semester second shift?"
+5. "Who teaches Computer Networking for CNPI CST sixth semester second shift on Sunday?"
+6. "What time does the Database Management System class start for CNPI CST sixth semester second shift on Sunday?"
+7. "Which teacher conducts the Principles of Marketing class for CNPI CST sixth semester second shift on Sunday?"
+8. "What session does the CNPI CST sixth semester second shift Sunday class routine belong to?"
+
+**Notice each question includes: CNPI + CST + Sixth Semester + Second Shift**
+
+## ANTI-PATTERN EXAMPLES (DO NOT DO THIS):
+
+❌ "What is the class routine for CNPI?" (Missing: CST, sixth semester, second shift)
+❌ "Who is the class teacher for CST sixth semester?" (Missing: CNPI, second shift)
+❌ "What time is the Database class?" (Missing: CNPI, CST, sixth semester, second shift, Sunday)
+❌ "Which room is used for Sunday classes?" (Missing: CNPI, CST, sixth semester, second shift)
+
+These are INCOMPLETE questions because they drop required contextual entities.
+
+## FINAL ENTITY CHECKLIST:
+
+Before submitting ANY question, verify:
+
+✓ Does it mention CNPI?
+✓ If the notice has a department → Does the question mention it?
+✓ If the notice has a semester → Does the question mention it?
+✓ If the notice has a shift → Does the question mention it?
+✓ If the notice has a group → Does the question mention it?
+
+If ANY required entity is missing, REWRITE the question to include it.
+
+# ==================================================
 # QUESTION DIVERSITY
 # ==================================================
 
@@ -706,11 +889,20 @@ QUESTIONS:
 23. Did I avoid asking about information absent from the notice?
 24. Does every question provide useful semantic retrieval coverage?
 
+ENTITY CONSISTENCY (CRITICAL):
+25. If the notice mentions a DEPARTMENT → Does EVERY relevant question include it?
+26. If the notice mentions a SEMESTER → Does EVERY relevant question include it?
+27. If the notice mentions a SHIFT → Does EVERY relevant question include it?
+28. If the notice mentions a GROUP → Does EVERY relevant question include it?
+29. Are ALL required entities present in ALL questions consistently?
+30. Did I verify the entity checklist for each question before finalizing?
+
 FINAL:
-25. Is every generated statement supported by the original notice?
-26. Did I use NO outside knowledge?
-27. Is the JSON valid?
-28. Does the `questions` array contain at least 8 high-quality questions?
+31. Is every generated statement supported by the original notice?
+32. Did I use NO outside knowledge?
+33. Is the JSON valid?
+34. Does the `questions` array contain at least 8 high-quality questions?
+35. Do ALL questions include ALL required contextual entities (department, semester, shift, group)?
 
 If ANY generated information or question cannot be supported by the original notice, remove it or replace it with a supported alternative.
 
