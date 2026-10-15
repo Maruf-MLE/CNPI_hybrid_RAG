@@ -231,6 +231,7 @@ def create_document(
     source_file: str | None = "admin_panel",
     image_data: bytes | None = None,
     num_questions: int = 10,
+    skip_llm_extraction: bool = False,
 ) -> dict[str, Any]:
     """Insert a new document row with an auto-generated embedding.
 
@@ -442,27 +443,34 @@ def create_document(
             logger.exception("create_document: Temporal analysis failed (%s)", exc)
             return None
     
-    # Execute both tasks in parallel
-    logger.info("create_document: Starting parallel execution of LLM extraction and temporal analysis...")
-    with ThreadPoolExecutor(max_workers=2) as executor:
-        future_llm = executor.submit(run_llm_extraction)
-        future_temporal = executor.submit(run_temporal_analysis)
-        
-        # Wait for both to complete
-        for future in as_completed([future_llm, future_temporal]):
-            try:
-                future.result()  # Raise any exceptions that occurred
-            except Exception as exc:  # noqa: BLE001
-                logger.exception("create_document: Parallel task failed: %s", exc)
-        
-        # Get results
-        metadata_extraction_success, embedding_content = future_llm.result()
-        temporal_analysis_json = future_temporal.result()
-    
-    # Fallback to original content if LLM extraction failed
-    if not metadata_extraction_success or embedding_content is None:
-        logger.warning("create_document: Using original content with timestamp for embedding (LLM extraction failed).")
+    if skip_llm_extraction:
+        # Skip LLM question generation — embed raw content directly
+        logger.info("create_document: skip_llm_extraction=True — bypassing LLM extraction, using raw content for embedding.")
         embedding_content = content_with_timestamp
+        metadata_extraction_success = False
+        temporal_analysis_json = run_temporal_analysis()
+    else:
+        # Execute both tasks in parallel
+        logger.info("create_document: Starting parallel execution of LLM extraction and temporal analysis...")
+        with ThreadPoolExecutor(max_workers=2) as executor:
+            future_llm = executor.submit(run_llm_extraction)
+            future_temporal = executor.submit(run_temporal_analysis)
+
+            # Wait for both to complete
+            for future in as_completed([future_llm, future_temporal]):
+                try:
+                    future.result()  # Raise any exceptions that occurred
+                except Exception as exc:  # noqa: BLE001
+                    logger.exception("create_document: Parallel task failed: %s", exc)
+
+            # Get results
+            metadata_extraction_success, embedding_content = future_llm.result()
+            temporal_analysis_json = future_temporal.result()
+
+        # Fallback to original content if LLM extraction failed
+        if not metadata_extraction_success or embedding_content is None:
+            logger.warning("create_document: Using original content with timestamp for embedding (LLM extraction failed).")
+            embedding_content = content_with_timestamp
     
     logger.info("create_document: Parallel processing completed.")
 

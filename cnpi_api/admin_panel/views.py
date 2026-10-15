@@ -223,11 +223,12 @@ def create_view(request: HttpRequest) -> JsonResponse:
         meta = request.POST.get("meta")
         source_file = request.POST.get("source_file", "admin_panel")
         try:
-            num_questions = int(request.POST.get("num_questions", 10))
+            num_questions = int(request.POST.get(\"num_questions\", 10))
             num_questions = max(5, min(30, num_questions))
         except (TypeError, ValueError):
             num_questions = 10
-        
+        skip_llm_extraction = request.POST.get(\"skip_llm\", \"false\").lower() in (\"true\", \"1\", \"yes\")
+
         # Handle image upload
         image_data = None
         if 'image' in request.FILES:
@@ -257,6 +258,7 @@ def create_view(request: HttpRequest) -> JsonResponse:
             num_questions = max(5, min(30, num_questions))
         except (TypeError, ValueError):
             num_questions = 10
+        skip_llm_extraction = str(data.get("skip_llm", "false")).lower() in ("true", "1", "yes")
 
     try:
         result = services.create_document(
@@ -269,6 +271,7 @@ def create_view(request: HttpRequest) -> JsonResponse:
             source_file=source_file,
             image_data=image_data,
             num_questions=num_questions,
+            skip_llm_extraction=skip_llm_extraction,
         )
     except Exception as exc:  # noqa: BLE001
         logger.exception("create_document failed")
