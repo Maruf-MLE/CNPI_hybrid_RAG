@@ -1,0 +1,1512 @@
+[
+  {
+    "index": 77,
+    "chunk_id": "class_routine_8f2aaca925d0",
+    "result": {
+      "created": true,
+      "doc_id": 2078,
+      "chunk_id": "class_routine_8f2aaca925d0",
+      "embedding_generated": true,
+      "translation_performed": false,
+      "temporal_analysis_performed": true,
+      "metadata_extraction_success": true,
+      "image_text_extracted": false,
+      "context_added_date": "2026-10-15",
+      "context_added_time": "18:35:43",
+      "document": {
+        "doc_id": 2078,
+        "chunk_id": "class_routine_8f2aaca925d0",
+        "content": "[context_added_date: 2026-10-15 | context_added_time: 18:35:43 BST]\nDoc Type: documents\nTopic: class routine\n\nTuesday class Routine of CNPI - RAC & Air-conditioning Department (Day Shift), Fourth Semester (Session: 2026-27) is given below:\n- 1st Class (1:30 PM - 2:15 PM): Class: Environmental Studies (29041) | Teacher: Md. Nasirul Haque (Junior Instructor (Non-Tech/Chemistry)). Room: Chemistry Lab (S-513)\n- 2nd Class (2:15 PM - 3:00 PM): Class: Environmental Studies (29041) | Teacher: Md. Nasirul Haque (Junior Instructor (Non-Tech/Chemistry)). Room: Chemistry Lab (S-513)\n- 3rd Class (3:00 PM - 3:45 PM): Class: Engineering Mechanics (27041) | Teacher: Md. Sohel Rana (Junior Instructor (Tech/RAC)). Room: N-210\n- 4th Class (3:45 PM - 4:30 PM): Class: CST Office Application (28511) | Teacher: Md. Idul Hasan Jony (Part-Time Teacher (CST)). Room: Network Lab (S-417)\n- 5th Class (4:30 PM - 5:15 PM): Class: CST Office Application (28511) | Teacher: Md. Idul Hasan Jony (Part-Time Teacher (CST)). Room: Network Lab (S-417)\n- 6th Class (5:15 PM - 6:00 PM): Not specified\n- 7th Class (6:00 PM - 6:45 PM): Not specified\n\nClass Teacher: Md. Sohel Rana (Junior Instructor, Tech/RAC)",
+        "doc_type": "documents",
+        "topic": "class routine",
+        "department": null,
+        "meta": {
+          "context_added_date": "2026-10-15",
+          "context_added_time": "18:35:43",
+          "translation_performed": false,
+          "metadata_extraction_success": true
+        },
+        "source_file": "class_routine_2nd_shift.json",
+        "created_at": "2026-10-15T12:35:46.834Z",
+        "updated_at": "2026-10-15T12:35:46.834Z"
+      },
+      "embedding_content": "class routine\n\nWhat is the Tuesday class routine for CNPI RAC and Air-conditioning Department day shift fourth semester?\nWho is the class teacher for CNPI RAC and Air-conditioning Department day shift fourth semester?\nWhich teacher conducts Environmental Studies for CNPI RAC and Air-conditioning Department day shift fourth semester on Tuesday?\nWhat room is assigned for the Environmental Studies class for CNPI RAC and Air-conditioning Department day shift fourth semester?\nWhat time does the Engineering Mechanics class start for CNPI RAC and Air-conditioning Department day shift fourth semester on Tuesday?\nWho teaches CST Office Application for CNPI RAC and Air-conditioning Department day shift fourth semester on Tuesday?\nWhich room is used for the CST Office Application class for CNPI RAC and Air-conditioning Department day shift fourth semester?\nWhat is the session for the Tuesday class routine of CNPI RAC and Air-conditioning Department day shift fourth semester?",
+      "stored_content": "[context_added_date: 2026-10-15 | context_added_time: 18:35:43 BST]\nDoc Type: documents\nTopic: class routine\n\nTuesday class Routine of CNPI - RAC & Air-conditioning Department (Day Shift), Fourth Semester (Session: 2026-27) is given below:\n- 1st Class (1:30 PM - 2:15 PM): Class: Environmental Studies (29041) | Teacher: Md. Nasirul Haque (Junior Instructor (Non-Tech/Chemistry)). Room: Chemistry Lab (S-513)\n- 2nd Class (2:15 PM - 3:00 PM): Class: Environmental Studies (29041) | Teacher: Md. Nasirul Haque (Junior Instructor (Non-Tech/Chemistry)). Room: Chemistry Lab (S-513)\n- 3rd Class (3:00 PM - 3:45 PM): Class: Engineering Mechanics (27041) | Teacher: Md. Sohel Rana (Junior Instructor (Tech/RAC)). Room: N-210\n- 4th Class (3:45 PM - 4:30 PM): Class: CST Office Application (28511) | Teacher: Md. Idul Hasan Jony (Part-Time Teacher (CST)). Room: Network Lab (S-417)\n- 5th Class (4:30 PM - 5:15 PM): Class: CST Office Application (28511) | Teacher: Md. Idul Hasan Jony (Part-Time Teacher (CST)). Room: Network Lab (S-417)\n- 6th Class (5:15 PM - 6:00 PM): Not specified\n- 7th Class (6:00 PM - 6:45 PM): Not specified\n\nClass Teacher: Md. Sohel Rana (Junior Instructor, Tech/RAC)",
+      "added_to_priority": false,
+      "temporal_analysis": {
+        "notice_date": "2026-10-15",
+        "notice_day": "Thursday",
+        "temporal_type": "TIME_INDEPENDENT",
+        "valid_from": null,
+        "valid_until": null,
+        "events": [],
+        "expiration_date": null
+      }
+    }
+  },
+  {
+    "index": 78,
+    "chunk_id": "class_routine_8b8428fb0bbd",
+    "result": {
+      "created": true,
+      "doc_id": 2080,
+      "chunk_id": "class_routine_8b8428fb0bbd",
+      "embedding_generated": true,
+      "translation_performed": false,
+      "temporal_analysis_performed": true,
+      "metadata_extraction_success": true,
+      "image_text_extracted": false,
+      "context_added_date": "2026-10-15",
+      "context_added_time": "18:36:04",
+      "document": {
+        "doc_id": 2080,
+        "chunk_id": "class_routine_8b8428fb0bbd",
+        "content": "[context_added_date: 2026-10-15 | context_added_time: 18:36:04 BST]\nDoc Type: documents\nTopic: class routine\n\nWednesday class Routine of CNPI - RAC & Air-conditioning Department (Day Shift), Fourth Semester (Session: 2026-27) is given below:\n- 1st Class (1:30 PM - 2:15 PM): Class: Engineering Mechanics (27041) | Teacher: Md. Sohel Rana (Junior Instructor (Tech/RAC)). Room: Fluid Lab (N-207)\n- 2nd Class (2:15 PM - 3:00 PM): Class: Engineering Mechanics (27041) | Teacher: Md. Sohel Rana (Junior Instructor (Tech/RAC)). Room: Fluid Lab (N-207)\n- 3rd Class (3:00 PM - 3:45 PM): Class: Transport RAC (27242) | Teacher: Vabotos Roy (Jr. Instructor (Tech/RAC)). Room: N-210\n- 4th Class (3:45 PM - 4:30 PM): Class: Machine Shop Practice I (27012) | Teacher: Md. Bariqul Islam (Junior Instructor (Tech/RAC)). Room: Welding and Sheet Lab (S-115)\n- 5th Class (4:30 PM - 5:15 PM): Class: Machine Shop Practice I (27012) | Teacher: Md. Bariqul Islam (Junior Instructor (Tech/RAC)). Room: Welding and Sheet Lab (S-115)\n- 6th Class (5:15 PM - 6:00 PM): Not specified\n- 7th Class (6:00 PM - 6:45 PM): Not specified\n\nClass Teacher: Md. Sohel Rana (Junior Instructor, Tech/RAC)",
+        "doc_type": "documents",
+        "topic": "class routine",
+        "department": null,
+        "meta": {
+          "context_added_date": "2026-10-15",
+          "context_added_time": "18:36:04",
+          "translation_performed": false,
+          "metadata_extraction_success": true
+        },
+        "source_file": "class_routine_2nd_shift.json",
+        "created_at": "2026-10-15T12:36:07.486Z",
+        "updated_at": "2026-10-15T12:36:07.486Z"
+      },
+      "embedding_content": "class routine\n\nWhat is the Wednesday class routine for CNPI RAC & Air-conditioning Department day shift fourth semester?\nWho is the class teacher for CNPI RAC & Air-conditioning Department day shift fourth semester?\nWhich teacher conducts the Engineering Mechanics class for CNPI RAC & Air-conditioning Department day shift fourth semester on Wednesday?\nWhat time does the Engineering Mechanics class start for CNPI RAC & Air-conditioning Department day shift fourth semester on Wednesday?\nWhich room is assigned for the Machine Shop Practice I class for CNPI RAC & Air-conditioning Department day shift fourth semester on Wednesday?\nWho teaches Transport RAC for CNPI RAC & Air-conditioning Department day shift fourth semester on Wednesday?\nWhat session does the Wednesday class routine belong to for CNPI RAC & Air-conditioning Department day shift fourth semester?\nWhich teacher is assigned to the Fluid Lab (N-207) for CNPI RAC & Air-conditioning Department day shift fourth semester on Wednesday?",
+      "stored_content": "[context_added_date: 2026-10-15 | context_added_time: 18:36:04 BST]\nDoc Type: documents\nTopic: class routine\n\nWednesday class Routine of CNPI - RAC & Air-conditioning Department (Day Shift), Fourth Semester (Session: 2026-27) is given below:\n- 1st Class (1:30 PM - 2:15 PM): Class: Engineering Mechanics (27041) | Teacher: Md. Sohel Rana (Junior Instructor (Tech/RAC)). Room: Fluid Lab (N-207)\n- 2nd Class (2:15 PM - 3:00 PM): Class: Engineering Mechanics (27041) | Teacher: Md. Sohel Rana (Junior Instructor (Tech/RAC)). Room: Fluid Lab (N-207)\n- 3rd Class (3:00 PM - 3:45 PM): Class: Transport RAC (27242) | Teacher: Vabotos Roy (Jr. Instructor (Tech/RAC)). Room: N-210\n- 4th Class (3:45 PM - 4:30 PM): Class: Machine Shop Practice I (27012) | Teacher: Md. Bariqul Islam (Junior Instructor (Tech/RAC)). Room: Welding and Sheet Lab (S-115)\n- 5th Class (4:30 PM - 5:15 PM): Class: Machine Shop Practice I (27012) | Teacher: Md. Bariqul Islam (Junior Instructor (Tech/RAC)). Room: Welding and Sheet Lab (S-115)\n- 6th Class (5:15 PM - 6:00 PM): Not specified\n- 7th Class (6:00 PM - 6:45 PM): Not specified\n\nClass Teacher: Md. Sohel Rana (Junior Instructor, Tech/RAC)",
+      "added_to_priority": false,
+      "temporal_analysis": {
+        "notice_date": "2026-10-15",
+        "notice_day": "Thursday",
+        "temporal_type": "TIME_INDEPENDENT",
+        "valid_from": null,
+        "valid_until": null,
+        "events": [],
+        "expiration_date": null
+      }
+    }
+  },
+  {
+    "index": 79,
+    "chunk_id": "class_routine_0e366b051ea1",
+    "result": {
+      "created": true,
+      "doc_id": 2082,
+      "chunk_id": "class_routine_0e366b051ea1",
+      "embedding_generated": true,
+      "translation_performed": false,
+      "temporal_analysis_performed": true,
+      "metadata_extraction_success": true,
+      "image_text_extracted": false,
+      "context_added_date": "2026-10-15",
+      "context_added_time": "18:36:28",
+      "document": {
+        "doc_id": 2082,
+        "chunk_id": "class_routine_0e366b051ea1",
+        "content": "[context_added_date: 2026-10-15 | context_added_time: 18:36:28 BST]\nDoc Type: documents\nTopic: class routine\n\nThursday class Routine of CNPI - RAC & Air-conditioning Department (Day Shift), Fourth Semester (Session: 2026-27) is given below:\n- 1st Class (1:30 PM - 2:15 PM): Class: CST Office Application (28511) | Teacher: Md. Idul Hasan Jony (Part-Time Teacher (CST)). Room: Network Lab (S-417)\n- 2nd Class (2:15 PM - 3:00 PM): Class: CST Office Application (28511) | Teacher: Md. Idul Hasan Jony (Part-Time Teacher (CST)). Room: Network Lab (S-417)\n- 3rd Class (3:00 PM - 3:45 PM): Class: Circuits and ET Machine in RAC (27241) | Teacher: Shamsunnahar Sultana (Instructor (Tech/RAC)). Room: N-210\n- 4th Class (3:45 PM - 4:30 PM): Class: Machine Shop Practice I (27012) | Teacher: Md. Bariqul Islam (Junior Instructor (Tech/RAC)). Room: N-210\n- 5th Class (4:30 PM - 5:15 PM): Class: Accounting (25841) | Teacher: Md. Azizur Rahman (Instructor (Non-Tech/Accounting)). Room: N-210\n- 6th Class (5:15 PM - 6:00 PM): Not specified\n- 7th Class (6:00 PM - 6:45 PM): Not specified\n\nClass Teacher: Md. Sohel Rana (Junior Instructor, Tech/RAC)",
+        "doc_type": "documents",
+        "topic": "class routine",
+        "department": null,
+        "meta": {
+          "context_added_date": "2026-10-15",
+          "context_added_time": "18:36:28",
+          "translation_performed": false,
+          "metadata_extraction_success": true
+        },
+        "source_file": "class_routine_2nd_shift.json",
+        "created_at": "2026-10-15T12:36:31.870Z",
+        "updated_at": "2026-10-15T12:36:31.870Z"
+      },
+      "embedding_content": "class routine\n\nWhat is the Thursday class routine for CNPI RAC & Air-conditioning Department fourth semester day shift?\nWho is the class teacher for CNPI RAC & Air-conditioning Department fourth semester day shift?\nWhich teacher conducts the CST Office Application class for CNPI RAC & Air-conditioning Department fourth semester day shift on Thursday?\nWhat room is assigned for the CST Office Application class for CNPI RAC & Air-conditioning Department fourth semester day shift on Thursday?\nWhat time does the Circuits and ET Machine in RAC class start for CNPI RAC & Air-conditioning Department fourth semester day shift on Thursday?\nWho teaches Machine Shop Practice I for CNPI RAC & Air-conditioning Department fourth semester day shift on Thursday?\nWhat session does the Thursday class routine belong to for CNPI RAC & Air-conditioning Department fourth semester day shift?\nWhich teacher takes the Accounting class for CNPI RAC & Air-conditioning Department fourth semester day shift on Thursday?",
+      "stored_content": "[context_added_date: 2026-10-15 | context_added_time: 18:36:28 BST]\nDoc Type: documents\nTopic: class routine\n\nThursday class Routine of CNPI - RAC & Air-conditioning Department (Day Shift), Fourth Semester (Session: 2026-27) is given below:\n- 1st Class (1:30 PM - 2:15 PM): Class: CST Office Application (28511) | Teacher: Md. Idul Hasan Jony (Part-Time Teacher (CST)). Room: Network Lab (S-417)\n- 2nd Class (2:15 PM - 3:00 PM): Class: CST Office Application (28511) | Teacher: Md. Idul Hasan Jony (Part-Time Teacher (CST)). Room: Network Lab (S-417)\n- 3rd Class (3:00 PM - 3:45 PM): Class: Circuits and ET Machine in RAC (27241) | Teacher: Shamsunnahar Sultana (Instructor (Tech/RAC)). Room: N-210\n- 4th Class (3:45 PM - 4:30 PM): Class: Machine Shop Practice I (27012) | Teacher: Md. Bariqul Islam (Junior Instructor (Tech/RAC)). Room: N-210\n- 5th Class (4:30 PM - 5:15 PM): Class: Accounting (25841) | Teacher: Md. Azizur Rahman (Instructor (Non-Tech/Accounting)). Room: N-210\n- 6th Class (5:15 PM - 6:00 PM): Not specified\n- 7th Class (6:00 PM - 6:45 PM): Not specified\n\nClass Teacher: Md. Sohel Rana (Junior Instructor, Tech/RAC)",
+      "added_to_priority": false,
+      "temporal_analysis": {
+        "notice_date": "2026-10-15",
+        "notice_day": "Thursday",
+        "temporal_type": "TIME_INDEPENDENT",
+        "valid_from": null,
+        "valid_until": null,
+        "events": [],
+        "expiration_date": null
+      }
+    }
+  },
+  {
+    "index": 80,
+    "chunk_id": "class_routine_f19c39905b70",
+    "result": {
+      "created": true,
+      "doc_id": 2084,
+      "chunk_id": "class_routine_f19c39905b70",
+      "embedding_generated": true,
+      "translation_performed": false,
+      "temporal_analysis_performed": true,
+      "metadata_extraction_success": true,
+      "image_text_extracted": false,
+      "context_added_date": "2026-10-15",
+      "context_added_time": "18:36:49",
+      "document": {
+        "doc_id": 2084,
+        "chunk_id": "class_routine_f19c39905b70",
+        "content": "[context_added_date: 2026-10-15 | context_added_time: 18:36:49 BST]\nDoc Type: documents\nTopic: class routine\n\nSunday class Routine of CNPI - RAC & Air-conditioning Department (Day Shift), Sixth Semester (Session: 2026-27) is given below:\n- 1st Class (1:30 PM - 2:15 PM): Not specified\n- 2nd Class (2:15 PM - 3:00 PM): Class: Plant Engineering & Maintainance (27065) | Teacher: Md. Bariqul Islam (Junior Instructor (Tech/RAC)). Room: N-209\n- 3rd Class (3:00 PM - 3:45 PM): Class: Manufacturing Process (27055) | Teacher: Md. Hossain Ali (Junior Instructor (Tech/RAC)). Room: N-209\n- 4th Class (3:45 PM - 4:30 PM): Class: Cooling & Heating Load Calculation (27261) | Teacher: Vabotos Roy (Jr. Instructor (Tech/RAC)). Room: N-209\n- 5th Class (4:30 PM - 5:15 PM): Class: Strength of Materials (27061) | Teacher: Md. Sohel Rana (Junior Instructor (Tech/RAC)). Room: Fluid Lab (N-207)\n- 6th Class (5:15 PM - 6:00 PM): Class: Strength of Materials (27061) | Teacher: Md. Sohel Rana (Junior Instructor (Tech/RAC)). Room: Fluid Lab (N-207)\n- 7th Class (6:00 PM - 6:45 PM): Not specified\n\nClass Teacher: Md. Hossain Ali (Junior Instructor, Tech/RAC)",
+        "doc_type": "documents",
+        "topic": "class routine",
+        "department": null,
+        "meta": {
+          "context_added_date": "2026-10-15",
+          "context_added_time": "18:36:49",
+          "translation_performed": false,
+          "metadata_extraction_success": true
+        },
+        "source_file": "class_routine_2nd_shift.json",
+        "created_at": "2026-10-15T12:36:52.994Z",
+        "updated_at": "2026-10-15T12:36:52.994Z"
+      },
+      "embedding_content": "class routine\n\nWhat is the Sunday class routine for CNPI RAC and Air-conditioning Department day shift sixth semester?\nWho is the class teacher for CNPI RAC and Air-conditioning Department day shift sixth semester?\nWhat subject is taught during the 2nd class on Sunday for CNPI RAC and Air-conditioning Department day shift sixth semester?\nWho teaches Plant Engineering & Maintainance for CNPI RAC and Air-conditioning Department day shift sixth semester on Sunday?\nWhich room is assigned for the Manufacturing Process class for CNPI RAC and Air-conditioning Department day shift sixth semester on Sunday?\nWhat time does the Cooling & Heating Load Calculation class start for CNPI RAC and Air-conditioning Department day shift sixth semester on Sunday?\nWho teaches Strength of Materials for CNPI RAC and Air-conditioning Department day shift sixth semester on Sunday?\nWhich room is used for the Strength of Materials class for CNPI RAC and Air-conditioning Department day shift sixth semester on Sunday?\nWhat academic session does the Sunday class routine belong to for CNPI RAC and Air-conditioning Department day shift sixth semester?",
+      "stored_content": "[context_added_date: 2026-10-15 | context_added_time: 18:36:49 BST]\nDoc Type: documents\nTopic: class routine\n\nSunday class Routine of CNPI - RAC & Air-conditioning Department (Day Shift), Sixth Semester (Session: 2026-27) is given below:\n- 1st Class (1:30 PM - 2:15 PM): Not specified\n- 2nd Class (2:15 PM - 3:00 PM): Class: Plant Engineering & Maintainance (27065) | Teacher: Md. Bariqul Islam (Junior Instructor (Tech/RAC)). Room: N-209\n- 3rd Class (3:00 PM - 3:45 PM): Class: Manufacturing Process (27055) | Teacher: Md. Hossain Ali (Junior Instructor (Tech/RAC)). Room: N-209\n- 4th Class (3:45 PM - 4:30 PM): Class: Cooling & Heating Load Calculation (27261) | Teacher: Vabotos Roy (Jr. Instructor (Tech/RAC)). Room: N-209\n- 5th Class (4:30 PM - 5:15 PM): Class: Strength of Materials (27061) | Teacher: Md. Sohel Rana (Junior Instructor (Tech/RAC)). Room: Fluid Lab (N-207)\n- 6th Class (5:15 PM - 6:00 PM): Class: Strength of Materials (27061) | Teacher: Md. Sohel Rana (Junior Instructor (Tech/RAC)). Room: Fluid Lab (N-207)\n- 7th Class (6:00 PM - 6:45 PM): Not specified\n\nClass Teacher: Md. Hossain Ali (Junior Instructor, Tech/RAC)",
+      "added_to_priority": false,
+      "temporal_analysis": {
+        "notice_date": "2026-10-15",
+        "notice_day": "Thursday",
+        "temporal_type": "TIME_INDEPENDENT",
+        "valid_from": null,
+        "valid_until": null,
+        "events": [],
+        "expiration_date": null
+      }
+    }
+  },
+  {
+    "index": 81,
+    "chunk_id": "class_routine_441c61416f4d",
+    "result": {
+      "created": true,
+      "doc_id": 2086,
+      "chunk_id": "class_routine_441c61416f4d",
+      "embedding_generated": true,
+      "translation_performed": false,
+      "temporal_analysis_performed": true,
+      "metadata_extraction_success": true,
+      "image_text_extracted": false,
+      "context_added_date": "2026-10-15",
+      "context_added_time": "18:37:10",
+      "document": {
+        "doc_id": 2086,
+        "chunk_id": "class_routine_441c61416f4d",
+        "content": "[context_added_date: 2026-10-15 | context_added_time: 18:37:10 BST]\nDoc Type: documents\nTopic: class routine\n\nMonday class Routine of CNPI - RAC & Air-conditioning Department (Day Shift), Sixth Semester (Session: 2026-27) is given below:\n- 1st Class (1:30 PM - 2:15 PM): Class: CAD & CAM (27063) | Teacher: Md. Farid Hasan (Jr. Instructor (Tech/MNT)). Room: N-209\n- 2nd Class (2:15 PM - 3:00 PM): Class: Manufacturing Process (27055) | Teacher: Md. Hossain Ali (Junior Instructor (Tech/RAC)). Room: N-209\n- 3rd Class (3:00 PM - 3:45 PM): Class: Strength of Materials (27061) | Teacher: Md. Sohel Rana (Junior Instructor (Tech/RAC)). Room: N-209\n- 4th Class (3:45 PM - 4:30 PM): Class: Plant Engineering & Maintainance (27065) | Teacher: Md. Bariqul Islam (Junior Instructor (Tech/RAC)). Room: N-209\n- 5th Class (4:30 PM - 5:15 PM): Class: RAC Plant Installation Maintenance & Operation (27262) | Teacher: Shamsunnahar Sultana (Instructor (Tech/RAC)). Room: N-209\n- 6th Class (5:15 PM - 6:00 PM): Not specified\n- 7th Class (6:00 PM - 6:45 PM): Not specified\n\nClass Teacher: Md. Hossain Ali (Junior Instructor, Tech/RAC)",
+        "doc_type": "documents",
+        "topic": "class routine",
+        "department": null,
+        "meta": {
+          "context_added_date": "2026-10-15",
+          "context_added_time": "18:37:10",
+          "translation_performed": false,
+          "metadata_extraction_success": true
+        },
+        "source_file": "class_routine_2nd_shift.json",
+        "created_at": "2026-10-15T12:37:17.760Z",
+        "updated_at": "2026-10-15T12:37:17.760Z"
+      },
+      "embedding_content": "class routine\n\nWhat is the Monday class routine for CNPI RAC & Air-conditioning Department day shift sixth semester?\nWho is the class teacher for CNPI RAC & Air-conditioning Department day shift sixth semester?\nWhich room is assigned for CNPI RAC & Air-conditioning Department day shift sixth semester Monday classes?\nWhat subject is taught during the 1st class on Monday for CNPI RAC & Air-conditioning Department day shift sixth semester?\nWho teaches CAD & CAM for CNPI RAC & Air-conditioning Department day shift sixth semester on Monday?\nWhat time does the Manufacturing Process class start for CNPI RAC & Air-conditioning Department day shift sixth semester on Monday?\nWhich teacher conducts the Strength of Materials class for CNPI RAC & Air-conditioning Department day shift sixth semester on Monday?\nWhat session does the CNPI RAC & Air-conditioning Department day shift sixth semester Monday class routine belong to?",
+      "stored_content": "[context_added_date: 2026-10-15 | context_added_time: 18:37:10 BST]\nDoc Type: documents\nTopic: class routine\n\nMonday class Routine of CNPI - RAC & Air-conditioning Department (Day Shift), Sixth Semester (Session: 2026-27) is given below:\n- 1st Class (1:30 PM - 2:15 PM): Class: CAD & CAM (27063) | Teacher: Md. Farid Hasan (Jr. Instructor (Tech/MNT)). Room: N-209\n- 2nd Class (2:15 PM - 3:00 PM): Class: Manufacturing Process (27055) | Teacher: Md. Hossain Ali (Junior Instructor (Tech/RAC)). Room: N-209\n- 3rd Class (3:00 PM - 3:45 PM): Class: Strength of Materials (27061) | Teacher: Md. Sohel Rana (Junior Instructor (Tech/RAC)). Room: N-209\n- 4th Class (3:45 PM - 4:30 PM): Class: Plant Engineering & Maintainance (27065) | Teacher: Md. Bariqul Islam (Junior Instructor (Tech/RAC)). Room: N-209\n- 5th Class (4:30 PM - 5:15 PM): Class: RAC Plant Installation Maintenance & Operation (27262) | Teacher: Shamsunnahar Sultana (Instructor (Tech/RAC)). Room: N-209\n- 6th Class (5:15 PM - 6:00 PM): Not specified\n- 7th Class (6:00 PM - 6:45 PM): Not specified\n\nClass Teacher: Md. Hossain Ali (Junior Instructor, Tech/RAC)",
+      "added_to_priority": false,
+      "temporal_analysis": {
+        "notice_date": "2026-10-15",
+        "notice_day": "Thursday",
+        "temporal_type": "TIME_INDEPENDENT",
+        "valid_from": null,
+        "valid_until": null,
+        "events": [],
+        "expiration_date": null
+      }
+    }
+  },
+  {
+    "index": 82,
+    "chunk_id": "class_routine_ab945cd54d1f",
+    "result": {
+      "created": true,
+      "doc_id": 2088,
+      "chunk_id": "class_routine_ab945cd54d1f",
+      "embedding_generated": true,
+      "translation_performed": false,
+      "temporal_analysis_performed": true,
+      "metadata_extraction_success": true,
+      "image_text_extracted": false,
+      "context_added_date": "2026-10-15",
+      "context_added_time": "18:37:41",
+      "document": {
+        "doc_id": 2088,
+        "chunk_id": "class_routine_ab945cd54d1f",
+        "content": "[context_added_date: 2026-10-15 | context_added_time: 18:37:41 BST]\nDoc Type: documents\nTopic: class routine\n\nTuesday class Routine of CNPI - RAC & Air-conditioning Department (Day Shift), Sixth Semester (Session: 2026-27) is given below:\n- 1st Class (1:30 PM - 2:15 PM): Not specified\n- 2nd Class (2:15 PM - 3:00 PM): Class: Strength of Materials (27061) | Teacher: Md. Sohel Rana (Junior Instructor (Tech/RAC)). Room: N-209\n- 3rd Class (3:00 PM - 3:45 PM): Class: RAC Plant Installation Maintenance & Operation (27262) | Teacher: Shamsunnahar Sultana (Instructor (Tech/RAC)). Room: N-209\n- 4th Class (3:45 PM - 4:30 PM): Class: Cooling & Heating Load Calculation (27261) | Teacher: Vabotos Roy (Jr. Instructor (Tech/RAC)). Room: RAC Lab (S-215)\n- 5th Class (4:30 PM - 5:15 PM): Class: Cooling & Heating Load Calculation (27261) | Teacher: Vabotos Roy (Jr. Instructor (Tech/RAC)). Room: RAC Lab (S-215)\n- 6th Class (5:15 PM - 6:00 PM): Class: CAD & CAM (27063) | Teacher: Md. Farid Hasan (Jr. Instructor (Tech/MNT)). Room: ICT Lab (N-310)\n- 7th Class (6:00 PM - 6:45 PM): Class: CAD & CAM (27063) | Teacher: Md. Farid Hasan (Jr. Instructor (Tech/MNT)). Room: ICT Lab (N-310)\n\nClass Teacher: Md. Hossain Ali (Junior Instructor, Tech/RAC)",
+        "doc_type": "documents",
+        "topic": "class routine",
+        "department": null,
+        "meta": {
+          "context_added_date": "2026-10-15",
+          "context_added_time": "18:37:41",
+          "translation_performed": false,
+          "metadata_extraction_success": true
+        },
+        "source_file": "class_routine_2nd_shift.json",
+        "created_at": "2026-10-15T12:37:44.064Z",
+        "updated_at": "2026-10-15T12:37:44.064Z"
+      },
+      "embedding_content": "class routine\n\nWhat is the Tuesday class routine for CNPI RAC & Air-conditioning Department day shift sixth semester?\nWho is the class teacher for CNPI RAC & Air-conditioning Department day shift sixth semester?\nWhat subject is taught during the 2nd class on Tuesday for CNPI RAC & Air-conditioning Department day shift sixth semester?\nWho teaches Strength of Materials for CNPI RAC & Air-conditioning Department day shift sixth semester on Tuesday?\nWhich room is assigned for the Strength of Materials class for CNPI RAC & Air-conditioning Department day shift sixth semester on Tuesday?\nWhat time does the cooling & heating load calculation class start for CNPI RAC & Air-conditioning Department day shift sixth semester on Tuesday?\nWhich teacher conducts the CAD & CAM class for CNPI RAC & Air-conditioning Department day shift sixth semester on Tuesday?\nWhich room is used for the CAD & CAM class for CNPI RAC & Air-conditioning Department day shift sixth semester on Tuesday?\nWhat session does the Tuesday class routine belong to for CNPI RAC & Air-conditioning Department day shift sixth semester?",
+      "stored_content": "[context_added_date: 2026-10-15 | context_added_time: 18:37:41 BST]\nDoc Type: documents\nTopic: class routine\n\nTuesday class Routine of CNPI - RAC & Air-conditioning Department (Day Shift), Sixth Semester (Session: 2026-27) is given below:\n- 1st Class (1:30 PM - 2:15 PM): Not specified\n- 2nd Class (2:15 PM - 3:00 PM): Class: Strength of Materials (27061) | Teacher: Md. Sohel Rana (Junior Instructor (Tech/RAC)). Room: N-209\n- 3rd Class (3:00 PM - 3:45 PM): Class: RAC Plant Installation Maintenance & Operation (27262) | Teacher: Shamsunnahar Sultana (Instructor (Tech/RAC)). Room: N-209\n- 4th Class (3:45 PM - 4:30 PM): Class: Cooling & Heating Load Calculation (27261) | Teacher: Vabotos Roy (Jr. Instructor (Tech/RAC)). Room: RAC Lab (S-215)\n- 5th Class (4:30 PM - 5:15 PM): Class: Cooling & Heating Load Calculation (27261) | Teacher: Vabotos Roy (Jr. Instructor (Tech/RAC)). Room: RAC Lab (S-215)\n- 6th Class (5:15 PM - 6:00 PM): Class: CAD & CAM (27063) | Teacher: Md. Farid Hasan (Jr. Instructor (Tech/MNT)). Room: ICT Lab (N-310)\n- 7th Class (6:00 PM - 6:45 PM): Class: CAD & CAM (27063) | Teacher: Md. Farid Hasan (Jr. Instructor (Tech/MNT)). Room: ICT Lab (N-310)\n\nClass Teacher: Md. Hossain Ali (Junior Instructor, Tech/RAC)",
+      "added_to_priority": false,
+      "temporal_analysis": {
+        "notice_date": "2026-10-15",
+        "notice_day": "Thursday",
+        "temporal_type": "TIME_INDEPENDENT",
+        "valid_from": null,
+        "valid_until": null,
+        "events": [],
+        "expiration_date": null
+      }
+    }
+  },
+  {
+    "index": 83,
+    "chunk_id": "class_routine_7e0db6ed6b0f",
+    "result": {
+      "created": true,
+      "doc_id": 2090,
+      "chunk_id": "class_routine_7e0db6ed6b0f",
+      "embedding_generated": true,
+      "translation_performed": false,
+      "temporal_analysis_performed": true,
+      "metadata_extraction_success": true,
+      "image_text_extracted": false,
+      "context_added_date": "2026-10-15",
+      "context_added_time": "18:38:01",
+      "document": {
+        "doc_id": 2090,
+        "chunk_id": "class_routine_7e0db6ed6b0f",
+        "content": "[context_added_date: 2026-10-15 | context_added_time: 18:38:01 BST]\nDoc Type: documents\nTopic: class routine\n\nWednesday class Routine of CNPI - RAC & Air-conditioning Department (Day Shift), Sixth Semester (Session: 2026-27) is given below:\n- 1st Class (1:30 PM - 2:15 PM): Class: Industrial Management (25852) | Teacher: Mst. Mahmuda Khatun (Part-Time Teacher (Non-Tech)). Room: N-209\n- 2nd Class (2:15 PM - 3:00 PM): Class: Manufacturing Process (27055) | Teacher: Md. Hossain Ali (Junior Instructor (Tech/RAC)). Room: N-209\n- 3rd Class (3:00 PM - 3:45 PM): Class: RAC Plant Installation Maintenance & Operation (27262) | Teacher: Shamsunnahar Sultana (Instructor (Tech/RAC)). Room: RAC Lab (S-215)\n- 4th Class (3:45 PM - 4:30 PM): Class: RAC Plant Installation Maintenance & Operation (27262) | Teacher: Shamsunnahar Sultana (Instructor (Tech/RAC)). Room: RAC Lab (S-215)\n- 5th Class (4:30 PM - 5:15 PM): Class: Cooling & Heating Load Calculation (27261) | Teacher: Vabotos Roy (Jr. Instructor (Tech/RAC)). Room: N-209\n- 6th Class (5:15 PM - 6:00 PM): Not specified\n- 7th Class (6:00 PM - 6:45 PM): Not specified\n\nClass Teacher: Md. Hossain Ali (Junior Instructor, Tech/RAC)",
+        "doc_type": "documents",
+        "topic": "class routine",
+        "department": null,
+        "meta": {
+          "context_added_date": "2026-10-15",
+          "context_added_time": "18:38:01",
+          "translation_performed": false,
+          "metadata_extraction_success": true
+        },
+        "source_file": "class_routine_2nd_shift.json",
+        "created_at": "2026-10-15T12:38:04.917Z",
+        "updated_at": "2026-10-15T12:38:04.917Z"
+      },
+      "embedding_content": "class routine\n\nWhat is the Wednesday class routine for CNPI RAC & Air-conditioning Department day shift sixth semester?\nWho is the class teacher for CNPI RAC & Air-conditioning Department day shift sixth semester?\nWhat subject is taught during the 1st class on Wednesday for CNPI RAC & Air-conditioning Department day shift sixth semester?\nWho teaches Industrial Management for CNPI RAC & Air-conditioning Department day shift sixth semester on Wednesday?\nWhat room is assigned for the Manufacturing Process class for CNPI RAC & Air-conditioning Department day shift sixth semester on Wednesday?\nWhat time does the RAC Plant Installation Maintenance & Operation class start for CNPI RAC & Air-conditioning Department day shift sixth semester on Wednesday?\nWho teaches Cooling & Heating Load Calculation for CNPI RAC & Air-conditioning Department day shift sixth semester on Wednesday?\nWhich room is used for the RAC Plant Installation Maintenance & Operation class for CNPI RAC & Air-conditioning Department day shift sixth semester on Wednesday?\nWhat is the session for the Wednesday class routine of CNPI RAC & Air-conditioning Department day shift sixth semester?",
+      "stored_content": "[context_added_date: 2026-10-15 | context_added_time: 18:38:01 BST]\nDoc Type: documents\nTopic: class routine\n\nWednesday class Routine of CNPI - RAC & Air-conditioning Department (Day Shift), Sixth Semester (Session: 2026-27) is given below:\n- 1st Class (1:30 PM - 2:15 PM): Class: Industrial Management (25852) | Teacher: Mst. Mahmuda Khatun (Part-Time Teacher (Non-Tech)). Room: N-209\n- 2nd Class (2:15 PM - 3:00 PM): Class: Manufacturing Process (27055) | Teacher: Md. Hossain Ali (Junior Instructor (Tech/RAC)). Room: N-209\n- 3rd Class (3:00 PM - 3:45 PM): Class: RAC Plant Installation Maintenance & Operation (27262) | Teacher: Shamsunnahar Sultana (Instructor (Tech/RAC)). Room: RAC Lab (S-215)\n- 4th Class (3:45 PM - 4:30 PM): Class: RAC Plant Installation Maintenance & Operation (27262) | Teacher: Shamsunnahar Sultana (Instructor (Tech/RAC)). Room: RAC Lab (S-215)\n- 5th Class (4:30 PM - 5:15 PM): Class: Cooling & Heating Load Calculation (27261) | Teacher: Vabotos Roy (Jr. Instructor (Tech/RAC)). Room: N-209\n- 6th Class (5:15 PM - 6:00 PM): Not specified\n- 7th Class (6:00 PM - 6:45 PM): Not specified\n\nClass Teacher: Md. Hossain Ali (Junior Instructor, Tech/RAC)",
+      "added_to_priority": false,
+      "temporal_analysis": {
+        "notice_date": "2026-10-15",
+        "notice_day": "Thursday",
+        "temporal_type": "TIME_INDEPENDENT",
+        "valid_from": null,
+        "valid_until": null,
+        "events": [],
+        "expiration_date": null
+      }
+    }
+  },
+  {
+    "index": 84,
+    "chunk_id": "class_routine_a922f12884cf",
+    "result": {
+      "created": true,
+      "doc_id": 2092,
+      "chunk_id": "class_routine_a922f12884cf",
+      "embedding_generated": true,
+      "translation_performed": false,
+      "temporal_analysis_performed": true,
+      "metadata_extraction_success": true,
+      "image_text_extracted": false,
+      "context_added_date": "2026-10-15",
+      "context_added_time": "18:38:29",
+      "document": {
+        "doc_id": 2092,
+        "chunk_id": "class_routine_a922f12884cf",
+        "content": "[context_added_date: 2026-10-15 | context_added_time: 18:38:29 BST]\nDoc Type: documents\nTopic: class routine\n\nThursday class Routine of CNPI - RAC & Air-conditioning Department (Day Shift), Sixth Semester (Session: 2026-27) is given below:\n- 1st Class (1:30 PM - 2:15 PM): Class: Industrial Management (25852) | Teacher: Mst. Mahmuda Khatun (Part-Time Teacher (Non-Tech)). Room: N-209\n- 2nd Class (2:15 PM - 3:00 PM): Class: Plant Engineering & Maintainance (27065) | Teacher: Md. Bariqul Islam (Junior Instructor (Tech/RAC)). Room: RAC Lab (S-215)\n- 3rd Class (3:00 PM - 3:45 PM): Class: Plant Engineering & Maintainance (27065) | Teacher: Md. Bariqul Islam (Junior Instructor (Tech/RAC)). Room: RAC Lab (S-215)\n- 4th Class (3:45 PM - 4:30 PM): Class: Cooling & Heating Load Calculation (27261) | Teacher: Vabotos Roy (Jr. Instructor (Tech/RAC)). Room: N-209\n- 5th Class (4:30 PM - 5:15 PM): Class: Strength of Materials (27061) | Teacher: Md. Sohel Rana (Junior Instructor (Tech/RAC)). Room: N-209\n- 6th Class (5:15 PM - 6:00 PM): Class: CAD & CAM (27063) | Teacher: Md. Farid Hasan (Jr. Instructor (Tech/MNT)). Room: ICT Lab (N-310)\n- 7th Class (6:00 PM - 6:45 PM): Class: CAD & CAM (27063) | Teacher: Md. Farid Hasan (Jr. Instructor (Tech/MNT)). Room: ICT Lab (N-310)\n\nClass Teacher: Md. Hossain Ali (Junior Instructor, Tech/RAC)",
+        "doc_type": "documents",
+        "topic": "class routine",
+        "department": null,
+        "meta": {
+          "context_added_date": "2026-10-15",
+          "context_added_time": "18:38:29",
+          "translation_performed": false,
+          "metadata_extraction_success": true
+        },
+        "source_file": "class_routine_2nd_shift.json",
+        "created_at": "2026-10-15T12:38:33.544Z",
+        "updated_at": "2026-10-15T12:38:33.544Z"
+      },
+      "embedding_content": "class routine\n\nWhat is the Thursday class routine for CNPI RAC & Air-conditioning Department day shift sixth semester?\nWho is the class teacher for CNPI RAC & Air-conditioning Department day shift sixth semester?\nWhich room is assigned for the 1st class on Thursday for CNPI RAC & Air-conditioning Department day shift sixth semester?\nWhat subject is taught during the 2nd class on Thursday for CNPI RAC & Air-conditioning Department day shift sixth semester?\nWho teaches Plant Engineering & Maintainance for CNPI RAC & Air-conditioning Department day shift sixth semester on Thursday?\nWhat time does the Thursday class routine start and end for CNPI RAC & Air-conditioning Department day shift sixth semester?\nWhich teacher conducts the CAD & CAM class for CNPI RAC & Air-conditioning Department day shift sixth semester on Thursday?\nWhat session is the Thursday class routine for CNPI RAC & Air-conditioning Department day shift sixth semester for?",
+      "stored_content": "[context_added_date: 2026-10-15 | context_added_time: 18:38:29 BST]\nDoc Type: documents\nTopic: class routine\n\nThursday class Routine of CNPI - RAC & Air-conditioning Department (Day Shift), Sixth Semester (Session: 2026-27) is given below:\n- 1st Class (1:30 PM - 2:15 PM): Class: Industrial Management (25852) | Teacher: Mst. Mahmuda Khatun (Part-Time Teacher (Non-Tech)). Room: N-209\n- 2nd Class (2:15 PM - 3:00 PM): Class: Plant Engineering & Maintainance (27065) | Teacher: Md. Bariqul Islam (Junior Instructor (Tech/RAC)). Room: RAC Lab (S-215)\n- 3rd Class (3:00 PM - 3:45 PM): Class: Plant Engineering & Maintainance (27065) | Teacher: Md. Bariqul Islam (Junior Instructor (Tech/RAC)). Room: RAC Lab (S-215)\n- 4th Class (3:45 PM - 4:30 PM): Class: Cooling & Heating Load Calculation (27261) | Teacher: Vabotos Roy (Jr. Instructor (Tech/RAC)). Room: N-209\n- 5th Class (4:30 PM - 5:15 PM): Class: Strength of Materials (27061) | Teacher: Md. Sohel Rana (Junior Instructor (Tech/RAC)). Room: N-209\n- 6th Class (5:15 PM - 6:00 PM): Class: CAD & CAM (27063) | Teacher: Md. Farid Hasan (Jr. Instructor (Tech/MNT)). Room: ICT Lab (N-310)\n- 7th Class (6:00 PM - 6:45 PM): Class: CAD & CAM (27063) | Teacher: Md. Farid Hasan (Jr. Instructor (Tech/MNT)). Room: ICT Lab (N-310)\n\nClass Teacher: Md. Hossain Ali (Junior Instructor, Tech/RAC)",
+      "added_to_priority": false,
+      "temporal_analysis": {
+        "notice_date": "2026-10-15",
+        "notice_day": "Thursday",
+        "temporal_type": "TIME_INDEPENDENT",
+        "valid_from": null,
+        "valid_until": null,
+        "events": [],
+        "expiration_date": null
+      }
+    }
+  },
+  {
+    "index": 85,
+    "chunk_id": "class_routine_6974b23ede76",
+    "result": {
+      "created": true,
+      "doc_id": 2094,
+      "chunk_id": "class_routine_6974b23ede76",
+      "embedding_generated": true,
+      "translation_performed": false,
+      "temporal_analysis_performed": true,
+      "metadata_extraction_success": true,
+      "image_text_extracted": false,
+      "context_added_date": "2026-10-15",
+      "context_added_time": "18:38:50",
+      "document": {
+        "doc_id": 2094,
+        "chunk_id": "class_routine_6974b23ede76",
+        "content": "[context_added_date: 2026-10-15 | context_added_time: 18:38:50 BST]\nDoc Type: documents\nTopic: class routine\n\nSunday class Routine of CNPI - CST & Department (Day Shift), First Semester (Group A) (Session: 2026-27) is given below:\n- 1st Class (1:30 PM - 2:15 PM): Class: CST Office Application (28511) | Teacher: Md. Kausar Ali (Jr. Instructor (Tech/CST)). Room: Software Lab (S-420)\n- 2nd Class (2:15 PM - 3:00 PM): Class: CST Office Application (28511) | Teacher: Md. Kausar Ali (Jr. Instructor (Tech/CST)). Room: Software Lab (S-420)\n- 3rd Class (3:00 PM - 3:45 PM): Class: Mathematics -I (25911) | Teacher: Md. Sohel Rana (Junior Instructor (Tech/RAC)). Room: N-415\n- 4th Class (3:45 PM - 4:30 PM): Class: Physics -I (25912) | Teacher: Md. Abdul Quader Zilani (Instructor (Non-Tech/Physics)). Room: N-415\n- 5th Class (4:30 PM - 5:15 PM): Class: Engineering Drawing (21011) | Teacher: Zahidul Islam (Jr. Instructor (Tech/CST)). Room: Drafting Lab\n- 6th Class (5:15 PM - 6:00 PM): Class: Engineering Drawing (21011) | Teacher: Zahidul Islam (Jr. Instructor (Tech/CST)). Room: Drafting Lab\n- 7th Class (6:00 PM - 6:45 PM): Class: Basic Electricity (26711) | Teacher: Md. Mamun Alam (Junior Instructor (Tech/ET)). Room: N-415\n\nClass Teacher: Zahidul Islam (Jr. Instructor, Tech/CST)",
+        "doc_type": "documents",
+        "topic": "class routine",
+        "department": null,
+        "meta": {
+          "context_added_date": "2026-10-15",
+          "context_added_time": "18:38:50",
+          "translation_performed": false,
+          "metadata_extraction_success": true
+        },
+        "source_file": "class_routine_2nd_shift.json",
+        "created_at": "2026-10-15T12:38:53.573Z",
+        "updated_at": "2026-10-15T12:38:53.573Z"
+      },
+      "embedding_content": "class routine\n\nWhat is the Sunday class routine for CNPI CST department first semester day shift Group A?\nWho is the class teacher for CNPI CST department first semester day shift Group A?\nWhich room is assigned for the CST Office Application class for CNPI CST department first semester day shift Group A on Sunday?\nWhat time does the Sunday class routine start for CNPI CST department first semester day shift Group A?\nWho teaches Mathematics -I for CNPI CST department first semester day shift Group A on Sunday?\nWhat subjects are taught during the 5th and 6th classes on Sunday for CNPI CST department first semester day shift Group A?\nWhich teacher conducts the Basic Electricity class for CNPI CST department first semester day shift Group A on Sunday?\nWhat session does the Sunday class routine belong to for CNPI CST department first semester day shift Group A?\nWhere is the Physics -I class held for CNPI CST department first semester day shift Group A on Sunday?",
+      "stored_content": "[context_added_date: 2026-10-15 | context_added_time: 18:38:50 BST]\nDoc Type: documents\nTopic: class routine\n\nSunday class Routine of CNPI - CST & Department (Day Shift), First Semester (Group A) (Session: 2026-27) is given below:\n- 1st Class (1:30 PM - 2:15 PM): Class: CST Office Application (28511) | Teacher: Md. Kausar Ali (Jr. Instructor (Tech/CST)). Room: Software Lab (S-420)\n- 2nd Class (2:15 PM - 3:00 PM): Class: CST Office Application (28511) | Teacher: Md. Kausar Ali (Jr. Instructor (Tech/CST)). Room: Software Lab (S-420)\n- 3rd Class (3:00 PM - 3:45 PM): Class: Mathematics -I (25911) | Teacher: Md. Sohel Rana (Junior Instructor (Tech/RAC)). Room: N-415\n- 4th Class (3:45 PM - 4:30 PM): Class: Physics -I (25912) | Teacher: Md. Abdul Quader Zilani (Instructor (Non-Tech/Physics)). Room: N-415\n- 5th Class (4:30 PM - 5:15 PM): Class: Engineering Drawing (21011) | Teacher: Zahidul Islam (Jr. Instructor (Tech/CST)). Room: Drafting Lab\n- 6th Class (5:15 PM - 6:00 PM): Class: Engineering Drawing (21011) | Teacher: Zahidul Islam (Jr. Instructor (Tech/CST)). Room: Drafting Lab\n- 7th Class (6:00 PM - 6:45 PM): Class: Basic Electricity (26711) | Teacher: Md. Mamun Alam (Junior Instructor (Tech/ET)). Room: N-415\n\nClass Teacher: Zahidul Islam (Jr. Instructor, Tech/CST)",
+      "added_to_priority": false,
+      "temporal_analysis": {
+        "notice_date": "2026-10-15",
+        "notice_day": "Thursday",
+        "temporal_type": "TIME_INDEPENDENT",
+        "valid_from": null,
+        "valid_until": null,
+        "events": [],
+        "expiration_date": null
+      }
+    }
+  },
+  {
+    "index": 86,
+    "chunk_id": "class_routine_86a3d5510f34",
+    "result": {
+      "created": true,
+      "doc_id": 2096,
+      "chunk_id": "class_routine_86a3d5510f34",
+      "embedding_generated": true,
+      "translation_performed": false,
+      "temporal_analysis_performed": true,
+      "metadata_extraction_success": true,
+      "image_text_extracted": false,
+      "context_added_date": "2026-10-15",
+      "context_added_time": "18:39:14",
+      "document": {
+        "doc_id": 2096,
+        "chunk_id": "class_routine_86a3d5510f34",
+        "content": "[context_added_date: 2026-10-15 | context_added_time: 18:39:14 BST]\nDoc Type: documents\nTopic: class routine\n\nMonday class Routine of CNPI - CST & Department (Day Shift), First Semester (Group A) (Session: 2026-27) is given below:\n- 1st Class (1:30 PM - 2:15 PM): Class: Bangla-I (25711) | Teacher: Md. Suman Ahammed (Junior Instructor (Non-Tech/English)). Room: N-414\n- 2nd Class (2:15 PM - 3:00 PM): Class: English-I (25712) | Teacher: Md. Suman Ahammed (Junior Instructor (Non-Tech/English)). Room: N-414\n- 3rd Class (3:00 PM - 3:45 PM): Class: Basic Electricity (26711) | Teacher: Md. Mamun Alam (Junior Instructor (Tech/ET)). Room: S-419\n- 4th Class (3:45 PM - 4:30 PM): Class: Mathematics -I (25911) | Teacher: Md. Sohel Rana (Junior Instructor (Tech/RAC)). Room: S-418\n- 5th Class (4:30 PM - 5:15 PM): Class: Physics -I (25912) | Teacher: Md. Abdul Quader Zilani (Instructor (Non-Tech/Physics)). Room: Physics Lab (N-413)\n- 6th Class (5:15 PM - 6:00 PM): Class: Physics -I (25912) | Teacher: Md. Abdul Quader Zilani (Instructor (Non-Tech/Physics)). Room: Physics Lab (N-413)\n- 7th Class (6:00 PM - 6:45 PM): Not specified\n\nClass Teacher: Zahidul Islam (Jr. Instructor, Tech/CST)",
+        "doc_type": "documents",
+        "topic": "class routine",
+        "department": null,
+        "meta": {
+          "context_added_date": "2026-10-15",
+          "context_added_time": "18:39:14",
+          "translation_performed": false,
+          "metadata_extraction_success": true
+        },
+        "source_file": "class_routine_2nd_shift.json",
+        "created_at": "2026-10-15T12:39:17.400Z",
+        "updated_at": "2026-10-15T12:39:17.400Z"
+      },
+      "embedding_content": "class routine\n\nWhat is the Monday class routine for CNPI CST department first semester day shift Group A?\nWho is the class teacher for CNPI CST department first semester day shift Group A?\nWhich room is assigned for the Bangla-I class for CNPI CST department first semester day shift Group A on Monday?\nWho teaches English-I for CNPI CST department first semester day shift Group A on Monday?\nWhat time does the Basic Electricity class start for CNPI CST department first semester day shift Group A on Monday?\nWhich teacher conducts the Mathematics -I class for CNPI CST department first semester day shift Group A on Monday?\nWhich room is used for the Physics -I class for CNPI CST department first semester day shift Group A on Monday?\nWhat is the session for the CNPI CST department first semester day shift Group A Monday class routine?",
+      "stored_content": "[context_added_date: 2026-10-15 | context_added_time: 18:39:14 BST]\nDoc Type: documents\nTopic: class routine\n\nMonday class Routine of CNPI - CST & Department (Day Shift), First Semester (Group A) (Session: 2026-27) is given below:\n- 1st Class (1:30 PM - 2:15 PM): Class: Bangla-I (25711) | Teacher: Md. Suman Ahammed (Junior Instructor (Non-Tech/English)). Room: N-414\n- 2nd Class (2:15 PM - 3:00 PM): Class: English-I (25712) | Teacher: Md. Suman Ahammed (Junior Instructor (Non-Tech/English)). Room: N-414\n- 3rd Class (3:00 PM - 3:45 PM): Class: Basic Electricity (26711) | Teacher: Md. Mamun Alam (Junior Instructor (Tech/ET)). Room: S-419\n- 4th Class (3:45 PM - 4:30 PM): Class: Mathematics -I (25911) | Teacher: Md. Sohel Rana (Junior Instructor (Tech/RAC)). Room: S-418\n- 5th Class (4:30 PM - 5:15 PM): Class: Physics -I (25912) | Teacher: Md. Abdul Quader Zilani (Instructor (Non-Tech/Physics)). Room: Physics Lab (N-413)\n- 6th Class (5:15 PM - 6:00 PM): Class: Physics -I (25912) | Teacher: Md. Abdul Quader Zilani (Instructor (Non-Tech/Physics)). Room: Physics Lab (N-413)\n- 7th Class (6:00 PM - 6:45 PM): Not specified\n\nClass Teacher: Zahidul Islam (Jr. Instructor, Tech/CST)",
+      "added_to_priority": false,
+      "temporal_analysis": {
+        "notice_date": "2026-10-15",
+        "notice_day": "Thursday",
+        "temporal_type": "TIME_INDEPENDENT",
+        "valid_from": null,
+        "valid_until": null,
+        "events": [],
+        "expiration_date": null
+      }
+    }
+  },
+  {
+    "index": 87,
+    "chunk_id": "class_routine_f4ddef96f8e7",
+    "result": {
+      "created": true,
+      "doc_id": 2098,
+      "chunk_id": "class_routine_f4ddef96f8e7",
+      "embedding_generated": true,
+      "translation_performed": false,
+      "temporal_analysis_performed": true,
+      "metadata_extraction_success": true,
+      "image_text_extracted": false,
+      "context_added_date": "2026-10-15",
+      "context_added_time": "18:39:34",
+      "document": {
+        "doc_id": 2098,
+        "chunk_id": "class_routine_f4ddef96f8e7",
+        "content": "[context_added_date: 2026-10-15 | context_added_time: 18:39:34 BST]\nDoc Type: documents\nTopic: class routine\n\nTuesday class Routine of CNPI - CST & Department (Day Shift), First Semester (Group A) (Session: 2026-27) is given below:\n- 1st Class (1:30 PM - 2:15 PM): Class: Engineering Drawing (21011) | Teacher: Zahidul Islam (Jr. Instructor (Tech/CST)). Room: Drafting Lab\n- 2nd Class (2:15 PM - 3:00 PM): Class: Engineering Drawing (21011) | Teacher: Zahidul Islam (Jr. Instructor (Tech/CST)). Room: Drafting Lab\n- 3rd Class (3:00 PM - 3:45 PM): Class: Physics -I (25912) | Teacher: Md. Abdul Quader Zilani (Instructor (Non-Tech/Physics)). Room: N-414\n- 4th Class (3:45 PM - 4:30 PM): Class: Mathematics -I (25911) | Teacher: Md. Sohel Rana (Junior Instructor (Tech/RAC)). Room: N-414\n- 5th Class (4:30 PM - 5:15 PM): Class: Basic Electricity (26711) | Teacher: Md. Mamun Alam (Junior Instructor (Tech/ET)). Room: N-414\n- 6th Class (5:15 PM - 6:00 PM): Not specified\n- 7th Class (6:00 PM - 6:45 PM): Not specified\n\nClass Teacher: Zahidul Islam (Jr. Instructor, Tech/CST)",
+        "doc_type": "documents",
+        "topic": "class routine",
+        "department": null,
+        "meta": {
+          "context_added_date": "2026-10-15",
+          "context_added_time": "18:39:34",
+          "translation_performed": false,
+          "metadata_extraction_success": true
+        },
+        "source_file": "class_routine_2nd_shift.json",
+        "created_at": "2026-10-15T12:39:37.756Z",
+        "updated_at": "2026-10-15T12:39:37.756Z"
+      },
+      "embedding_content": "class routine\n\nWhat is the Tuesday class routine for CNPI CST department first semester day shift group A?\nWho is the class teacher for CNPI CST department first semester day shift group A?\nWhat subject is taught during the 1st class on Tuesday for CNPI CST department first semester day shift group A?\nWho teaches Engineering Drawing for CNPI CST department first semester day shift group A on Tuesday?\nWhich room is assigned for the Physics -I class for CNPI CST department first semester day shift group A on Tuesday?\nWhat time does the Basic Electricity class start for CNPI CST department first semester day shift group A on Tuesday?\nWho is the instructor for the Mathematics -I class for CNPI CST department first semester day shift group A on Tuesday?\nWhat academic session does the Tuesday class routine belong to for CNPI CST department first semester day shift group A?",
+      "stored_content": "[context_added_date: 2026-10-15 | context_added_time: 18:39:34 BST]\nDoc Type: documents\nTopic: class routine\n\nTuesday class Routine of CNPI - CST & Department (Day Shift), First Semester (Group A) (Session: 2026-27) is given below:\n- 1st Class (1:30 PM - 2:15 PM): Class: Engineering Drawing (21011) | Teacher: Zahidul Islam (Jr. Instructor (Tech/CST)). Room: Drafting Lab\n- 2nd Class (2:15 PM - 3:00 PM): Class: Engineering Drawing (21011) | Teacher: Zahidul Islam (Jr. Instructor (Tech/CST)). Room: Drafting Lab\n- 3rd Class (3:00 PM - 3:45 PM): Class: Physics -I (25912) | Teacher: Md. Abdul Quader Zilani (Instructor (Non-Tech/Physics)). Room: N-414\n- 4th Class (3:45 PM - 4:30 PM): Class: Mathematics -I (25911) | Teacher: Md. Sohel Rana (Junior Instructor (Tech/RAC)). Room: N-414\n- 5th Class (4:30 PM - 5:15 PM): Class: Basic Electricity (26711) | Teacher: Md. Mamun Alam (Junior Instructor (Tech/ET)). Room: N-414\n- 6th Class (5:15 PM - 6:00 PM): Not specified\n- 7th Class (6:00 PM - 6:45 PM): Not specified\n\nClass Teacher: Zahidul Islam (Jr. Instructor, Tech/CST)",
+      "added_to_priority": false,
+      "temporal_analysis": {
+        "notice_date": "2026-10-15",
+        "notice_day": "Thursday",
+        "temporal_type": "TIME_INDEPENDENT",
+        "valid_from": null,
+        "valid_until": null,
+        "events": [],
+        "expiration_date": null
+      }
+    }
+  },
+  {
+    "index": 88,
+    "chunk_id": "class_routine_83dbb4aed825",
+    "result": {
+      "created": true,
+      "doc_id": 2100,
+      "chunk_id": "class_routine_83dbb4aed825",
+      "embedding_generated": true,
+      "translation_performed": false,
+      "temporal_analysis_performed": true,
+      "metadata_extraction_success": true,
+      "image_text_extracted": false,
+      "context_added_date": "2026-10-15",
+      "context_added_time": "18:39:55",
+      "document": {
+        "doc_id": 2100,
+        "chunk_id": "class_routine_83dbb4aed825",
+        "content": "[context_added_date: 2026-10-15 | context_added_time: 18:39:55 BST]\nDoc Type: documents\nTopic: class routine\n\nWednesday class Routine of CNPI - CST & Department (Day Shift), First Semester (Group A) (Session: 2026-27) is given below:\n- 1st Class (1:30 PM - 2:15 PM): Class: Bangla-I (25711) | Teacher: Md. Suman Ahammed (Junior Instructor (Non-Tech/English)). Room: N-414\n- 2nd Class (2:15 PM - 3:00 PM): Class: Physics -I (25912) | Teacher: Md. Abdul Quader Zilani (Instructor (Non-Tech/Physics)). Room: S-419\n- 3rd Class (3:00 PM - 3:45 PM): Class: CST Office Application (28511) | Teacher: Md. Kausar Ali (Jr. Instructor (Tech/CST)). Room: Software Lab (S-420)\n- 4th Class (3:45 PM - 4:30 PM): Class: CST Office Application (28511) | Teacher: Md. Kausar Ali (Jr. Instructor (Tech/CST)). Room: Software Lab (S-420)\n- 5th Class (4:30 PM - 5:15 PM): Class: English-I (25712) | Teacher: Md. Suman Ahammed (Junior Instructor (Non-Tech/English)). Room: S-418\n- 6th Class (5:15 PM - 6:00 PM): Not specified\n- 7th Class (6:00 PM - 6:45 PM): Not specified\n\nClass Teacher: Zahidul Islam (Jr. Instructor, Tech/CST)",
+        "doc_type": "documents",
+        "topic": "class routine",
+        "department": null,
+        "meta": {
+          "context_added_date": "2026-10-15",
+          "context_added_time": "18:39:55",
+          "translation_performed": false,
+          "metadata_extraction_success": true
+        },
+        "source_file": "class_routine_2nd_shift.json",
+        "created_at": "2026-10-15T12:39:59.101Z",
+        "updated_at": "2026-10-15T12:39:59.101Z"
+      },
+      "embedding_content": "class routine\n\nWhat is the Wednesday class routine for CNPI CST department day shift first semester Group A?\nWho is the class teacher for CNPI CST department day shift first semester Group A?\nWhat subject is taught during the 1st class on Wednesday for CNPI CST department day shift first semester Group A?\nWho teaches Bangla-I for CNPI CST department day shift first semester Group A on Wednesday?\nWhich room is assigned for the Physics -I class for CNPI CST department day shift first semester Group A on Wednesday?\nWhat time does the CST Office Application class start for CNPI CST department day shift first semester Group A on Wednesday?\nWho conducts the English-I class for CNPI CST department day shift first semester Group A on Wednesday?\nWhat session does the Wednesday class routine belong to for CNPI CST department day shift first semester Group A?",
+      "stored_content": "[context_added_date: 2026-10-15 | context_added_time: 18:39:55 BST]\nDoc Type: documents\nTopic: class routine\n\nWednesday class Routine of CNPI - CST & Department (Day Shift), First Semester (Group A) (Session: 2026-27) is given below:\n- 1st Class (1:30 PM - 2:15 PM): Class: Bangla-I (25711) | Teacher: Md. Suman Ahammed (Junior Instructor (Non-Tech/English)). Room: N-414\n- 2nd Class (2:15 PM - 3:00 PM): Class: Physics -I (25912) | Teacher: Md. Abdul Quader Zilani (Instructor (Non-Tech/Physics)). Room: S-419\n- 3rd Class (3:00 PM - 3:45 PM): Class: CST Office Application (28511) | Teacher: Md. Kausar Ali (Jr. Instructor (Tech/CST)). Room: Software Lab (S-420)\n- 4th Class (3:45 PM - 4:30 PM): Class: CST Office Application (28511) | Teacher: Md. Kausar Ali (Jr. Instructor (Tech/CST)). Room: Software Lab (S-420)\n- 5th Class (4:30 PM - 5:15 PM): Class: English-I (25712) | Teacher: Md. Suman Ahammed (Junior Instructor (Non-Tech/English)). Room: S-418\n- 6th Class (5:15 PM - 6:00 PM): Not specified\n- 7th Class (6:00 PM - 6:45 PM): Not specified\n\nClass Teacher: Zahidul Islam (Jr. Instructor, Tech/CST)",
+      "added_to_priority": false,
+      "temporal_analysis": {
+        "notice_date": "2026-10-15",
+        "notice_day": "Thursday",
+        "temporal_type": "TIME_INDEPENDENT",
+        "valid_from": null,
+        "valid_until": null,
+        "events": [],
+        "expiration_date": null
+      }
+    }
+  },
+  {
+    "index": 89,
+    "chunk_id": "class_routine_429b95866752",
+    "result": {
+      "created": true,
+      "doc_id": 2102,
+      "chunk_id": "class_routine_429b95866752",
+      "embedding_generated": true,
+      "translation_performed": false,
+      "temporal_analysis_performed": true,
+      "metadata_extraction_success": true,
+      "image_text_extracted": false,
+      "context_added_date": "2026-10-15",
+      "context_added_time": "18:40:19",
+      "document": {
+        "doc_id": 2102,
+        "chunk_id": "class_routine_429b95866752",
+        "content": "[context_added_date: 2026-10-15 | context_added_time: 18:40:19 BST]\nDoc Type: documents\nTopic: class routine\n\nThursday class Routine of CNPI - CST & Department (Day Shift), First Semester (Group A) (Session: 2026-27) is given below:\n- 1st Class (1:30 PM - 2:15 PM): Class: Basic Electricity (26711) | Teacher: Md. Mamun Alam (Junior Instructor (Tech/ET)). Room: EWM (S-314)\n- 2nd Class (2:15 PM - 3:00 PM): Class: Basic Electricity (26711) | Teacher: Md. Mamun Alam (Junior Instructor (Tech/ET)). Room: EWM (S-314)\n- 3rd Class (3:00 PM - 3:45 PM): Class: Mathematics -I (25911) | Teacher: Md. Sohel Rana (Junior Instructor (Tech/RAC)). Room: S-419\n- 4th Class (3:45 PM - 4:30 PM): Class: Mathematics -I (25911) | Teacher: Md. Sohel Rana (Junior Instructor (Tech/RAC)). Room: S-419\n- 5th Class (4:30 PM - 5:15 PM): Not specified\n- 6th Class (5:15 PM - 6:00 PM): Not specified\n- 7th Class (6:00 PM - 6:45 PM): Not specified\n\nClass Teacher: Zahidul Islam (Jr. Instructor, Tech/CST)",
+        "doc_type": "documents",
+        "topic": "class routine",
+        "department": null,
+        "meta": {
+          "context_added_date": "2026-10-15",
+          "context_added_time": "18:40:19",
+          "translation_performed": false,
+          "metadata_extraction_success": true
+        },
+        "source_file": "class_routine_2nd_shift.json",
+        "created_at": "2026-10-15T12:40:26.665Z",
+        "updated_at": "2026-10-15T12:40:26.665Z"
+      },
+      "embedding_content": "class routine\n\nWhat is the Thursday class routine for CNPI CST department first semester day shift Group A?\nWho is the class teacher for CNPI CST department first semester day shift Group A?\nWhat subjects are taught on Thursday for CNPI CST department first semester day shift Group A?\nWhich room is assigned for the Basic Electricity class on Thursday for CNPI CST department first semester day shift Group A?\nWho teaches Basic Electricity for CNPI CST department first semester day shift Group A on Thursday?\nWho teaches Mathematics -I for CNPI CST department first semester day shift Group A on Thursday?\nWhat time does the 1st class start on Thursday for CNPI CST department first semester day shift Group A?\nWhat session does the Thursday class routine belong to for CNPI CST department first semester day shift Group A?",
+      "stored_content": "[context_added_date: 2026-10-15 | context_added_time: 18:40:19 BST]\nDoc Type: documents\nTopic: class routine\n\nThursday class Routine of CNPI - CST & Department (Day Shift), First Semester (Group A) (Session: 2026-27) is given below:\n- 1st Class (1:30 PM - 2:15 PM): Class: Basic Electricity (26711) | Teacher: Md. Mamun Alam (Junior Instructor (Tech/ET)). Room: EWM (S-314)\n- 2nd Class (2:15 PM - 3:00 PM): Class: Basic Electricity (26711) | Teacher: Md. Mamun Alam (Junior Instructor (Tech/ET)). Room: EWM (S-314)\n- 3rd Class (3:00 PM - 3:45 PM): Class: Mathematics -I (25911) | Teacher: Md. Sohel Rana (Junior Instructor (Tech/RAC)). Room: S-419\n- 4th Class (3:45 PM - 4:30 PM): Class: Mathematics -I (25911) | Teacher: Md. Sohel Rana (Junior Instructor (Tech/RAC)). Room: S-419\n- 5th Class (4:30 PM - 5:15 PM): Not specified\n- 6th Class (5:15 PM - 6:00 PM): Not specified\n- 7th Class (6:00 PM - 6:45 PM): Not specified\n\nClass Teacher: Zahidul Islam (Jr. Instructor, Tech/CST)",
+      "added_to_priority": false,
+      "temporal_analysis": {
+        "notice_date": "2026-10-15",
+        "notice_day": "Thursday",
+        "temporal_type": "TIME_SPECIFIC",
+        "valid_from": "2026-10-15",
+        "valid_until": "2026-10-15",
+        "events": [
+          {
+            "event": "1st Class: Basic Electricity (26711)",
+            "condition": null,
+            "event_from": "2026-10-15T13:30:00",
+            "event_until": "2026-10-15T14:15:00"
+          },
+          {
+            "event": "2nd Class: Basic Electricity (26711)",
+            "condition": null,
+            "event_from": "2026-10-15T14:15:00",
+            "event_until": "2026-10-15T15:00:00"
+          },
+          {
+            "event": "3rd Class: Mathematics -I (25911)",
+            "condition": null,
+            "event_from": "2026-10-15T15:00:00",
+            "event_until": "2026-10-15T15:45:00"
+          },
+          {
+            "event": "4th Class: Mathematics -I (25911)",
+            "condition": null,
+            "event_from": "2026-10-15T15:45:00",
+            "event_until": "2026-10-15T16:30:00"
+          }
+        ],
+        "expiration_date": "2026-10-15"
+      }
+    }
+  },
+  {
+    "index": 90,
+    "chunk_id": "class_routine_82d9679ec823",
+    "result": {
+      "created": true,
+      "doc_id": 2104,
+      "chunk_id": "class_routine_82d9679ec823",
+      "embedding_generated": true,
+      "translation_performed": false,
+      "temporal_analysis_performed": true,
+      "metadata_extraction_success": true,
+      "image_text_extracted": false,
+      "context_added_date": "2026-10-15",
+      "context_added_time": "18:40:44",
+      "document": {
+        "doc_id": 2104,
+        "chunk_id": "class_routine_82d9679ec823",
+        "content": "[context_added_date: 2026-10-15 | context_added_time: 18:40:44 BST]\nDoc Type: documents\nTopic: class routine\n\nSunday class Routine of CNPI - CST & Department (Day Shift), First Semester (Group B) (Session: 2026-27) is given below:\n- 1st Class (1:30 PM - 2:15 PM): Class: Mathematics -I (25911) | Teacher: Mahabubul Alam (Junior Instructor (Non-Tech/Mathematics)). Room: S-419\n- 2nd Class (2:15 PM - 3:00 PM): Class: Mathematics -I (25911) | Teacher: Mahabubul Alam (Junior Instructor (Non-Tech/Mathematics)). Room: S-419\n- 3rd Class (3:00 PM - 3:45 PM): Class: Basic Electricity (26711) | Teacher: Md. Mamun Alam (Junior Instructor (Tech/ET)). Room: N-414\n- 4th Class (3:45 PM - 4:30 PM): Class: English-I (25712) | Teacher: Md. Suman Ahammed (Junior Instructor (Non-Tech/English)). Room: N-414\n- 5th Class (4:30 PM - 5:15 PM): Class: Bangla-I (25711) | Teacher: Md. Suman Ahammed (Junior Instructor (Non-Tech/English)). Room: N-414\n- 6th Class (5:15 PM - 6:00 PM): Not specified\n- 7th Class (6:00 PM - 6:45 PM): Not specified\n\nClass Teacher: Md. Kausar Ali (Jr. Instructor, Tech/CST)",
+        "doc_type": "documents",
+        "topic": "class routine",
+        "department": null,
+        "meta": {
+          "context_added_date": "2026-10-15",
+          "context_added_time": "18:40:44",
+          "translation_performed": false,
+          "metadata_extraction_success": true
+        },
+        "source_file": "class_routine_2nd_shift.json",
+        "created_at": "2026-10-15T12:40:47.411Z",
+        "updated_at": "2026-10-15T12:40:47.411Z"
+      },
+      "embedding_content": "class routine\n\nWhat is the Sunday class routine for CNPI CST department day shift first semester group B?\nWho is the class teacher for CNPI CST department day shift first semester group B?\nWhat subject is taught during the 1st class on Sunday for CNPI CST department day shift first semester group B?\nWho teaches Mathematics -I for CNPI CST department day shift first semester group B on Sunday?\nWhich room is assigned for the Mathematics -I class for CNPI CST department day shift first semester group B on Sunday?\nWhat time does the Basic Electricity class start for CNPI CST department day shift first semester group B on Sunday?\nWho teaches Basic Electricity for CNPI CST department day shift first semester group B on Sunday?\nWhich teacher conducts the English-I and Bangla-I classes for CNPI CST department day shift first semester group B on Sunday?\nWhat room is used for the English-I class for CNPI CST department day shift first semester group B on Sunday?\nWhich academic session does the Sunday class routine belong to for CNPI CST department day shift first semester group B?",
+      "stored_content": "[context_added_date: 2026-10-15 | context_added_time: 18:40:44 BST]\nDoc Type: documents\nTopic: class routine\n\nSunday class Routine of CNPI - CST & Department (Day Shift), First Semester (Group B) (Session: 2026-27) is given below:\n- 1st Class (1:30 PM - 2:15 PM): Class: Mathematics -I (25911) | Teacher: Mahabubul Alam (Junior Instructor (Non-Tech/Mathematics)). Room: S-419\n- 2nd Class (2:15 PM - 3:00 PM): Class: Mathematics -I (25911) | Teacher: Mahabubul Alam (Junior Instructor (Non-Tech/Mathematics)). Room: S-419\n- 3rd Class (3:00 PM - 3:45 PM): Class: Basic Electricity (26711) | Teacher: Md. Mamun Alam (Junior Instructor (Tech/ET)). Room: N-414\n- 4th Class (3:45 PM - 4:30 PM): Class: English-I (25712) | Teacher: Md. Suman Ahammed (Junior Instructor (Non-Tech/English)). Room: N-414\n- 5th Class (4:30 PM - 5:15 PM): Class: Bangla-I (25711) | Teacher: Md. Suman Ahammed (Junior Instructor (Non-Tech/English)). Room: N-414\n- 6th Class (5:15 PM - 6:00 PM): Not specified\n- 7th Class (6:00 PM - 6:45 PM): Not specified\n\nClass Teacher: Md. Kausar Ali (Jr. Instructor, Tech/CST)",
+      "added_to_priority": false,
+      "temporal_analysis": {
+        "notice_date": "2026-10-15",
+        "notice_day": "Thursday",
+        "temporal_type": "TIME_INDEPENDENT",
+        "valid_from": null,
+        "valid_until": null,
+        "events": [],
+        "expiration_date": null
+      }
+    }
+  },
+  {
+    "index": 91,
+    "chunk_id": "class_routine_4d1b12efe75b",
+    "result": {
+      "created": true,
+      "doc_id": 2106,
+      "chunk_id": "class_routine_4d1b12efe75b",
+      "embedding_generated": true,
+      "translation_performed": false,
+      "temporal_analysis_performed": true,
+      "metadata_extraction_success": true,
+      "image_text_extracted": false,
+      "context_added_date": "2026-10-15",
+      "context_added_time": "18:41:05",
+      "document": {
+        "doc_id": 2106,
+        "chunk_id": "class_routine_4d1b12efe75b",
+        "content": "[context_added_date: 2026-10-15 | context_added_time: 18:41:05 BST]\nDoc Type: documents\nTopic: class routine\n\nMonday class Routine of CNPI - CST & Department (Day Shift), First Semester (Group B) (Session: 2026-27) is given below:\n- 1st Class (1:30 PM - 2:15 PM): Class: Engineering Drawing (21011) | Teacher: Zahidul Islam (Jr. Instructor (Tech/CST)). Room: Drafting Lab\n- 2nd Class (2:15 PM - 3:00 PM): Class: Engineering Drawing (21011) | Teacher: Zahidul Islam (Jr. Instructor (Tech/CST)). Room: Drafting Lab\n- 3rd Class (3:00 PM - 3:45 PM): Class: Physics -I (25912) | Teacher: Anarul Islam (Junior Instructor (Non-Tech/Chemistry)). Room: S-418\n- 4th Class (3:45 PM - 4:30 PM): Class: Mathematics -I (25911) | Teacher: Mahabubul Alam (Junior Instructor (Non-Tech/Mathematics)). Room: S-419\n- 5th Class (4:30 PM - 5:15 PM): Class: CST Office Application (28511) | Teacher: Md. Kausar Ali (Jr. Instructor (Tech/CST)). Room: Software Lab (S-420)\n- 6th Class (5:15 PM - 6:00 PM): Class: CST Office Application (28511) | Teacher: Md. Kausar Ali (Jr. Instructor (Tech/CST)). Room: Software Lab (S-420)\n- 7th Class (6:00 PM - 6:45 PM): Not specified\n\nClass Teacher: Md. Kausar Ali (Jr. Instructor, Tech/CST)",
+        "doc_type": "documents",
+        "topic": "class routine",
+        "department": null,
+        "meta": {
+          "context_added_date": "2026-10-15",
+          "context_added_time": "18:41:05",
+          "translation_performed": false,
+          "metadata_extraction_success": true
+        },
+        "source_file": "class_routine_2nd_shift.json",
+        "created_at": "2026-10-15T12:41:08.774Z",
+        "updated_at": "2026-10-15T12:41:08.774Z"
+      },
+      "embedding_content": "class routine\n\nWhat is the Monday class routine for CNPI CST department first semester day shift group B?\nWho is the class teacher for CNPI CST department first semester day shift group B?\nWhat time does the Engineering Drawing class start on Monday for CNPI CST department first semester day shift group B?\nWhich teacher conducts the Physics -I class on Monday for CNPI CST department first semester day shift group B?\nWhich room is assigned for the Physics -I class on Monday for CNPI CST department first semester day shift group B?\nWhat subject is taught during the 4th class on Monday for CNPI CST department first semester day shift group B?\nWho teaches CST Office Application on Monday for CNPI CST department first semester day shift group B?\nWhich room is used for the CST Office Application class on Monday for CNPI CST department first semester day shift group B?\nWhat session does the Monday class routine belong to for CNPI CST department first semester day shift group B?",
+      "stored_content": "[context_added_date: 2026-10-15 | context_added_time: 18:41:05 BST]\nDoc Type: documents\nTopic: class routine\n\nMonday class Routine of CNPI - CST & Department (Day Shift), First Semester (Group B) (Session: 2026-27) is given below:\n- 1st Class (1:30 PM - 2:15 PM): Class: Engineering Drawing (21011) | Teacher: Zahidul Islam (Jr. Instructor (Tech/CST)). Room: Drafting Lab\n- 2nd Class (2:15 PM - 3:00 PM): Class: Engineering Drawing (21011) | Teacher: Zahidul Islam (Jr. Instructor (Tech/CST)). Room: Drafting Lab\n- 3rd Class (3:00 PM - 3:45 PM): Class: Physics -I (25912) | Teacher: Anarul Islam (Junior Instructor (Non-Tech/Chemistry)). Room: S-418\n- 4th Class (3:45 PM - 4:30 PM): Class: Mathematics -I (25911) | Teacher: Mahabubul Alam (Junior Instructor (Non-Tech/Mathematics)). Room: S-419\n- 5th Class (4:30 PM - 5:15 PM): Class: CST Office Application (28511) | Teacher: Md. Kausar Ali (Jr. Instructor (Tech/CST)). Room: Software Lab (S-420)\n- 6th Class (5:15 PM - 6:00 PM): Class: CST Office Application (28511) | Teacher: Md. Kausar Ali (Jr. Instructor (Tech/CST)). Room: Software Lab (S-420)\n- 7th Class (6:00 PM - 6:45 PM): Not specified\n\nClass Teacher: Md. Kausar Ali (Jr. Instructor, Tech/CST)",
+      "added_to_priority": false,
+      "temporal_analysis": {
+        "notice_date": "2026-10-15",
+        "notice_day": "Thursday",
+        "temporal_type": "TIME_INDEPENDENT",
+        "valid_from": null,
+        "valid_until": null,
+        "events": [],
+        "expiration_date": null
+      }
+    }
+  },
+  {
+    "index": 92,
+    "chunk_id": "class_routine_a6d8a7ed171a",
+    "result": {
+      "created": true,
+      "doc_id": 2108,
+      "chunk_id": "class_routine_a6d8a7ed171a",
+      "embedding_generated": true,
+      "translation_performed": false,
+      "temporal_analysis_performed": true,
+      "metadata_extraction_success": true,
+      "image_text_extracted": false,
+      "context_added_date": "2026-10-15",
+      "context_added_time": "18:41:35",
+      "document": {
+        "doc_id": 2108,
+        "chunk_id": "class_routine_a6d8a7ed171a",
+        "content": "[context_added_date: 2026-10-15 | context_added_time: 18:41:35 BST]\nDoc Type: documents\nTopic: class routine\n\nTuesday class Routine of CNPI - CST & Department (Day Shift), First Semester (Group B) (Session: 2026-27) is given below:\n- 1st Class (1:30 PM - 2:15 PM): Class: Physics -I (25912) | Teacher: Anarul Islam (Junior Instructor (Non-Tech/Chemistry)). Room: Physics Lab (N-413)\n- 2nd Class (2:15 PM - 3:00 PM): Class: Physics -I (25912) | Teacher: Anarul Islam (Junior Instructor (Non-Tech/Chemistry)). Room: Physics Lab (N-413)\n- 3rd Class (3:00 PM - 3:45 PM): Class: CST Office Application (28511) | Teacher: Md. Kausar Ali (Jr. Instructor (Tech/CST)). Room: Software Lab (S-420)\n- 4th Class (3:45 PM - 4:30 PM): Class: CST Office Application (28511) | Teacher: Md. Kausar Ali (Jr. Instructor (Tech/CST)). Room: Software Lab (S-420)\n- 5th Class (4:30 PM - 5:15 PM): Class: Mathematics -I (25911) | Teacher: Mahabubul Alam (Junior Instructor (Non-Tech/Mathematics)). Room: S-419\n- 6th Class (5:15 PM - 6:00 PM): Class: Basic Electricity (26711) | Teacher: Md. Mamun Alam (Junior Instructor (Tech/ET)). Room: N-414\n- 7th Class (6:00 PM - 6:45 PM): Not specified\n\nClass Teacher: Md. Kausar Ali (Jr. Instructor, Tech/CST)",
+        "doc_type": "documents",
+        "topic": "class routine",
+        "department": null,
+        "meta": {
+          "context_added_date": "2026-10-15",
+          "context_added_time": "18:41:35",
+          "translation_performed": false,
+          "metadata_extraction_success": true
+        },
+        "source_file": "class_routine_2nd_shift.json",
+        "created_at": "2026-10-15T12:41:40.358Z",
+        "updated_at": "2026-10-15T12:41:40.358Z"
+      },
+      "embedding_content": "class routine\n\nWhat is the Tuesday class routine for CNPI CST department first semester day shift Group B?\nWho is the class teacher for CNPI CST department first semester day shift Group B?\nWhich teacher conducts the Physics-I class for CNPI CST department first semester day shift Group B on Tuesday?\nWhat time does the CST Office Application class start for CNPI CST department first semester day shift Group B on Tuesday?\nWhich room is assigned for the Mathematics-I class for CNPI CST department first semester day shift Group B on Tuesday?\nWho teaches Basic Electricity for CNPI CST department first semester day shift Group B on Tuesday?\nWhat session does the CNPI CST department first semester day shift Group B Tuesday class routine belong to?\nWhat subjects are scheduled for CNPI CST department first semester day shift Group B on Tuesday afternoon?",
+      "stored_content": "[context_added_date: 2026-10-15 | context_added_time: 18:41:35 BST]\nDoc Type: documents\nTopic: class routine\n\nTuesday class Routine of CNPI - CST & Department (Day Shift), First Semester (Group B) (Session: 2026-27) is given below:\n- 1st Class (1:30 PM - 2:15 PM): Class: Physics -I (25912) | Teacher: Anarul Islam (Junior Instructor (Non-Tech/Chemistry)). Room: Physics Lab (N-413)\n- 2nd Class (2:15 PM - 3:00 PM): Class: Physics -I (25912) | Teacher: Anarul Islam (Junior Instructor (Non-Tech/Chemistry)). Room: Physics Lab (N-413)\n- 3rd Class (3:00 PM - 3:45 PM): Class: CST Office Application (28511) | Teacher: Md. Kausar Ali (Jr. Instructor (Tech/CST)). Room: Software Lab (S-420)\n- 4th Class (3:45 PM - 4:30 PM): Class: CST Office Application (28511) | Teacher: Md. Kausar Ali (Jr. Instructor (Tech/CST)). Room: Software Lab (S-420)\n- 5th Class (4:30 PM - 5:15 PM): Class: Mathematics -I (25911) | Teacher: Mahabubul Alam (Junior Instructor (Non-Tech/Mathematics)). Room: S-419\n- 6th Class (5:15 PM - 6:00 PM): Class: Basic Electricity (26711) | Teacher: Md. Mamun Alam (Junior Instructor (Tech/ET)). Room: N-414\n- 7th Class (6:00 PM - 6:45 PM): Not specified\n\nClass Teacher: Md. Kausar Ali (Jr. Instructor, Tech/CST)",
+      "added_to_priority": false,
+      "temporal_analysis": {
+        "notice_date": "2026-10-15",
+        "notice_day": "Thursday",
+        "temporal_type": "TIME_INDEPENDENT",
+        "valid_from": null,
+        "valid_until": null,
+        "events": [],
+        "expiration_date": null
+      }
+    }
+  },
+  {
+    "index": 93,
+    "chunk_id": "class_routine_31295251777c",
+    "result": {
+      "created": true,
+      "doc_id": 2110,
+      "chunk_id": "class_routine_31295251777c",
+      "embedding_generated": true,
+      "translation_performed": false,
+      "temporal_analysis_performed": true,
+      "metadata_extraction_success": true,
+      "image_text_extracted": false,
+      "context_added_date": "2026-10-15",
+      "context_added_time": "18:41:58",
+      "document": {
+        "doc_id": 2110,
+        "chunk_id": "class_routine_31295251777c",
+        "content": "[context_added_date: 2026-10-15 | context_added_time: 18:41:58 BST]\nDoc Type: documents\nTopic: class routine\n\nWednesday class Routine of CNPI - CST & Department (Day Shift), First Semester (Group B) (Session: 2026-27) is given below:\n- 1st Class (1:30 PM - 2:15 PM): Class: Basic Electricity (26711) | Teacher: Md. Mamun Alam (Junior Instructor (Tech/ET)). Room: EWM (S-314)\n- 2nd Class (2:15 PM - 3:00 PM): Class: Basic Electricity (26711) | Teacher: Md. Mamun Alam (Junior Instructor (Tech/ET)). Room: EWM (S-314)\n- 3rd Class (3:00 PM - 3:45 PM): Class: English-I (25712) | Teacher: Md. Suman Ahammed (Junior Instructor (Non-Tech/English)). Room: N-414\n- 4th Class (3:45 PM - 4:30 PM): Class: Mathematics -I (25911) | Teacher: Mahabubul Alam (Junior Instructor (Non-Tech/Mathematics)). Room: N-415\n- 5th Class (4:30 PM - 5:15 PM): Class: Physics -I (25912) | Teacher: Anarul Islam (Junior Instructor (Non-Tech/Chemistry)). Room: N-415\n- 6th Class (5:15 PM - 6:00 PM): Not specified\n- 7th Class (6:00 PM - 6:45 PM): Not specified\n\nClass Teacher: Md. Kausar Ali (Jr. Instructor, Tech/CST)",
+        "doc_type": "documents",
+        "topic": "class routine",
+        "department": null,
+        "meta": {
+          "context_added_date": "2026-10-15",
+          "context_added_time": "18:41:58",
+          "translation_performed": false,
+          "metadata_extraction_success": true
+        },
+        "source_file": "class_routine_2nd_shift.json",
+        "created_at": "2026-10-15T12:42:02.316Z",
+        "updated_at": "2026-10-15T12:42:02.316Z"
+      },
+      "embedding_content": "class routine\n\nWhat is the Wednesday class routine for CNPI CST department day shift first semester Group B?\nWho is the class teacher for CNPI CST department day shift first semester Group B?\nWhat subject is taught during the 1st class on Wednesday for CNPI CST department day shift first semester Group B?\nWho teaches Basic Electricity for CNPI CST department day shift first semester Group B on Wednesday?\nWhich room is assigned for the Basic Electricity class for CNPI CST department day shift first semester Group B on Wednesday?\nWhat time does the English-I class start for CNPI CST department day shift first semester Group B on Wednesday?\nWho is the teacher for Mathematics -I for CNPI CST department day shift first semester Group B on Wednesday?\nWhich room is used for the Physics -I class for CNPI CST department day shift first semester Group B on Wednesday?\nWhat session does the Wednesday class routine belong to for CNPI CST department day shift first semester Group B?",
+      "stored_content": "[context_added_date: 2026-10-15 | context_added_time: 18:41:58 BST]\nDoc Type: documents\nTopic: class routine\n\nWednesday class Routine of CNPI - CST & Department (Day Shift), First Semester (Group B) (Session: 2026-27) is given below:\n- 1st Class (1:30 PM - 2:15 PM): Class: Basic Electricity (26711) | Teacher: Md. Mamun Alam (Junior Instructor (Tech/ET)). Room: EWM (S-314)\n- 2nd Class (2:15 PM - 3:00 PM): Class: Basic Electricity (26711) | Teacher: Md. Mamun Alam (Junior Instructor (Tech/ET)). Room: EWM (S-314)\n- 3rd Class (3:00 PM - 3:45 PM): Class: English-I (25712) | Teacher: Md. Suman Ahammed (Junior Instructor (Non-Tech/English)). Room: N-414\n- 4th Class (3:45 PM - 4:30 PM): Class: Mathematics -I (25911) | Teacher: Mahabubul Alam (Junior Instructor (Non-Tech/Mathematics)). Room: N-415\n- 5th Class (4:30 PM - 5:15 PM): Class: Physics -I (25912) | Teacher: Anarul Islam (Junior Instructor (Non-Tech/Chemistry)). Room: N-415\n- 6th Class (5:15 PM - 6:00 PM): Not specified\n- 7th Class (6:00 PM - 6:45 PM): Not specified\n\nClass Teacher: Md. Kausar Ali (Jr. Instructor, Tech/CST)",
+      "added_to_priority": false,
+      "temporal_analysis": {
+        "notice_date": "2026-10-15",
+        "notice_day": "Thursday",
+        "temporal_type": "TIME_INDEPENDENT",
+        "valid_from": null,
+        "valid_until": null,
+        "events": [],
+        "expiration_date": null
+      }
+    }
+  },
+  {
+    "index": 94,
+    "chunk_id": "class_routine_ba54a0707b56",
+    "result": {
+      "created": true,
+      "doc_id": 2112,
+      "chunk_id": "class_routine_ba54a0707b56",
+      "embedding_generated": true,
+      "translation_performed": false,
+      "temporal_analysis_performed": true,
+      "metadata_extraction_success": true,
+      "image_text_extracted": false,
+      "context_added_date": "2026-10-15",
+      "context_added_time": "18:42:35",
+      "document": {
+        "doc_id": 2112,
+        "chunk_id": "class_routine_ba54a0707b56",
+        "content": "[context_added_date: 2026-10-15 | context_added_time: 18:42:35 BST]\nDoc Type: documents\nTopic: class routine\n\nThursday class Routine of CNPI - CST & Department (Day Shift), First Semester (Group B) (Session: 2026-27) is given below:\n- 1st Class (1:30 PM - 2:15 PM): Not specified\n- 2nd Class (2:15 PM - 3:00 PM): Class: Physics -I (25912) | Teacher: Anarul Islam (Junior Instructor (Non-Tech/Chemistry)). Room: N-415\n- 3rd Class (3:00 PM - 3:45 PM): Class: Basic Electricity (26711) | Teacher: Md. Mamun Alam (Junior Instructor (Tech/ET)). Room: N-414\n- 4th Class (3:45 PM - 4:30 PM): Class: Bangla-I (25711) | Teacher: Md. Suman Ahammed (Junior Instructor (Non-Tech/English)). Room: N-414\n- 5th Class (4:30 PM - 5:15 PM): Class: Engineering Drawing (21011) | Teacher: Zahidul Islam (Jr. Instructor (Tech/CST)). Room: Drafting Lab\n- 6th Class (5:15 PM - 6:00 PM): Class: Engineering Drawing (21011) | Teacher: Zahidul Islam (Jr. Instructor (Tech/CST)). Room: Drafting Lab\n- 7th Class (6:00 PM - 6:45 PM): Not specified\n\nClass Teacher: Md. Kausar Ali (Jr. Instructor, Tech/CST)",
+        "doc_type": "documents",
+        "topic": "class routine",
+        "department": null,
+        "meta": {
+          "context_added_date": "2026-10-15",
+          "context_added_time": "18:42:35",
+          "translation_performed": false,
+          "metadata_extraction_success": true
+        },
+        "source_file": "class_routine_2nd_shift.json",
+        "created_at": "2026-10-15T12:42:39.099Z",
+        "updated_at": "2026-10-15T12:42:39.099Z"
+      },
+      "embedding_content": "class routine\n\nWhat is the Thursday class routine for CNPI CST department day shift first semester Group B?\nWho is the class teacher for CNPI CST department day shift first semester Group B?\nWhich teacher conducts the Physics-I class for CNPI CST department day shift first semester Group B on Thursday?\nWhat time is the Engineering Drawing class scheduled for CNPI CST department day shift first semester Group B on Thursday?\nWhich room is assigned for the Basic Electricity class for CNPI CST department day shift first semester Group B on Thursday?\nWhat session does the Thursday class routine belong to for CNPI CST department day shift first semester Group B?\nWho teaches Bangla-I for CNPI CST department day shift first semester Group B on Thursday?\nWhat subject is scheduled during the 3rd class on Thursday for CNPI CST department day shift first semester Group B?",
+      "stored_content": "[context_added_date: 2026-10-15 | context_added_time: 18:42:35 BST]\nDoc Type: documents\nTopic: class routine\n\nThursday class Routine of CNPI - CST & Department (Day Shift), First Semester (Group B) (Session: 2026-27) is given below:\n- 1st Class (1:30 PM - 2:15 PM): Not specified\n- 2nd Class (2:15 PM - 3:00 PM): Class: Physics -I (25912) | Teacher: Anarul Islam (Junior Instructor (Non-Tech/Chemistry)). Room: N-415\n- 3rd Class (3:00 PM - 3:45 PM): Class: Basic Electricity (26711) | Teacher: Md. Mamun Alam (Junior Instructor (Tech/ET)). Room: N-414\n- 4th Class (3:45 PM - 4:30 PM): Class: Bangla-I (25711) | Teacher: Md. Suman Ahammed (Junior Instructor (Non-Tech/English)). Room: N-414\n- 5th Class (4:30 PM - 5:15 PM): Class: Engineering Drawing (21011) | Teacher: Zahidul Islam (Jr. Instructor (Tech/CST)). Room: Drafting Lab\n- 6th Class (5:15 PM - 6:00 PM): Class: Engineering Drawing (21011) | Teacher: Zahidul Islam (Jr. Instructor (Tech/CST)). Room: Drafting Lab\n- 7th Class (6:00 PM - 6:45 PM): Not specified\n\nClass Teacher: Md. Kausar Ali (Jr. Instructor, Tech/CST)",
+      "added_to_priority": false,
+      "temporal_analysis": {
+        "notice_date": "2026-10-15",
+        "notice_day": "Thursday",
+        "temporal_type": "TIME_INDEPENDENT",
+        "valid_from": null,
+        "valid_until": null,
+        "events": [],
+        "expiration_date": null
+      }
+    }
+  },
+  {
+    "index": 95,
+    "chunk_id": "class_routine_271f454bfb54",
+    "result": {
+      "created": true,
+      "doc_id": 2114,
+      "chunk_id": "class_routine_271f454bfb54",
+      "embedding_generated": true,
+      "translation_performed": false,
+      "temporal_analysis_performed": true,
+      "metadata_extraction_success": true,
+      "image_text_extracted": false,
+      "context_added_date": "2026-10-15",
+      "context_added_time": "18:42:59",
+      "document": {
+        "doc_id": 2114,
+        "chunk_id": "class_routine_271f454bfb54",
+        "content": "[context_added_date: 2026-10-15 | context_added_time: 18:42:59 BST]\nDoc Type: documents\nTopic: class routine\n\nSunday class Routine of CNPI - CST & Department (Day Shift), Third Semester (Session: 2026-27) is given below:\n- 1st Class (1:30 PM - 2:15 PM): Class: IT Support Services (28533) | Teacher: Md. Jewel Rana (Instructor (Tech/CST)). Room: Hardware Lab (N-416)\n- 2nd Class (2:15 PM - 3:00 PM): Class: IT Support Services (28533) | Teacher: Md. Jewel Rana (Instructor (Tech/CST)). Room: Hardware Lab (N-416)\n- 3rd Class (3:00 PM - 3:45 PM): Class: CST Graphics Design-II (28532) | Teacher: Md. Kausar Ali (Jr. Instructor (Tech/CST)). Room: Network Lab (S-417)\n- 4th Class (3:45 PM - 4:30 PM): Class: CST Graphics Design-II (28532) | Teacher: Md. Kausar Ali (Jr. Instructor (Tech/CST)). Room: Network Lab (S-417)\n- 5th Class (4:30 PM - 5:15 PM): Class: Mathematics-III (25931) | Teacher: Md. Sohidul Islam (Instructor (Non-Tech/Chemistry)). Room: N-415\n- 6th Class (5:15 PM - 6:00 PM): Class: Digital ENT -I (26831) | Teacher: Md. Masud Rana (Junior Instructor (Tech/ENT)). Room: N-415\n- 7th Class (6:00 PM - 6:45 PM): Not specified\n\nClass Teacher: Md. Abdul Malek (CST) (Instructor, Tech/CST)",
+        "doc_type": "documents",
+        "topic": "class routine",
+        "department": null,
+        "meta": {
+          "context_added_date": "2026-10-15",
+          "context_added_time": "18:42:59",
+          "translation_performed": false,
+          "metadata_extraction_success": true
+        },
+        "source_file": "class_routine_2nd_shift.json",
+        "created_at": "2026-10-15T12:43:04.314Z",
+        "updated_at": "2026-10-15T12:43:04.314Z"
+      },
+      "embedding_content": "class routine\n\nWhat is the Sunday class routine for CNPI CST department third semester day shift?\nWho is the class teacher for CNPI CST department third semester day shift?\nWhich teacher conducts the IT Support Services class for CNPI CST department third semester day shift on Sunday?\nWhich room is assigned for the IT Support Services class for CNPI CST department third semester day shift on Sunday?\nWhat time does the Mathematics-III class start for CNPI CST department third semester day shift on Sunday?\nWho teaches CST Graphics Design-II for CNPI CST department third semester day shift on Sunday?\nWhich room is used for the Digital ENT -I class for CNPI CST department third semester day shift on Sunday?\nWhat session does the Sunday class routine for CNPI CST department third semester day shift belong to?",
+      "stored_content": "[context_added_date: 2026-10-15 | context_added_time: 18:42:59 BST]\nDoc Type: documents\nTopic: class routine\n\nSunday class Routine of CNPI - CST & Department (Day Shift), Third Semester (Session: 2026-27) is given below:\n- 1st Class (1:30 PM - 2:15 PM): Class: IT Support Services (28533) | Teacher: Md. Jewel Rana (Instructor (Tech/CST)). Room: Hardware Lab (N-416)\n- 2nd Class (2:15 PM - 3:00 PM): Class: IT Support Services (28533) | Teacher: Md. Jewel Rana (Instructor (Tech/CST)). Room: Hardware Lab (N-416)\n- 3rd Class (3:00 PM - 3:45 PM): Class: CST Graphics Design-II (28532) | Teacher: Md. Kausar Ali (Jr. Instructor (Tech/CST)). Room: Network Lab (S-417)\n- 4th Class (3:45 PM - 4:30 PM): Class: CST Graphics Design-II (28532) | Teacher: Md. Kausar Ali (Jr. Instructor (Tech/CST)). Room: Network Lab (S-417)\n- 5th Class (4:30 PM - 5:15 PM): Class: Mathematics-III (25931) | Teacher: Md. Sohidul Islam (Instructor (Non-Tech/Chemistry)). Room: N-415\n- 6th Class (5:15 PM - 6:00 PM): Class: Digital ENT -I (26831) | Teacher: Md. Masud Rana (Junior Instructor (Tech/ENT)). Room: N-415\n- 7th Class (6:00 PM - 6:45 PM): Not specified\n\nClass Teacher: Md. Abdul Malek (CST) (Instructor, Tech/CST)",
+      "added_to_priority": false,
+      "temporal_analysis": {
+        "notice_date": "2026-10-15",
+        "notice_day": "Thursday",
+        "temporal_type": "TIME_INDEPENDENT",
+        "valid_from": null,
+        "valid_until": null,
+        "events": [],
+        "expiration_date": null
+      }
+    }
+  },
+  {
+    "index": 96,
+    "chunk_id": "class_routine_025cf8b67561",
+    "result": {
+      "created": true,
+      "doc_id": 2116,
+      "chunk_id": "class_routine_025cf8b67561",
+      "embedding_generated": true,
+      "translation_performed": false,
+      "temporal_analysis_performed": true,
+      "metadata_extraction_success": true,
+      "image_text_extracted": false,
+      "context_added_date": "2026-10-15",
+      "context_added_time": "18:43:22",
+      "document": {
+        "doc_id": 2116,
+        "chunk_id": "class_routine_025cf8b67561",
+        "content": "[context_added_date: 2026-10-15 | context_added_time: 18:43:22 BST]\nDoc Type: documents\nTopic: class routine\n\nMonday class Routine of CNPI - CST & Department (Day Shift), Third Semester (Session: 2026-27) is given below:\n- 1st Class (1:30 PM - 2:15 PM): Class: Mathematics-III (25931) | Teacher: Md. Sohidul Islam (Instructor (Non-Tech/Chemistry)). Room: N-415\n- 2nd Class (2:15 PM - 3:00 PM): Class: IT Support Services (28533) | Teacher: Md. Jewel Rana (Instructor (Tech/CST)). Room: N-415\n- 3rd Class (3:00 PM - 3:45 PM): Class: Application Development Using Python (28531) | Teacher: Md. Abdul Malek (CST) (Instructor (Tech/CST)). Room: N-415\n- 4th Class (3:45 PM - 4:30 PM): Class: Physics-II (25922) | Teacher: Md. Abdul Quader Zilani (Instructor (Non-Tech/Physics)). Room: N-415\n- 5th Class (4:30 PM - 5:15 PM): Class: Social Science (25811) | Teacher: Md. Azizur Rahman (Instructor (Non-Tech/Accounting)). Room: N-415\n- 6th Class (5:15 PM - 6:00 PM): Not specified\n- 7th Class (6:00 PM - 6:45 PM): Not specified\n\nClass Teacher: Md. Abdul Malek (CST) (Instructor, Tech/CST)",
+        "doc_type": "documents",
+        "topic": "class routine",
+        "department": null,
+        "meta": {
+          "context_added_date": "2026-10-15",
+          "context_added_time": "18:43:22",
+          "translation_performed": false,
+          "metadata_extraction_success": true
+        },
+        "source_file": "class_routine_2nd_shift.json",
+        "created_at": "2026-10-15T12:43:29.845Z",
+        "updated_at": "2026-10-15T12:43:29.845Z"
+      },
+      "embedding_content": "class routine\n\nWhat is the Monday class routine for CNPI CST department third semester day shift?\nWho is the class teacher for CNPI CST department third semester day shift?\nWhich room is assigned for CNPI CST department third semester day shift classes on Monday?\nWhat time does the 1st class start on Monday for CNPI CST department third semester day shift?\nWho teaches Mathematics-III on Monday for CNPI CST department third semester day shift?\nWhat subject is taught during the 2nd class on Monday for CNPI CST department third semester day shift?\nWho teaches IT Support Services for CNPI CST department third semester day shift on Monday?\nWhat time is the Application Development Using Python class scheduled on Monday for CNPI CST department third semester day shift?\nWho teaches Physics-II for CNPI CST department third semester day shift on Monday?\nWhat time does the Social Science class end on Monday for CNPI CST department third semester day shift?\nWhich session does the Monday class routine belong to for CNPI CST department third semester day shift?",
+      "stored_content": "[context_added_date: 2026-10-15 | context_added_time: 18:43:22 BST]\nDoc Type: documents\nTopic: class routine\n\nMonday class Routine of CNPI - CST & Department (Day Shift), Third Semester (Session: 2026-27) is given below:\n- 1st Class (1:30 PM - 2:15 PM): Class: Mathematics-III (25931) | Teacher: Md. Sohidul Islam (Instructor (Non-Tech/Chemistry)). Room: N-415\n- 2nd Class (2:15 PM - 3:00 PM): Class: IT Support Services (28533) | Teacher: Md. Jewel Rana (Instructor (Tech/CST)). Room: N-415\n- 3rd Class (3:00 PM - 3:45 PM): Class: Application Development Using Python (28531) | Teacher: Md. Abdul Malek (CST) (Instructor (Tech/CST)). Room: N-415\n- 4th Class (3:45 PM - 4:30 PM): Class: Physics-II (25922) | Teacher: Md. Abdul Quader Zilani (Instructor (Non-Tech/Physics)). Room: N-415\n- 5th Class (4:30 PM - 5:15 PM): Class: Social Science (25811) | Teacher: Md. Azizur Rahman (Instructor (Non-Tech/Accounting)). Room: N-415\n- 6th Class (5:15 PM - 6:00 PM): Not specified\n- 7th Class (6:00 PM - 6:45 PM): Not specified\n\nClass Teacher: Md. Abdul Malek (CST) (Instructor, Tech/CST)",
+      "added_to_priority": false,
+      "temporal_analysis": {
+        "notice_date": "2026-10-15",
+        "notice_day": "Thursday",
+        "temporal_type": "TIME_INDEPENDENT",
+        "valid_from": null,
+        "valid_until": null,
+        "events": [],
+        "expiration_date": null
+      }
+    }
+  },
+  {
+    "index": 97,
+    "chunk_id": "class_routine_4d47eb15fe50",
+    "result": {
+      "created": true,
+      "doc_id": 2118,
+      "chunk_id": "class_routine_4d47eb15fe50",
+      "embedding_generated": true,
+      "translation_performed": false,
+      "temporal_analysis_performed": true,
+      "metadata_extraction_success": true,
+      "image_text_extracted": false,
+      "context_added_date": "2026-10-15",
+      "context_added_time": "18:43:47",
+      "document": {
+        "doc_id": 2118,
+        "chunk_id": "class_routine_4d47eb15fe50",
+        "content": "[context_added_date: 2026-10-15 | context_added_time: 18:43:47 BST]\nDoc Type: documents\nTopic: class routine\n\nTuesday class Routine of CNPI - CST & Department (Day Shift), Third Semester (Session: 2026-27) is given below:\n- 1st Class (1:30 PM - 2:15 PM): Class: Application Development Using Python (28531) | Teacher: Md. Abdul Malek (CST) (Instructor (Tech/CST)). Room: Software Lab (S-420)\n- 2nd Class (2:15 PM - 3:00 PM): Class: Application Development Using Python (28531) | Teacher: Md. Abdul Malek (CST) (Instructor (Tech/CST)). Room: Software Lab (S-420)\n- 3rd Class (3:00 PM - 3:45 PM): Class: Mathematics-III (25931) | Teacher: Md. Sohidul Islam (Instructor (Non-Tech/Chemistry)). Room: N-415\n- 4th Class (3:45 PM - 4:30 PM): Class: Physics-II (25922) | Teacher: Md. Abdul Quader Zilani (Instructor (Non-Tech/Physics)). Room: N-415\n- 5th Class (4:30 PM - 5:15 PM): Class: Digital ENT -I (26831) | Teacher: Md. Masud Rana (Junior Instructor (Tech/ENT)). Room: N-415\n- 6th Class (5:15 PM - 6:00 PM): Class: Social Science (25811) | Teacher: Md. Azizur Rahman (Instructor (Non-Tech/Accounting)). Room: N-415\n- 7th Class (6:00 PM - 6:45 PM): Not specified\n\nClass Teacher: Md. Abdul Malek (CST) (Instructor, Tech/CST)",
+        "doc_type": "documents",
+        "topic": "class routine",
+        "department": null,
+        "meta": {
+          "context_added_date": "2026-10-15",
+          "context_added_time": "18:43:47",
+          "translation_performed": false,
+          "metadata_extraction_success": true
+        },
+        "source_file": "class_routine_2nd_shift.json",
+        "created_at": "2026-10-15T12:43:51.063Z",
+        "updated_at": "2026-10-15T12:43:51.063Z"
+      },
+      "embedding_content": "class routine\n\nWhat is the Tuesday class routine for CNPI CST department day shift third semester?\nWho is the class teacher for CNPI CST department day shift third semester?\nWhat subject is taught during the 1st class on Tuesday for CNPI CST department day shift third semester?\nWho teaches Application Development Using Python for CNPI CST department day shift third semester on Tuesday?\nWhich room is assigned for CNPI CST department day shift third semester Tuesday Python classes?\nWhat time does the Mathematics-III class start on Tuesday for CNPI CST department day shift third semester?\nWho teaches Physics-II for CNPI CST department day shift third semester on Tuesday?\nWhich teacher conducts the Digital ENT -I class for CNPI CST department day shift third semester on Tuesday?\nWhat session does the Tuesday class routine belong to for CNPI CST department day shift third semester?",
+      "stored_content": "[context_added_date: 2026-10-15 | context_added_time: 18:43:47 BST]\nDoc Type: documents\nTopic: class routine\n\nTuesday class Routine of CNPI - CST & Department (Day Shift), Third Semester (Session: 2026-27) is given below:\n- 1st Class (1:30 PM - 2:15 PM): Class: Application Development Using Python (28531) | Teacher: Md. Abdul Malek (CST) (Instructor (Tech/CST)). Room: Software Lab (S-420)\n- 2nd Class (2:15 PM - 3:00 PM): Class: Application Development Using Python (28531) | Teacher: Md. Abdul Malek (CST) (Instructor (Tech/CST)). Room: Software Lab (S-420)\n- 3rd Class (3:00 PM - 3:45 PM): Class: Mathematics-III (25931) | Teacher: Md. Sohidul Islam (Instructor (Non-Tech/Chemistry)). Room: N-415\n- 4th Class (3:45 PM - 4:30 PM): Class: Physics-II (25922) | Teacher: Md. Abdul Quader Zilani (Instructor (Non-Tech/Physics)). Room: N-415\n- 5th Class (4:30 PM - 5:15 PM): Class: Digital ENT -I (26831) | Teacher: Md. Masud Rana (Junior Instructor (Tech/ENT)). Room: N-415\n- 6th Class (5:15 PM - 6:00 PM): Class: Social Science (25811) | Teacher: Md. Azizur Rahman (Instructor (Non-Tech/Accounting)). Room: N-415\n- 7th Class (6:00 PM - 6:45 PM): Not specified\n\nClass Teacher: Md. Abdul Malek (CST) (Instructor, Tech/CST)",
+      "added_to_priority": false,
+      "temporal_analysis": {
+        "notice_date": "2026-10-15",
+        "notice_day": "Thursday",
+        "temporal_type": "TIME_INDEPENDENT",
+        "valid_from": null,
+        "valid_until": null,
+        "events": [],
+        "expiration_date": null
+      }
+    }
+  },
+  {
+    "index": 98,
+    "chunk_id": "class_routine_1d87996e1db1",
+    "result": {
+      "created": true,
+      "doc_id": 2120,
+      "chunk_id": "class_routine_1d87996e1db1",
+      "embedding_generated": true,
+      "translation_performed": false,
+      "temporal_analysis_performed": true,
+      "metadata_extraction_success": true,
+      "image_text_extracted": false,
+      "context_added_date": "2026-10-15",
+      "context_added_time": "18:44:08",
+      "document": {
+        "doc_id": 2120,
+        "chunk_id": "class_routine_1d87996e1db1",
+        "content": "[context_added_date: 2026-10-15 | context_added_time: 18:44:08 BST]\nDoc Type: documents\nTopic: class routine\n\nWednesday class Routine of CNPI - CST & Department (Day Shift), Third Semester (Session: 2026-27) is given below:\n- 1st Class (1:30 PM - 2:15 PM): Class: Mathematics-III (25931) | Teacher: Md. Sohidul Islam (Instructor (Non-Tech/Chemistry)). Room: N-415\n- 2nd Class (2:15 PM - 3:00 PM): Class: Mathematics-III (25931) | Teacher: Md. Sohidul Islam (Instructor (Non-Tech/Chemistry)). Room: N-415\n- 3rd Class (3:00 PM - 3:45 PM): Class: IT Support Services (28533) | Teacher: Md. Jewel Rana (Instructor (Tech/CST)). Room: Hardware Lab (N-416)\n- 4th Class (3:45 PM - 4:30 PM): Class: IT Support Services (28533) | Teacher: Md. Jewel Rana (Instructor (Tech/CST)). Room: Hardware Lab (N-416)\n- 5th Class (4:30 PM - 5:15 PM): Class: Physics-II (25922) | Teacher: Md. Abdul Quader Zilani (Instructor (Non-Tech/Physics)). Room: Physics Lab (N-413)\n- 6th Class (5:15 PM - 6:00 PM): Class: Physics-II (25922) | Teacher: Md. Abdul Quader Zilani (Instructor (Non-Tech/Physics)). Room: Physics Lab (N-413)\n- 7th Class (6:00 PM - 6:45 PM): Not specified\n\nClass Teacher: Md. Abdul Malek (CST) (Instructor, Tech/CST)",
+        "doc_type": "documents",
+        "topic": "class routine",
+        "department": null,
+        "meta": {
+          "context_added_date": "2026-10-15",
+          "context_added_time": "18:44:08",
+          "translation_performed": false,
+          "metadata_extraction_success": true
+        },
+        "source_file": "class_routine_2nd_shift.json",
+        "created_at": "2026-10-15T12:44:11.515Z",
+        "updated_at": "2026-10-15T12:44:11.515Z"
+      },
+      "embedding_content": "class routine\n\nWhat is the Wednesday class routine for CNPI CST department third semester day shift?\nWho is the class teacher for CNPI CST department third semester day shift?\nWhich room is assigned for the Mathematics-III class for CNPI CST department third semester day shift on Wednesday?\nWho teaches Physics-II for CNPI CST department third semester day shift on Wednesday?\nWhat time does the IT Support Services class start for CNPI CST department third semester day shift on Wednesday?\nWhich teacher conducts the Mathematics-III class for CNPI CST department third semester day shift on Wednesday?\nWhat subject is taught during the 5th and 6th classes on Wednesday for CNPI CST department third semester day shift?\nWhat session does the CNPI CST department third semester day shift Wednesday class routine belong to?",
+      "stored_content": "[context_added_date: 2026-10-15 | context_added_time: 18:44:08 BST]\nDoc Type: documents\nTopic: class routine\n\nWednesday class Routine of CNPI - CST & Department (Day Shift), Third Semester (Session: 2026-27) is given below:\n- 1st Class (1:30 PM - 2:15 PM): Class: Mathematics-III (25931) | Teacher: Md. Sohidul Islam (Instructor (Non-Tech/Chemistry)). Room: N-415\n- 2nd Class (2:15 PM - 3:00 PM): Class: Mathematics-III (25931) | Teacher: Md. Sohidul Islam (Instructor (Non-Tech/Chemistry)). Room: N-415\n- 3rd Class (3:00 PM - 3:45 PM): Class: IT Support Services (28533) | Teacher: Md. Jewel Rana (Instructor (Tech/CST)). Room: Hardware Lab (N-416)\n- 4th Class (3:45 PM - 4:30 PM): Class: IT Support Services (28533) | Teacher: Md. Jewel Rana (Instructor (Tech/CST)). Room: Hardware Lab (N-416)\n- 5th Class (4:30 PM - 5:15 PM): Class: Physics-II (25922) | Teacher: Md. Abdul Quader Zilani (Instructor (Non-Tech/Physics)). Room: Physics Lab (N-413)\n- 6th Class (5:15 PM - 6:00 PM): Class: Physics-II (25922) | Teacher: Md. Abdul Quader Zilani (Instructor (Non-Tech/Physics)). Room: Physics Lab (N-413)\n- 7th Class (6:00 PM - 6:45 PM): Not specified\n\nClass Teacher: Md. Abdul Malek (CST) (Instructor, Tech/CST)",
+      "added_to_priority": false,
+      "temporal_analysis": {
+        "notice_date": "2026-10-15",
+        "notice_day": "Thursday",
+        "temporal_type": "TIME_INDEPENDENT",
+        "valid_from": null,
+        "valid_until": null,
+        "events": [],
+        "expiration_date": null
+      }
+    }
+  },
+  {
+    "index": 99,
+    "chunk_id": "class_routine_f35a707ccca7",
+    "result": {
+      "created": true,
+      "doc_id": 2122,
+      "chunk_id": "class_routine_f35a707ccca7",
+      "embedding_generated": true,
+      "translation_performed": false,
+      "temporal_analysis_performed": true,
+      "metadata_extraction_success": true,
+      "image_text_extracted": false,
+      "context_added_date": "2026-10-15",
+      "context_added_time": "18:44:29",
+      "document": {
+        "doc_id": 2122,
+        "chunk_id": "class_routine_f35a707ccca7",
+        "content": "[context_added_date: 2026-10-15 | context_added_time: 18:44:29 BST]\nDoc Type: documents\nTopic: class routine\n\nThursday class Routine of CNPI - CST & Department (Day Shift), Third Semester (Session: 2026-27) is given below:\n- 1st Class (1:30 PM - 2:15 PM): Class: Digital ENT -I (26831) | Teacher: Md. Masud Rana (Junior Instructor (Tech/ENT)). Room: Digital ENT Lab (N-313)\n- 2nd Class (2:15 PM - 3:00 PM): Class: Digital ENT -I (26831) | Teacher: Md. Masud Rana (Junior Instructor (Tech/ENT)). Room: Digital ENT Lab (N-313)\n- 3rd Class (3:00 PM - 3:45 PM): Class: IT Support Services (28533) | Teacher: Md. Jewel Rana (Instructor (Tech/CST)). Room: N-415\n- 4th Class (3:45 PM - 4:30 PM): Class: Application Development Using Python (28531) | Teacher: Md. Abdul Malek (CST) (Instructor (Tech/CST)). Room: N-415\n- 5th Class (4:30 PM - 5:15 PM): Class: Physics-II (25922) | Teacher: Md. Abdul Quader Zilani (Instructor (Non-Tech/Physics)). Room: N-415\n- 6th Class (5:15 PM - 6:00 PM): Not specified\n- 7th Class (6:00 PM - 6:45 PM): Not specified\n\nClass Teacher: Md. Abdul Malek (CST) (Instructor, Tech/CST)",
+        "doc_type": "documents",
+        "topic": "class routine",
+        "department": null,
+        "meta": {
+          "context_added_date": "2026-10-15",
+          "context_added_time": "18:44:29",
+          "translation_performed": false,
+          "metadata_extraction_success": true
+        },
+        "source_file": "class_routine_2nd_shift.json",
+        "created_at": "2026-10-15T12:44:33.769Z",
+        "updated_at": "2026-10-15T12:44:33.769Z"
+      },
+      "embedding_content": "class routine\n\nWhat is the Thursday class routine for CNPI CST & Department third semester day shift?\nWho is the class teacher for CNPI CST & Department third semester day shift?\nWhich room is assigned for the 1st class of CNPI CST & Department third semester day shift on Thursday?\nWhat subject is taught during the 3rd class on Thursday for CNPI CST & Department third semester day shift?\nWho teaches Application Development Using Python for CNPI CST & Department third semester day shift on Thursday?\nWhat time does the Physics-II class start on Thursday for CNPI CST & Department third semester day shift?\nWhich teacher conducts the Digital ENT -I class for CNPI CST & Department third semester day shift on Thursday?\nWhat academic session applies to the Thursday class routine for CNPI CST & Department third semester day shift?",
+      "stored_content": "[context_added_date: 2026-10-15 | context_added_time: 18:44:29 BST]\nDoc Type: documents\nTopic: class routine\n\nThursday class Routine of CNPI - CST & Department (Day Shift), Third Semester (Session: 2026-27) is given below:\n- 1st Class (1:30 PM - 2:15 PM): Class: Digital ENT -I (26831) | Teacher: Md. Masud Rana (Junior Instructor (Tech/ENT)). Room: Digital ENT Lab (N-313)\n- 2nd Class (2:15 PM - 3:00 PM): Class: Digital ENT -I (26831) | Teacher: Md. Masud Rana (Junior Instructor (Tech/ENT)). Room: Digital ENT Lab (N-313)\n- 3rd Class (3:00 PM - 3:45 PM): Class: IT Support Services (28533) | Teacher: Md. Jewel Rana (Instructor (Tech/CST)). Room: N-415\n- 4th Class (3:45 PM - 4:30 PM): Class: Application Development Using Python (28531) | Teacher: Md. Abdul Malek (CST) (Instructor (Tech/CST)). Room: N-415\n- 5th Class (4:30 PM - 5:15 PM): Class: Physics-II (25922) | Teacher: Md. Abdul Quader Zilani (Instructor (Non-Tech/Physics)). Room: N-415\n- 6th Class (5:15 PM - 6:00 PM): Not specified\n- 7th Class (6:00 PM - 6:45 PM): Not specified\n\nClass Teacher: Md. Abdul Malek (CST) (Instructor, Tech/CST)",
+      "added_to_priority": false,
+      "temporal_analysis": {
+        "notice_date": "2026-10-15",
+        "notice_day": "Thursday",
+        "temporal_type": "TIME_INDEPENDENT",
+        "valid_from": null,
+        "valid_until": null,
+        "events": [],
+        "expiration_date": null
+      }
+    }
+  },
+  {
+    "index": 100,
+    "chunk_id": "class_routine_cd2ecf704c90",
+    "result": {
+      "created": true,
+      "doc_id": 2123,
+      "chunk_id": "class_routine_cd2ecf704c90",
+      "embedding_generated": true,
+      "translation_performed": false,
+      "temporal_analysis_performed": true,
+      "metadata_extraction_success": true,
+      "image_text_extracted": false,
+      "context_added_date": "2026-10-15",
+      "context_added_time": "18:44:59",
+      "document": {
+        "doc_id": 2123,
+        "chunk_id": "class_routine_cd2ecf704c90",
+        "content": "[context_added_date: 2026-10-15 | context_added_time: 18:44:59 BST]\nDoc Type: documents\nTopic: class routine\n\nSunday class Routine of CNPI - CST & Department (Day Shift), Fourth Semester (Session: 2026-27) is given below:\n- 1st Class (1:30 PM - 2:15 PM): Class: Web Design & Development-I (28544) | Teacher: Md. Abdul Malek (CST) (Instructor (Tech/CST)). Room: Network Lab (S-417)\n- 2nd Class (2:15 PM - 3:00 PM): Class: Web Design & Development-I (28544) | Teacher: Md. Abdul Malek (CST) (Instructor (Tech/CST)). Room: Network Lab (S-417)\n- 3rd Class (3:00 PM - 3:45 PM): Class: Java Programming (28541) | Teacher: Md. Selim Ahmed (VC). Room: S-419\n- 4th Class (3:45 PM - 4:30 PM): Class: Business Communication (25831) | Teacher: Md. Azizur Rahman (Instructor (Non-Tech/Accounting)). Room: S-419\n- 5th Class (4:30 PM - 5:15 PM): Class: CST Peripherals & Interfacing (28543) | Teacher: Md. Idul Hasan Jony (Part-Time Teacher (CST)). Room: Hardware Lab (N-416)\n- 6th Class (5:15 PM - 6:00 PM): Class: CST Peripherals & Interfacing (28543) | Teacher: Md. Idul Hasan Jony (Part-Time Teacher (CST)). Room: Hardware Lab (N-416)\n- 7th Class (6:00 PM - 6:45 PM): Not specified\n\nClass Teacher: Md. Idul Hasan Jony (Part-Time Teacher, CST)",
+        "doc_type": "documents",
+        "topic": "class routine",
+        "department": null,
+        "meta": {
+          "context_added_date": "2026-10-15",
+          "context_added_time": "18:44:59",
+          "translation_performed": false,
+          "metadata_extraction_success": true
+        },
+        "source_file": "class_routine_2nd_shift.json",
+        "created_at": "2026-10-15T12:45:09.624Z",
+        "updated_at": "2026-10-15T12:45:09.624Z"
+      },
+      "embedding_content": "class routine\n\nWhat is the Sunday class routine for CNPI CST department day shift fourth semester?\nWho is the class teacher for CNPI CST department day shift fourth semester?\nWhat time does the first class start on Sunday for CNPI CST department day shift fourth semester?\nWhich teacher conducts the Web Design & Development-I class for CNPI CST department day shift fourth semester on Sunday?\nWhat room is assigned for the Java Programming class for CNPI CST department day shift fourth semester on Sunday?\nWho teaches Java Programming for CNPI CST department day shift fourth semester on Sunday?\nWhat time is the Business Communication class scheduled for CNPI CST department day shift fourth semester on Sunday?\nWhich teacher takes the CST Peripherals & Interfacing class for CNPI CST department day shift fourth semester on Sunday?\nWhat session does the Sunday class routine belong to for CNPI CST department day shift fourth semester?\nWhere is the CST Peripherals & Interfacing class held for CNPI CST department day shift fourth semester on Sunday?",
+      "stored_content": "[context_added_date: 2026-10-15 | context_added_time: 18:44:59 BST]\nDoc Type: documents\nTopic: class routine\n\nSunday class Routine of CNPI - CST & Department (Day Shift), Fourth Semester (Session: 2026-27) is given below:\n- 1st Class (1:30 PM - 2:15 PM): Class: Web Design & Development-I (28544) | Teacher: Md. Abdul Malek (CST) (Instructor (Tech/CST)). Room: Network Lab (S-417)\n- 2nd Class (2:15 PM - 3:00 PM): Class: Web Design & Development-I (28544) | Teacher: Md. Abdul Malek (CST) (Instructor (Tech/CST)). Room: Network Lab (S-417)\n- 3rd Class (3:00 PM - 3:45 PM): Class: Java Programming (28541) | Teacher: Md. Selim Ahmed (VC). Room: S-419\n- 4th Class (3:45 PM - 4:30 PM): Class: Business Communication (25831) | Teacher: Md. Azizur Rahman (Instructor (Non-Tech/Accounting)). Room: S-419\n- 5th Class (4:30 PM - 5:15 PM): Class: CST Peripherals & Interfacing (28543) | Teacher: Md. Idul Hasan Jony (Part-Time Teacher (CST)). Room: Hardware Lab (N-416)\n- 6th Class (5:15 PM - 6:00 PM): Class: CST Peripherals & Interfacing (28543) | Teacher: Md. Idul Hasan Jony (Part-Time Teacher (CST)). Room: Hardware Lab (N-416)\n- 7th Class (6:00 PM - 6:45 PM): Not specified\n\nClass Teacher: Md. Idul Hasan Jony (Part-Time Teacher, CST)",
+      "added_to_priority": false,
+      "temporal_analysis": {
+        "notice_date": "2026-10-15",
+        "notice_day": "Thursday",
+        "temporal_type": "TIME_INDEPENDENT",
+        "valid_from": null,
+        "valid_until": null,
+        "events": [],
+        "expiration_date": null
+      }
+    }
+  },
+  {
+    "index": 101,
+    "chunk_id": "class_routine_0a19961c3b1d",
+    "result": {
+      "created": true,
+      "doc_id": 2124,
+      "chunk_id": "class_routine_0a19961c3b1d",
+      "embedding_generated": true,
+      "translation_performed": false,
+      "temporal_analysis_performed": true,
+      "metadata_extraction_success": true,
+      "image_text_extracted": false,
+      "context_added_date": "2026-10-15",
+      "context_added_time": "18:45:29",
+      "document": {
+        "doc_id": 2124,
+        "chunk_id": "class_routine_0a19961c3b1d",
+        "content": "[context_added_date: 2026-10-15 | context_added_time: 18:45:29 BST]\nDoc Type: documents\nTopic: class routine\n\nMonday class Routine of CNPI - CST & Department (Day Shift), Fourth Semester (Session: 2026-27) is given below:\n- 1st Class (1:30 PM - 2:15 PM): Class: CST Peripherals & Interfacing (28543) | Teacher: Md. Idul Hasan Jony (Part-Time Teacher (CST)). Room: S-419\n- 2nd Class (2:15 PM - 3:00 PM): Class: Business Communication (25831) | Teacher: Md. Azizur Rahman (Instructor (Non-Tech/Accounting)). Room: S-419\n- 3rd Class (3:00 PM - 3:45 PM): Class: Java Programming (28541) | Teacher: Md. Selim Ahmed (VC). Room: Software Lab (S-420)\n- 4th Class (3:45 PM - 4:30 PM): Class: Java Programming (28541) | Teacher: Md. Selim Ahmed (VC). Room: Software Lab (S-420)\n- 5th Class (4:30 PM - 5:15 PM): Class: Data Structure & Algorithm (28542) | Teacher: Zahidul Islam (Jr. Instructor (Tech/CST)). Room: ICT Lab (N-310)\n- 6th Class (5:15 PM - 6:00 PM): Class: Data Structure & Algorithm (28542) | Teacher: Zahidul Islam (Jr. Instructor (Tech/CST)). Room: ICT Lab (N-310)\n- 7th Class (6:00 PM - 6:45 PM): Not specified\n\nClass Teacher: Md. Idul Hasan Jony (Part-Time Teacher, CST)",
+        "doc_type": "documents",
+        "topic": "class routine",
+        "department": null,
+        "meta": {
+          "context_added_date": "2026-10-15",
+          "context_added_time": "18:45:29",
+          "translation_performed": false,
+          "metadata_extraction_success": true
+        },
+        "source_file": "class_routine_2nd_shift.json",
+        "created_at": "2026-10-15T12:45:38.619Z",
+        "updated_at": "2026-10-15T12:45:38.619Z"
+      },
+      "embedding_content": "class routine\n\nWhat is the Monday class routine for CNPI CST department fourth semester day shift?\nWho is the class teacher for CNPI CST department fourth semester day shift?\nWhat subject is scheduled for the 1st class on Monday for CNPI CST department fourth semester day shift?\nWho teaches CST Peripherals & Interfacing for CNPI CST department fourth semester day shift on Monday?\nWhat time does the Java Programming class start for CNPI CST department fourth semester day shift on Monday?\nWhich room is assigned for the Data Structure & Algorithm class for CNPI CST department fourth semester day shift on Monday?\nWho is the teacher for Business Communication on Monday for CNPI CST department fourth semester day shift?\nWhat is the course code for Java Programming in the Monday routine of CNPI CST department fourth semester day shift?",
+      "stored_content": "[context_added_date: 2026-10-15 | context_added_time: 18:45:29 BST]\nDoc Type: documents\nTopic: class routine\n\nMonday class Routine of CNPI - CST & Department (Day Shift), Fourth Semester (Session: 2026-27) is given below:\n- 1st Class (1:30 PM - 2:15 PM): Class: CST Peripherals & Interfacing (28543) | Teacher: Md. Idul Hasan Jony (Part-Time Teacher (CST)). Room: S-419\n- 2nd Class (2:15 PM - 3:00 PM): Class: Business Communication (25831) | Teacher: Md. Azizur Rahman (Instructor (Non-Tech/Accounting)). Room: S-419\n- 3rd Class (3:00 PM - 3:45 PM): Class: Java Programming (28541) | Teacher: Md. Selim Ahmed (VC). Room: Software Lab (S-420)\n- 4th Class (3:45 PM - 4:30 PM): Class: Java Programming (28541) | Teacher: Md. Selim Ahmed (VC). Room: Software Lab (S-420)\n- 5th Class (4:30 PM - 5:15 PM): Class: Data Structure & Algorithm (28542) | Teacher: Zahidul Islam (Jr. Instructor (Tech/CST)). Room: ICT Lab (N-310)\n- 6th Class (5:15 PM - 6:00 PM): Class: Data Structure & Algorithm (28542) | Teacher: Zahidul Islam (Jr. Instructor (Tech/CST)). Room: ICT Lab (N-310)\n- 7th Class (6:00 PM - 6:45 PM): Not specified\n\nClass Teacher: Md. Idul Hasan Jony (Part-Time Teacher, CST)",
+      "added_to_priority": false,
+      "temporal_analysis": {
+        "notice_date": "2026-10-15",
+        "notice_day": "Thursday",
+        "temporal_type": "TIME_INDEPENDENT",
+        "valid_from": null,
+        "valid_until": null,
+        "events": [],
+        "expiration_date": null
+      }
+    }
+  },
+  {
+    "index": 102,
+    "chunk_id": "class_routine_ccda46ea768c",
+    "result": {
+      "created": true,
+      "doc_id": 2125,
+      "chunk_id": "class_routine_ccda46ea768c",
+      "embedding_generated": true,
+      "translation_performed": false,
+      "temporal_analysis_performed": true,
+      "metadata_extraction_success": true,
+      "image_text_extracted": false,
+      "context_added_date": "2026-10-15",
+      "context_added_time": "18:46:02",
+      "document": {
+        "doc_id": 2125,
+        "chunk_id": "class_routine_ccda46ea768c",
+        "content": "[context_added_date: 2026-10-15 | context_added_time: 18:46:02 BST]\nDoc Type: documents\nTopic: class routine\n\nTuesday class Routine of CNPI - CST & Department (Day Shift), Fourth Semester (Session: 2026-27) is given below:\n- 1st Class (1:30 PM - 2:15 PM): Class: Digital ENT-II (26841) | Teacher: Md. Aktaruzzaman (Instructor (Tech/ENT)). Room: S-419\n- 2nd Class (2:15 PM - 3:00 PM): Class: Java Programming (28541) | Teacher: Md. Selim Ahmed (VC). Room: S-419\n- 3rd Class (3:00 PM - 3:45 PM): Class: Data Structure & Algorithm (28542) | Teacher: Zahidul Islam (Jr. Instructor (Tech/CST)). Room: S-419\n- 4th Class (3:45 PM - 4:30 PM): Class: Web Design & Development-I (28544) | Teacher: Md. Abdul Malek (CST) (Instructor (Tech/CST)). Room: S-419\n- 5th Class (4:30 PM - 5:15 PM): Class: Environmental Studies (29041) | Teacher: Md. Shamiul Hoque (Jr. Instructor (Tech/MNT)). Room: Chemistry Lab (S-513)\n- 6th Class (5:15 PM - 6:00 PM): Class: Environmental Studies (29041) | Teacher: Md. Shamiul Hoque (Jr. Instructor (Tech/MNT)). Room: Chemistry Lab (S-513)\n- 7th Class (6:00 PM - 6:45 PM): Not specified\n\nClass Teacher: Md. Idul Hasan Jony (Part-Time Teacher, CST)",
+        "doc_type": "documents",
+        "topic": "class routine",
+        "department": null,
+        "meta": {
+          "context_added_date": "2026-10-15",
+          "context_added_time": "18:46:02",
+          "translation_performed": false,
+          "metadata_extraction_success": true
+        },
+        "source_file": "class_routine_2nd_shift.json",
+        "created_at": "2026-10-15T12:46:12.234Z",
+        "updated_at": "2026-10-15T12:46:12.234Z"
+      },
+      "embedding_content": "class routine\n\nWhat is the Tuesday class routine for CNPI CST department day shift fourth semester?\nWho is the class teacher for CNPI CST department day shift fourth semester?\nWhat time does the 1st class start on Tuesday for CNPI CST department day shift fourth semester?\nWho teaches Digital ENT-II for CNPI CST department day shift fourth semester on Tuesday?\nWhich room is assigned for the Java Programming class on Tuesday for CNPI CST department day shift fourth semester?\nWho teaches Data Structure & Algorithm for CNPI CST department day shift fourth semester on Tuesday?\nWhat subject is taught during the 4th class on Tuesday for CNPI CST department day shift fourth semester?\nWhere is the Environmental Studies class held for CNPI CST department day shift fourth semester on Tuesday?\nWho is the teacher for Environmental Studies for CNPI CST department day shift fourth semester on Tuesday?\nWhat session does the Tuesday class routine belong to for CNPI CST department day shift fourth semester?",
+      "stored_content": "[context_added_date: 2026-10-15 | context_added_time: 18:46:02 BST]\nDoc Type: documents\nTopic: class routine\n\nTuesday class Routine of CNPI - CST & Department (Day Shift), Fourth Semester (Session: 2026-27) is given below:\n- 1st Class (1:30 PM - 2:15 PM): Class: Digital ENT-II (26841) | Teacher: Md. Aktaruzzaman (Instructor (Tech/ENT)). Room: S-419\n- 2nd Class (2:15 PM - 3:00 PM): Class: Java Programming (28541) | Teacher: Md. Selim Ahmed (VC). Room: S-419\n- 3rd Class (3:00 PM - 3:45 PM): Class: Data Structure & Algorithm (28542) | Teacher: Zahidul Islam (Jr. Instructor (Tech/CST)). Room: S-419\n- 4th Class (3:45 PM - 4:30 PM): Class: Web Design & Development-I (28544) | Teacher: Md. Abdul Malek (CST) (Instructor (Tech/CST)). Room: S-419\n- 5th Class (4:30 PM - 5:15 PM): Class: Environmental Studies (29041) | Teacher: Md. Shamiul Hoque (Jr. Instructor (Tech/MNT)). Room: Chemistry Lab (S-513)\n- 6th Class (5:15 PM - 6:00 PM): Class: Environmental Studies (29041) | Teacher: Md. Shamiul Hoque (Jr. Instructor (Tech/MNT)). Room: Chemistry Lab (S-513)\n- 7th Class (6:00 PM - 6:45 PM): Not specified\n\nClass Teacher: Md. Idul Hasan Jony (Part-Time Teacher, CST)",
+      "added_to_priority": false,
+      "temporal_analysis": {
+        "notice_date": "2026-10-15",
+        "notice_day": "Thursday",
+        "temporal_type": "TIME_INDEPENDENT",
+        "valid_from": null,
+        "valid_until": null,
+        "events": [],
+        "expiration_date": null
+      }
+    }
+  },
+  {
+    "index": 103,
+    "chunk_id": "class_routine_364e51b7cb50",
+    "result": {
+      "created": true,
+      "doc_id": 2126,
+      "chunk_id": "class_routine_364e51b7cb50",
+      "embedding_generated": true,
+      "translation_performed": false,
+      "temporal_analysis_performed": true,
+      "metadata_extraction_success": true,
+      "image_text_extracted": false,
+      "context_added_date": "2026-10-15",
+      "context_added_time": "18:46:35",
+      "document": {
+        "doc_id": 2126,
+        "chunk_id": "class_routine_364e51b7cb50",
+        "content": "[context_added_date: 2026-10-15 | context_added_time: 18:46:35 BST]\nDoc Type: documents\nTopic: class routine\n\nWednesday class Routine of CNPI - CST & Department (Day Shift), Fourth Semester (Session: 2026-27) is given below:\n- 1st Class (1:30 PM - 2:15 PM): Class: Web Design & Development-I (28544) | Teacher: Md. Abdul Malek (CST) (Instructor (Tech/CST)). Room: Network Lab (S-417)\n- 2nd Class (2:15 PM - 3:00 PM): Class: Web Design & Development-I (28544) | Teacher: Md. Abdul Malek (CST) (Instructor (Tech/CST)). Room: Network Lab (S-417)\n- 3rd Class (3:00 PM - 3:45 PM): Class: CST Peripherals & Interfacing (28543) | Teacher: Md. Idul Hasan Jony (Part-Time Teacher (CST)). Room: S-419\n- 4th Class (3:45 PM - 4:30 PM): Class: Digital ENT-II (26841) | Teacher: Md. Aktaruzzaman (Instructor (Tech/ENT)). Room: S-419\n- 5th Class (4:30 PM - 5:15 PM): Class: Environmental Studies (29041) | Teacher: Md. Shamiul Hoque (Jr. Instructor (Tech/MNT)). Room: S-419\n- 6th Class (5:15 PM - 6:00 PM): Not specified\n- 7th Class (6:00 PM - 6:45 PM): Not specified\n\nClass Teacher: Md. Idul Hasan Jony (Part-Time Teacher, CST)",
+        "doc_type": "documents",
+        "topic": "class routine",
+        "department": null,
+        "meta": {
+          "context_added_date": "2026-10-15",
+          "context_added_time": "18:46:35",
+          "translation_performed": false,
+          "metadata_extraction_success": true
+        },
+        "source_file": "class_routine_2nd_shift.json",
+        "created_at": "2026-10-15T12:46:47.437Z",
+        "updated_at": "2026-10-15T12:46:47.437Z"
+      },
+      "embedding_content": "class routine\n\nWhat is the Wednesday class routine for CNPI CST department day shift fourth semester?\nWho teaches Web Design & Development-I for CNPI CST department day shift fourth semester on Wednesday?\nWhich room is assigned for the CNPI CST department day shift fourth semester Wednesday classes in the Network Lab?\nWhat time does the Environmental Studies class start for CNPI CST department day shift fourth semester on Wednesday?\nWho is the class teacher for CNPI CST department day shift fourth semester?\nWhat subjects are taught on Wednesday for CNPI CST department day shift fourth semester?\nWho teaches CST Peripherals & Interfacing for CNPI CST department day shift fourth semester on Wednesday?\nWhat session does the CNPI CST department day shift fourth semester Wednesday class routine belong to?",
+      "stored_content": "[context_added_date: 2026-10-15 | context_added_time: 18:46:35 BST]\nDoc Type: documents\nTopic: class routine\n\nWednesday class Routine of CNPI - CST & Department (Day Shift), Fourth Semester (Session: 2026-27) is given below:\n- 1st Class (1:30 PM - 2:15 PM): Class: Web Design & Development-I (28544) | Teacher: Md. Abdul Malek (CST) (Instructor (Tech/CST)). Room: Network Lab (S-417)\n- 2nd Class (2:15 PM - 3:00 PM): Class: Web Design & Development-I (28544) | Teacher: Md. Abdul Malek (CST) (Instructor (Tech/CST)). Room: Network Lab (S-417)\n- 3rd Class (3:00 PM - 3:45 PM): Class: CST Peripherals & Interfacing (28543) | Teacher: Md. Idul Hasan Jony (Part-Time Teacher (CST)). Room: S-419\n- 4th Class (3:45 PM - 4:30 PM): Class: Digital ENT-II (26841) | Teacher: Md. Aktaruzzaman (Instructor (Tech/ENT)). Room: S-419\n- 5th Class (4:30 PM - 5:15 PM): Class: Environmental Studies (29041) | Teacher: Md. Shamiul Hoque (Jr. Instructor (Tech/MNT)). Room: S-419\n- 6th Class (5:15 PM - 6:00 PM): Not specified\n- 7th Class (6:00 PM - 6:45 PM): Not specified\n\nClass Teacher: Md. Idul Hasan Jony (Part-Time Teacher, CST)",
+      "added_to_priority": false,
+      "temporal_analysis": {
+        "notice_date": "2026-10-15",
+        "notice_day": "Thursday",
+        "temporal_type": "TIME_INDEPENDENT",
+        "valid_from": null,
+        "valid_until": null,
+        "events": [],
+        "expiration_date": null
+      }
+    }
+  },
+  {
+    "index": 104,
+    "chunk_id": "class_routine_61f096575857",
+    "result": {
+      "created": true,
+      "doc_id": 2127,
+      "chunk_id": "class_routine_61f096575857",
+      "embedding_generated": true,
+      "translation_performed": false,
+      "temporal_analysis_performed": true,
+      "metadata_extraction_success": true,
+      "image_text_extracted": false,
+      "context_added_date": "2026-10-15",
+      "context_added_time": "18:47:10",
+      "document": {
+        "doc_id": 2127,
+        "chunk_id": "class_routine_61f096575857",
+        "content": "[context_added_date: 2026-10-15 | context_added_time: 18:47:10 BST]\nDoc Type: documents\nTopic: class routine\n\nThursday class Routine of CNPI - CST & Department (Day Shift), Fourth Semester (Session: 2026-27) is given below:\n- 1st Class (1:30 PM - 2:15 PM): Class: Data Structure & Algorithm (28542) | Teacher: Zahidul Islam (Jr. Instructor (Tech/CST)). Room: S-419\n- 2nd Class (2:15 PM - 3:00 PM): Class: Environmental Studies (29041) | Teacher: Md. Shamiul Hoque (Jr. Instructor (Tech/MNT)). Room: S-419\n- 3rd Class (3:00 PM - 3:45 PM): Class: Digital ENT-II (26841) | Teacher: Md. Aktaruzzaman (Instructor (Tech/ENT)). Room: Digital ENT Lab (N-313)\n- 4th Class (3:45 PM - 4:30 PM): Class: Digital ENT-II (26841) | Teacher: Md. Aktaruzzaman (Instructor (Tech/ENT)). Room: Digital ENT Lab (N-313)\n- 5th Class (4:30 PM - 5:15 PM): Class: CST Peripherals & Interfacing (28543) | Teacher: Md. Idul Hasan Jony (Part-Time Teacher (CST)). Room: S-419\n- 6th Class (5:15 PM - 6:00 PM): Not specified\n- 7th Class (6:00 PM - 6:45 PM): Not specified\n\nClass Teacher: Md. Idul Hasan Jony (Part-Time Teacher, CST)",
+        "doc_type": "documents",
+        "topic": "class routine",
+        "department": null,
+        "meta": {
+          "context_added_date": "2026-10-15",
+          "context_added_time": "18:47:10",
+          "translation_performed": false,
+          "metadata_extraction_success": true
+        },
+        "source_file": "class_routine_2nd_shift.json",
+        "created_at": "2026-10-15T12:47:17.857Z",
+        "updated_at": "2026-10-15T12:47:17.857Z"
+      },
+      "embedding_content": "class routine\n\nWhat is the Thursday class routine for CNPI CST & Department fourth semester day shift?\nWho is the class teacher for CNPI CST & Department fourth semester day shift?\nWhat subjects are taught on Thursday for CNPI CST & Department fourth semester day shift?\nWhat time does the 1st class start on Thursday for CNPI CST & Department fourth semester day shift?\nWho teaches Data Structure & Algorithm for CNPI CST & Department fourth semester day shift on Thursday?\nWhich room is assigned for the Environmental Studies class for CNPI CST & Department fourth semester day shift on Thursday?\nWho teaches Digital ENT-II for CNPI CST & Department fourth semester day shift on Thursday?\nWhich room is used for the Digital ENT-II class for CNPI CST & Department fourth semester day shift on Thursday?\nWho teaches CST Peripherals & Interfacing for CNPI CST & Department fourth semester day shift on Thursday?\nWhat session does the Thursday class routine belong to for CNPI CST & Department fourth semester day shift?",
+      "stored_content": "[context_added_date: 2026-10-15 | context_added_time: 18:47:10 BST]\nDoc Type: documents\nTopic: class routine\n\nThursday class Routine of CNPI - CST & Department (Day Shift), Fourth Semester (Session: 2026-27) is given below:\n- 1st Class (1:30 PM - 2:15 PM): Class: Data Structure & Algorithm (28542) | Teacher: Zahidul Islam (Jr. Instructor (Tech/CST)). Room: S-419\n- 2nd Class (2:15 PM - 3:00 PM): Class: Environmental Studies (29041) | Teacher: Md. Shamiul Hoque (Jr. Instructor (Tech/MNT)). Room: S-419\n- 3rd Class (3:00 PM - 3:45 PM): Class: Digital ENT-II (26841) | Teacher: Md. Aktaruzzaman (Instructor (Tech/ENT)). Room: Digital ENT Lab (N-313)\n- 4th Class (3:45 PM - 4:30 PM): Class: Digital ENT-II (26841) | Teacher: Md. Aktaruzzaman (Instructor (Tech/ENT)). Room: Digital ENT Lab (N-313)\n- 5th Class (4:30 PM - 5:15 PM): Class: CST Peripherals & Interfacing (28543) | Teacher: Md. Idul Hasan Jony (Part-Time Teacher (CST)). Room: S-419\n- 6th Class (5:15 PM - 6:00 PM): Not specified\n- 7th Class (6:00 PM - 6:45 PM): Not specified\n\nClass Teacher: Md. Idul Hasan Jony (Part-Time Teacher, CST)",
+      "added_to_priority": false,
+      "temporal_analysis": {
+        "notice_date": "2026-10-15",
+        "notice_day": "Thursday",
+        "temporal_type": "TIME_INDEPENDENT",
+        "valid_from": null,
+        "valid_until": null,
+        "events": [],
+        "expiration_date": null
+      }
+    }
+  },
+  {
+    "index": 105,
+    "chunk_id": "class_routine_f0a86e727cd5",
+    "result": {
+      "created": true,
+      "doc_id": 2128,
+      "chunk_id": "class_routine_f0a86e727cd5",
+      "embedding_generated": true,
+      "translation_performed": false,
+      "temporal_analysis_performed": true,
+      "metadata_extraction_success": true,
+      "image_text_extracted": false,
+      "context_added_date": "2026-10-15",
+      "context_added_time": "18:47:41",
+      "document": {
+        "doc_id": 2128,
+        "chunk_id": "class_routine_f0a86e727cd5",
+        "content": "[context_added_date: 2026-10-15 | context_added_time: 18:47:41 BST]\nDoc Type: documents\nTopic: class routine\n\nSunday class Routine of CNPI - CST & Department (Day Shift), Sixth Semester (Session: 2026-27) is given below:\n- 1st Class (1:30 PM - 2:15 PM): Class: Principles of Marketing (25851) | Teacher: Md. Azizur Rahman (Instructor (Non-Tech/Accounting)). Room: S-418\n- 2nd Class (2:15 PM - 3:00 PM): Class: Sensor & IoT System (28563) | Teacher: Md. Idul Hasan Jony (Part-Time Teacher (CST)). Room: S-418\n- 3rd Class (3:00 PM - 3:45 PM): Class: CST Networking (28562) | Teacher: Md. Jewel Rana (Instructor (Tech/CST)). Room: S-418\n- 4th Class (3:45 PM - 4:30 PM): Class: Microcontroller Based System Design & Development (28564) | Teacher: Md. Abdul Malek (CST) (Instructor (Tech/CST)). Room: S-418\n- 5th Class (4:30 PM - 5:15 PM): Class: Database Management System (28561) | Teacher: Md. Kausar Ali (Jr. Instructor (Tech/CST)). Room: S-418\n- 6th Class (5:15 PM - 6:00 PM): Class: Industrial Management (25852) | Teacher: Md. Azizur Rahman (Instructor (Non-Tech/Accounting)). Room: S-418\n- 7th Class (6:00 PM - 6:45 PM): Not specified\n\nClass Teacher: Md. Jewel Rana (Instructor, Tech/CST)",
+        "doc_type": "documents",
+        "topic": "class routine",
+        "department": null,
+        "meta": {
+          "context_added_date": "2026-10-15",
+          "context_added_time": "18:47:41",
+          "translation_performed": false,
+          "metadata_extraction_success": true
+        },
+        "source_file": "class_routine_2nd_shift.json",
+        "created_at": "2026-10-15T12:47:55.280Z",
+        "updated_at": "2026-10-15T12:47:55.280Z"
+      },
+      "embedding_content": "class routine\n\nWhat is the Sunday class routine for CNPI CST department sixth semester day shift?\nWho is the class teacher for CNPI CST department sixth semester day shift?\nWhich room is assigned for CNPI CST department sixth semester day shift Sunday classes?\nWhat session does the CNPI CST department sixth semester day shift Sunday class routine belong to?\nWho teaches Principles of Marketing for CNPI CST department sixth semester day shift on Sunday?\nWhat time does the database management system class start for CNPI CST department sixth semester day shift on Sunday?\nWhich teacher conducts the CST Networking class for CNPI CST department sixth semester day shift on Sunday?\nWhat subject is taught during the 2nd class on Sunday for CNPI CST department sixth semester day shift?",
+      "stored_content": "[context_added_date: 2026-10-15 | context_added_time: 18:47:41 BST]\nDoc Type: documents\nTopic: class routine\n\nSunday class Routine of CNPI - CST & Department (Day Shift), Sixth Semester (Session: 2026-27) is given below:\n- 1st Class (1:30 PM - 2:15 PM): Class: Principles of Marketing (25851) | Teacher: Md. Azizur Rahman (Instructor (Non-Tech/Accounting)). Room: S-418\n- 2nd Class (2:15 PM - 3:00 PM): Class: Sensor & IoT System (28563) | Teacher: Md. Idul Hasan Jony (Part-Time Teacher (CST)). Room: S-418\n- 3rd Class (3:00 PM - 3:45 PM): Class: CST Networking (28562) | Teacher: Md. Jewel Rana (Instructor (Tech/CST)). Room: S-418\n- 4th Class (3:45 PM - 4:30 PM): Class: Microcontroller Based System Design & Development (28564) | Teacher: Md. Abdul Malek (CST) (Instructor (Tech/CST)). Room: S-418\n- 5th Class (4:30 PM - 5:15 PM): Class: Database Management System (28561) | Teacher: Md. Kausar Ali (Jr. Instructor (Tech/CST)). Room: S-418\n- 6th Class (5:15 PM - 6:00 PM): Class: Industrial Management (25852) | Teacher: Md. Azizur Rahman (Instructor (Non-Tech/Accounting)). Room: S-418\n- 7th Class (6:00 PM - 6:45 PM): Not specified\n\nClass Teacher: Md. Jewel Rana (Instructor, Tech/CST)",
+      "added_to_priority": false,
+      "temporal_analysis": {
+        "notice_date": "2026-10-15",
+        "notice_day": "Thursday",
+        "temporal_type": "TIME_INDEPENDENT",
+        "valid_from": null,
+        "valid_until": null,
+        "events": [],
+        "expiration_date": null
+      }
+    }
+  },
+  {
+    "index": 106,
+    "chunk_id": "class_routine_a7129f3fe7c6",
+    "result": {
+      "created": true,
+      "doc_id": 2129,
+      "chunk_id": "class_routine_a7129f3fe7c6",
+      "embedding_generated": true,
+      "translation_performed": false,
+      "temporal_analysis_performed": true,
+      "metadata_extraction_success": true,
+      "image_text_extracted": false,
+      "context_added_date": "2026-10-15",
+      "context_added_time": "18:48:22",
+      "document": {
+        "doc_id": 2129,
+        "chunk_id": "class_routine_a7129f3fe7c6",
+        "content": "[context_added_date: 2026-10-15 | context_added_time: 18:48:22 BST]\nDoc Type: documents\nTopic: class routine\n\nMonday class Routine of CNPI - CST & Department (Day Shift), Sixth Semester (Session: 2026-27) is given below:\n- 1st Class (1:30 PM - 2:15 PM): Class: Microcontroller Based System Design & Development (28564) | Teacher: Md. Abdul Malek (CST) (Instructor (Tech/CST)). Room: Hardware Lab (N-416)\n- 2nd Class (2:15 PM - 3:00 PM): Class: Microcontroller Based System Design & Development (28564) | Teacher: Md. Abdul Malek (CST) (Instructor (Tech/CST)). Room: Hardware Lab (N-416)\n- 3rd Class (3:00 PM - 3:45 PM): Class: CST Networking (28562) | Teacher: Md. Jewel Rana (Instructor (Tech/CST)). Room: Network Lab (S-417)\n- 4th Class (3:45 PM - 4:30 PM): Class: CST Networking (28562) | Teacher: Md. Jewel Rana (Instructor (Tech/CST)). Room: Network Lab (S-417)\n- 5th Class (4:30 PM - 5:15 PM): Class: Sensor & IoT System (28563) | Teacher: Md. Idul Hasan Jony (Part-Time Teacher (CST)). Room: Hardware Lab (N-416)\n- 6th Class (5:15 PM - 6:00 PM): Class: Sensor & IoT System (28563) | Teacher: Md. Idul Hasan Jony (Part-Time Teacher (CST)). Room: Hardware Lab (N-416)\n- 7th Class (6:00 PM - 6:45 PM): Not specified\n\nClass Teacher: Md. Jewel Rana (Instructor, Tech/CST)",
+        "doc_type": "documents",
+        "topic": "class routine",
+        "department": null,
+        "meta": {
+          "context_added_date": "2026-10-15",
+          "context_added_time": "18:48:22",
+          "translation_performed": false,
+          "metadata_extraction_success": true
+        },
+        "source_file": "class_routine_2nd_shift.json",
+        "created_at": "2026-10-15T12:48:37.023Z",
+        "updated_at": "2026-10-15T12:48:37.023Z"
+      },
+      "embedding_content": "class routine\n\nWhat is the Monday class routine for CNPI CST department day shift sixth semester?\nWho is the class teacher for CNPI CST department day shift sixth semester?\nWhat subjects are scheduled for Monday for CNPI CST department day shift sixth semester?\nWhen does the Monday class routine start and end for CNPI CST department day shift sixth semester?\nWho teaches the Microcontroller Based System Design & Development class on Monday for CNPI CST department day shift sixth semester?\nWhere is the CST Networking class held on Monday for CNPI CST department day shift sixth semester?\nWhat room is assigned for the Sensor & IoT System class on Monday for CNPI CST department day shift sixth semester?\nWhat session does the Monday class routine belong to for CNPI CST department day shift sixth semester?",
+      "stored_content": "[context_added_date: 2026-10-15 | context_added_time: 18:48:22 BST]\nDoc Type: documents\nTopic: class routine\n\nMonday class Routine of CNPI - CST & Department (Day Shift), Sixth Semester (Session: 2026-27) is given below:\n- 1st Class (1:30 PM - 2:15 PM): Class: Microcontroller Based System Design & Development (28564) | Teacher: Md. Abdul Malek (CST) (Instructor (Tech/CST)). Room: Hardware Lab (N-416)\n- 2nd Class (2:15 PM - 3:00 PM): Class: Microcontroller Based System Design & Development (28564) | Teacher: Md. Abdul Malek (CST) (Instructor (Tech/CST)). Room: Hardware Lab (N-416)\n- 3rd Class (3:00 PM - 3:45 PM): Class: CST Networking (28562) | Teacher: Md. Jewel Rana (Instructor (Tech/CST)). Room: Network Lab (S-417)\n- 4th Class (3:45 PM - 4:30 PM): Class: CST Networking (28562) | Teacher: Md. Jewel Rana (Instructor (Tech/CST)). Room: Network Lab (S-417)\n- 5th Class (4:30 PM - 5:15 PM): Class: Sensor & IoT System (28563) | Teacher: Md. Idul Hasan Jony (Part-Time Teacher (CST)). Room: Hardware Lab (N-416)\n- 6th Class (5:15 PM - 6:00 PM): Class: Sensor & IoT System (28563) | Teacher: Md. Idul Hasan Jony (Part-Time Teacher (CST)). Room: Hardware Lab (N-416)\n- 7th Class (6:00 PM - 6:45 PM): Not specified\n\nClass Teacher: Md. Jewel Rana (Instructor, Tech/CST)",
+      "added_to_priority": false,
+      "temporal_analysis": {
+        "notice_date": "2026-10-15",
+        "notice_day": "Thursday",
+        "temporal_type": "TIME_INDEPENDENT",
+        "valid_from": null,
+        "valid_until": null,
+        "events": [],
+        "expiration_date": null
+      }
+    }
+  },
+  {
+    "index": 107,
+    "chunk_id": "class_routine_74614057a179",
+    "result": {
+      "created": true,
+      "doc_id": 2130,
+      "chunk_id": "class_routine_74614057a179",
+      "embedding_generated": true,
+      "translation_performed": false,
+      "temporal_analysis_performed": true,
+      "metadata_extraction_success": true,
+      "image_text_extracted": false,
+      "context_added_date": "2026-10-15",
+      "context_added_time": "18:49:01",
+      "document": {
+        "doc_id": 2130,
+        "chunk_id": "class_routine_74614057a179",
+        "content": "[context_added_date: 2026-10-15 | context_added_time: 18:49:01 BST]\nDoc Type: documents\nTopic: class routine\n\nTuesday class Routine of CNPI - CST & Department (Day Shift), Sixth Semester (Session: 2026-27) is given below:\n- 1st Class (1:30 PM - 2:15 PM): Class: Web Development Project (28566) | Teacher: Md. Jewel Rana (Instructor (Tech/CST)). Room: Network Lab (S-417)\n- 2nd Class (2:15 PM - 3:00 PM): Class: Web Development Project (28566) | Teacher: Md. Jewel Rana (Instructor (Tech/CST)). Room: Network Lab (S-417)\n- 3rd Class (3:00 PM - 3:45 PM): Class: Microcontroller Based System Design & Development (28564) | Teacher: Md. Abdul Malek (CST) (Instructor (Tech/CST)). Room: S-418\n- 4th Class (3:45 PM - 4:30 PM): Class: CST Networking (28562) | Teacher: Md. Jewel Rana (Instructor (Tech/CST)). Room: S-418\n- 5th Class (4:30 PM - 5:15 PM): Class: Database Management System (28561) | Teacher: Md. Kausar Ali (Jr. Instructor (Tech/CST)). Room: S-418\n- 6th Class (5:15 PM - 6:00 PM): Class: Surveillance Security System (28565) | Teacher: Md. Idul Hasan Jony (Part-Time Teacher (CST)). Room: S-418\n- 7th Class (6:00 PM - 6:45 PM): Not specified\n\nClass Teacher: Md. Jewel Rana (Instructor, Tech/CST)",
+        "doc_type": "documents",
+        "topic": "class routine",
+        "department": null,
+        "meta": {
+          "context_added_date": "2026-10-15",
+          "context_added_time": "18:49:01",
+          "translation_performed": false,
+          "metadata_extraction_success": true
+        },
+        "source_file": "class_routine_2nd_shift.json",
+        "created_at": "2026-10-15T12:49:12.145Z",
+        "updated_at": "2026-10-15T12:49:12.145Z"
+      },
+      "embedding_content": "class routine\n\nWhat is the Tuesday class routine for CNPI CST department day shift sixth semester?\nWho is the class teacher for CNPI CST department day shift sixth semester?\nWhat subjects are taught on Tuesday for CNPI CST department day shift sixth semester?\nWhat time does the 1st class start on Tuesday for CNPI CST department day shift sixth semester?\nWho teaches Web Development Project for CNPI CST department day shift sixth semester on Tuesday?\nWhich room is assigned for the Database Management System class on Tuesday for CNPI CST department day shift sixth semester?\nWhat class is scheduled from 5:15 PM to 6:00 PM on Tuesday for CNPI CST department day shift sixth semester?\nWhich teacher conducts the CST Networking class on Tuesday for CNPI CST department day shift sixth semester?\nWhat is the session for the Tuesday class routine of CNPI CST department day shift sixth semester?",
+      "stored_content": "[context_added_date: 2026-10-15 | context_added_time: 18:49:01 BST]\nDoc Type: documents\nTopic: class routine\n\nTuesday class Routine of CNPI - CST & Department (Day Shift), Sixth Semester (Session: 2026-27) is given below:\n- 1st Class (1:30 PM - 2:15 PM): Class: Web Development Project (28566) | Teacher: Md. Jewel Rana (Instructor (Tech/CST)). Room: Network Lab (S-417)\n- 2nd Class (2:15 PM - 3:00 PM): Class: Web Development Project (28566) | Teacher: Md. Jewel Rana (Instructor (Tech/CST)). Room: Network Lab (S-417)\n- 3rd Class (3:00 PM - 3:45 PM): Class: Microcontroller Based System Design & Development (28564) | Teacher: Md. Abdul Malek (CST) (Instructor (Tech/CST)). Room: S-418\n- 4th Class (3:45 PM - 4:30 PM): Class: CST Networking (28562) | Teacher: Md. Jewel Rana (Instructor (Tech/CST)). Room: S-418\n- 5th Class (4:30 PM - 5:15 PM): Class: Database Management System (28561) | Teacher: Md. Kausar Ali (Jr. Instructor (Tech/CST)). Room: S-418\n- 6th Class (5:15 PM - 6:00 PM): Class: Surveillance Security System (28565) | Teacher: Md. Idul Hasan Jony (Part-Time Teacher (CST)). Room: S-418\n- 7th Class (6:00 PM - 6:45 PM): Not specified\n\nClass Teacher: Md. Jewel Rana (Instructor, Tech/CST)",
+      "added_to_priority": false,
+      "temporal_analysis": {
+        "notice_date": "2026-10-15",
+        "notice_day": "Thursday",
+        "temporal_type": "TIME_INDEPENDENT",
+        "valid_from": null,
+        "valid_until": null,
+        "events": [],
+        "expiration_date": null
+      }
+    }
+  },
+  {
+    "index": 108,
+    "chunk_id": "class_routine_c584912a1d17",
+    "result": {
+      "created": true,
+      "doc_id": 2131,
+      "chunk_id": "class_routine_c584912a1d17",
+      "embedding_generated": true,
+      "translation_performed": false,
+      "temporal_analysis_performed": true,
+      "metadata_extraction_success": true,
+      "image_text_extracted": false,
+      "context_added_date": "2026-10-15",
+      "context_added_time": "18:49:39",
+      "document": {
+        "doc_id": 2131,
+        "chunk_id": "class_routine_c584912a1d17",
+        "content": "[context_added_date: 2026-10-15 | context_added_time: 18:49:39 BST]\nDoc Type: documents\nTopic: class routine\n\nWednesday class Routine of CNPI - CST & Department (Day Shift), Sixth Semester (Session: 2026-27) is given below:\n- 1st Class (1:30 PM - 2:15 PM): Class: Surveillance Security System (28565) | Teacher: Md. Idul Hasan Jony (Part-Time Teacher (CST)). Room: Hardware Lab (N-416)\n- 2nd Class (2:15 PM - 3:00 PM): Class: Surveillance Security System (28565) | Teacher: Md. Idul Hasan Jony (Part-Time Teacher (CST)). Room: Hardware Lab (N-416)\n- 3rd Class (3:00 PM - 3:45 PM): Class: Principles of Marketing (25851) | Teacher: Md. Azizur Rahman (Instructor (Non-Tech/Accounting)). Room: S-418\n- 4th Class (3:45 PM - 4:30 PM): Class: Industrial Management (25852) | Teacher: Md. Azizur Rahman (Instructor (Non-Tech/Accounting)). Room: S-418\n- 5th Class (4:30 PM - 5:15 PM): Not specified\n- 6th Class (5:15 PM - 6:00 PM): Not specified\n- 7th Class (6:00 PM - 6:45 PM): Not specified\n\nClass Teacher: Md. Jewel Rana (Instructor, Tech/CST)",
+        "doc_type": "documents",
+        "topic": "class routine",
+        "department": null,
+        "meta": {
+          "context_added_date": "2026-10-15",
+          "context_added_time": "18:49:39",
+          "translation_performed": false,
+          "metadata_extraction_success": true
+        },
+        "source_file": "class_routine_2nd_shift.json",
+        "created_at": "2026-10-15T12:49:49.068Z",
+        "updated_at": "2026-10-15T12:49:49.068Z"
+      },
+      "embedding_content": "class routine\n\nWhat is the Wednesday class routine for CNPI CST department day shift sixth semester session 2026-27?\nWho is the class teacher for CNPI CST department day shift sixth semester session 2026-27?\nWhich room is assigned for the Surveillance Security System class for CNPI CST department day shift sixth semester session 2026-27 on Wednesday?\nWho teaches Surveillance Security System for CNPI CST department day shift sixth semester session 2026-27 on Wednesday?\nWhat time does the Principles of Marketing class start for CNPI CST department day shift sixth semester session 2026-27 on Wednesday?\nWhich teacher conducts the Industrial Management class for CNPI CST department day shift sixth semester session 2026-27 on Wednesday?\nWhat subjects are taught during the 1st and 2nd classes for CNPI CST department day shift sixth semester session 2026-27 on Wednesday?\nWhere is the Principles of Marketing class held for CNPI CST department day shift sixth semester session 2026-27 on Wednesday?",
+      "stored_content": "[context_added_date: 2026-10-15 | context_added_time: 18:49:39 BST]\nDoc Type: documents\nTopic: class routine\n\nWednesday class Routine of CNPI - CST & Department (Day Shift), Sixth Semester (Session: 2026-27) is given below:\n- 1st Class (1:30 PM - 2:15 PM): Class: Surveillance Security System (28565) | Teacher: Md. Idul Hasan Jony (Part-Time Teacher (CST)). Room: Hardware Lab (N-416)\n- 2nd Class (2:15 PM - 3:00 PM): Class: Surveillance Security System (28565) | Teacher: Md. Idul Hasan Jony (Part-Time Teacher (CST)). Room: Hardware Lab (N-416)\n- 3rd Class (3:00 PM - 3:45 PM): Class: Principles of Marketing (25851) | Teacher: Md. Azizur Rahman (Instructor (Non-Tech/Accounting)). Room: S-418\n- 4th Class (3:45 PM - 4:30 PM): Class: Industrial Management (25852) | Teacher: Md. Azizur Rahman (Instructor (Non-Tech/Accounting)). Room: S-418\n- 5th Class (4:30 PM - 5:15 PM): Not specified\n- 6th Class (5:15 PM - 6:00 PM): Not specified\n- 7th Class (6:00 PM - 6:45 PM): Not specified\n\nClass Teacher: Md. Jewel Rana (Instructor, Tech/CST)",
+      "added_to_priority": false,
+      "temporal_analysis": {
+        "notice_date": "2026-10-15",
+        "notice_day": "Thursday",
+        "temporal_type": "TIME_INDEPENDENT",
+        "valid_from": null,
+        "valid_until": null,
+        "events": [],
+        "expiration_date": null
+      }
+    }
+  },
+  {
+    "index": 109,
+    "chunk_id": "class_routine_227a399fafb0",
+    "result": {
+      "created": true,
+      "doc_id": 2132,
+      "chunk_id": "class_routine_227a399fafb0",
+      "embedding_generated": true,
+      "translation_performed": false,
+      "temporal_analysis_performed": true,
+      "metadata_extraction_success": true,
+      "image_text_extracted": false,
+      "context_added_date": "2026-10-15",
+      "context_added_time": "18:50:17",
+      "document": {
+        "doc_id": 2132,
+        "chunk_id": "class_routine_227a399fafb0",
+        "content": "[context_added_date: 2026-10-15 | context_added_time: 18:50:17 BST]\nDoc Type: documents\nTopic: class routine\n\nThursday class Routine of CNPI - CST & Department (Day Shift), Sixth Semester (Session: 2026-27) is given below:\n- 1st Class (1:30 PM - 2:15 PM): Class: Microcontroller Based System Design & Development (28564) | Teacher: Md. Abdul Malek (CST) (Instructor (Tech/CST)). Room: Hardware Lab (N-416)\n- 2nd Class (2:15 PM - 3:00 PM): Class: Microcontroller Based System Design & Development (28564) | Teacher: Md. Abdul Malek (CST) (Instructor (Tech/CST)). Room: Hardware Lab (N-416)\n- 3rd Class (3:00 PM - 3:45 PM): Class: Sensor & IoT System (28563) | Teacher: Md. Idul Hasan Jony (Part-Time Teacher (CST)). Room: S-418\n- 4th Class (3:45 PM - 4:30 PM): Class: Database Management System (28561) | Teacher: Md. Kausar Ali (Jr. Instructor (Tech/CST)). Room: ICT Lab (N-310)\n- 5th Class (4:30 PM - 5:15 PM): Class: Database Management System (28561) | Teacher: Md. Kausar Ali (Jr. Instructor (Tech/CST)). Room: ICT Lab (N-310)\n- 6th Class (5:15 PM - 6:00 PM): Not specified\n- 7th Class (6:00 PM - 6:45 PM): Not specified\n\nClass Teacher: Md. Jewel Rana (Instructor, Tech/CST)",
+        "doc_type": "documents",
+        "topic": "class routine",
+        "department": null,
+        "meta": {
+          "context_added_date": "2026-10-15",
+          "context_added_time": "18:50:17",
+          "translation_performed": false,
+          "metadata_extraction_success": true
+        },
+        "source_file": "class_routine_2nd_shift.json",
+        "created_at": "2026-10-15T12:50:26.418Z",
+        "updated_at": "2026-10-15T12:50:26.418Z"
+      },
+      "embedding_content": "class routine\n\nWhat is the Thursday class routine for CNPI CST department day shift sixth semester?\nWho is the class teacher for CNPI CST department day shift sixth semester?\nWhich room is assigned for CNPI CST department day shift sixth semester Thursday classes?\nWhat subject is taught during the 1st class on Thursday for CNPI CST department day shift sixth semester?\nWho teaches Microcontroller Based System Design & Development for CNPI CST department day shift sixth semester on Thursday?\nWhat time does the Database Management System class start for CNPI CST department day shift sixth semester on Thursday?\nWhich teacher conducts the Sensor & IoT System class for CNPI CST department day shift sixth semester on Thursday?\nWhat session does the CNPI CST department day shift sixth semester Thursday class routine belong to?",
+      "stored_content": "[context_added_date: 2026-10-15 | context_added_time: 18:50:17 BST]\nDoc Type: documents\nTopic: class routine\n\nThursday class Routine of CNPI - CST & Department (Day Shift), Sixth Semester (Session: 2026-27) is given below:\n- 1st Class (1:30 PM - 2:15 PM): Class: Microcontroller Based System Design & Development (28564) | Teacher: Md. Abdul Malek (CST) (Instructor (Tech/CST)). Room: Hardware Lab (N-416)\n- 2nd Class (2:15 PM - 3:00 PM): Class: Microcontroller Based System Design & Development (28564) | Teacher: Md. Abdul Malek (CST) (Instructor (Tech/CST)). Room: Hardware Lab (N-416)\n- 3rd Class (3:00 PM - 3:45 PM): Class: Sensor & IoT System (28563) | Teacher: Md. Idul Hasan Jony (Part-Time Teacher (CST)). Room: S-418\n- 4th Class (3:45 PM - 4:30 PM): Class: Database Management System (28561) | Teacher: Md. Kausar Ali (Jr. Instructor (Tech/CST)). Room: ICT Lab (N-310)\n- 5th Class (4:30 PM - 5:15 PM): Class: Database Management System (28561) | Teacher: Md. Kausar Ali (Jr. Instructor (Tech/CST)). Room: ICT Lab (N-310)\n- 6th Class (5:15 PM - 6:00 PM): Not specified\n- 7th Class (6:00 PM - 6:45 PM): Not specified\n\nClass Teacher: Md. Jewel Rana (Instructor, Tech/CST)",
+      "added_to_priority": false,
+      "temporal_analysis": {
+        "notice_date": "2026-10-15",
+        "notice_day": "Thursday",
+        "temporal_type": "TIME_INDEPENDENT",
+        "valid_from": null,
+        "valid_until": null,
+        "events": [],
+        "expiration_date": null
+      }
+    }
+  }
+]
