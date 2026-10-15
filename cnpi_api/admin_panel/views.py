@@ -223,11 +223,11 @@ def create_view(request: HttpRequest) -> JsonResponse:
         meta = request.POST.get("meta")
         source_file = request.POST.get("source_file", "admin_panel")
         try:
-            num_questions = int(request.POST.get(\"num_questions\", 10))
+            num_questions = int(request.POST.get("num_questions", 10))
             num_questions = max(5, min(30, num_questions))
         except (TypeError, ValueError):
             num_questions = 10
-        skip_llm_extraction = request.POST.get(\"skip_llm\", \"false\").lower() in (\"true\", \"1\", \"yes\")
+        skip_llm_extraction = request.POST.get("skip_llm", "false").lower() in ("true", "1", "yes")
 
         # Handle image upload
         image_data = None
