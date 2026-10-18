@@ -84,7 +84,8 @@ INSTALLED_APPS = [
     'answer_bot',
     # 'fiwano_bot',  # Module not found - commented out
     # 'messenger_direct',  # Meta direct integration via Cloudflare Worker - commented out for now
-    'whatsapp_bot'
+    'whatsapp_bot',
+    'telegram_bot',  # RAG-powered Telegram Bot
 ]
 
 MIDDLEWARE = [
@@ -332,6 +333,22 @@ META_PAGE_ACCESS_TOKEN = os.getenv("META_PAGE_ACCESS_TOKEN", "")
 WORKER_SECRET = os.getenv("WORKER_SECRET", "")
 
 # ---------------------------------------------------------------------------
+# Telegram Bot Configuration
+# ---------------------------------------------------------------------------
+# TELEGRAM_BOT_TOKEN : Get from @BotFather on Telegram
+#   Steps: 1. Message @BotFather, 2. Send /newbot, 3. Follow instructions
+#
+# TELEGRAM_WEBHOOK_SECRET_TOKEN : Random string for webhook URL security
+#   Generate: python -c "import secrets; print(secrets.token_urlsafe(32))"
+#
+# TELEGRAM_BOT_ALLOWED_USERS : Comma-separated Telegram user IDs (leave empty to allow all)
+#   Find your user ID: message @userinfobot on Telegram
+#   Example: "123456789,987654321"
+TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "")
+TELEGRAM_WEBHOOK_SECRET_TOKEN = os.getenv("TELEGRAM_WEBHOOK_SECRET_TOKEN", "")
+TELEGRAM_BOT_ALLOWED_USERS = os.getenv("TELEGRAM_BOT_ALLOWED_USERS", "")
+
+# ---------------------------------------------------------------------------
 # Logging — ensure messenger_bot logs appear in Render regardless of DEBUG
 # ---------------------------------------------------------------------------
 LOGGING = {
@@ -360,6 +377,11 @@ LOGGING = {
             "propagate": False,
         },
         "whatsapp_bot": {
+            "handlers": ["console"],
+            "level": "INFO",
+            "propagate": False,
+        },
+        "telegram_bot": {
             "handlers": ["console"],
             "level": "INFO",
             "propagate": False,

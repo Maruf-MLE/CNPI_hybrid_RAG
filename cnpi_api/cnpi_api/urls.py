@@ -20,4 +20,6 @@ urlpatterns = [
     # Redirect /admin000 to admin panel
     path("admin000/", RedirectView.as_view(url="/admin-panel/", permanent=False)),
     path('api/whatsapp/', include('whatsapp_bot.urls')),
+    # Telegram Bot webhook
+    path("", include("telegram_bot.urls")),
 ]
