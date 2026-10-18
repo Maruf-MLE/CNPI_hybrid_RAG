@@ -81,9 +81,9 @@ INSTALLED_APPS = [
     'rag_api',
     'admin_panel',
     'messenger_bot',
-    # 'answer_bot',  # Removed - using Fiwano instead
-    'fiwano_bot',
-    'messenger_direct',   # Meta direct integration via Cloudflare Worker
+    'answer_bot',
+    # 'fiwano_bot',  # Module not found - commented out
+    # 'messenger_direct',  # Meta direct integration via Cloudflare Worker - commented out for now
     'whatsapp_bot'
 ]
 
@@ -354,17 +354,12 @@ LOGGING = {
             "level": "INFO",
             "propagate": False,
         },
-        # "answer_bot": {  # Removed - using Fiwano instead
-        #     "handlers": ["console"],
-        #     "level": "INFO",
-        #     "propagate": False,
-        # },
-        "fiwano_bot": {
+        "answer_bot": {
             "handlers": ["console"],
             "level": "INFO",
             "propagate": False,
         },
-        "messenger_direct": {
+        "whatsapp_bot": {
             "handlers": ["console"],
             "level": "INFO",
             "propagate": False,
