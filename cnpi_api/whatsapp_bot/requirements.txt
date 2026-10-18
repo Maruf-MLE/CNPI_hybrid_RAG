@@ -1,0 +1,20 @@
+# WhatsApp Bot Dependencies
+# Python package requirements for the WhatsApp bot
+
+# Core Django
+django>=4.2.0,<5.0.0
+
+# HTTP requests for API calls
+requests>=2.31.0
+
+# LangChain for conversation history
+langchain-core>=0.1.0
+
+# Environment variable management
+python-dotenv>=1.0.0
+
+# Database (PostgreSQL support - optional)
+psycopg2-binary>=2.9.0
+
+# Timezone support
+pytz>=2023.3

@@ -83,6 +83,8 @@ INSTALLED_APPS = [
     'messenger_bot',
     # 'answer_bot',  # Removed - using Fiwano instead
     'fiwano_bot',
+    'messenger_direct',   # Meta direct integration via Cloudflare Worker
+    'whatsapp_bot'
 ]
 
 MIDDLEWARE = [
@@ -317,6 +319,19 @@ FIWANO_WEBHOOK_SECRET = os.getenv("FIWANO_WEBHOOK_SECRET", "")
 FIWANO_API_BASE_URL = os.getenv("FIWANO_API_BASE_URL", "https://fiwano.com/api/v1")
 
 # ---------------------------------------------------------------------------
+# Meta Messenger Direct Integration (via Cloudflare Worker)
+# ---------------------------------------------------------------------------
+# META_PAGE_ACCESS_TOKEN : Facebook Page Access Token from Meta App Dashboard
+#   Get from: Meta App Dashboard → Messenger → Settings → Access Tokens
+#
+# WORKER_SECRET : Shared secret between Cloudflare Worker and Django
+#   Set same value in Cloudflare (wrangler secret put WORKER_SECRET)
+#   and here. Prevents external callers from hitting Django webhook directly.
+#   Generate: python -c "import secrets; print(secrets.token_urlsafe(32))"
+META_PAGE_ACCESS_TOKEN = os.getenv("META_PAGE_ACCESS_TOKEN", "")
+WORKER_SECRET = os.getenv("WORKER_SECRET", "")
+
+# ---------------------------------------------------------------------------
 # Logging — ensure messenger_bot logs appear in Render regardless of DEBUG
 # ---------------------------------------------------------------------------
 LOGGING = {
@@ -345,6 +360,11 @@ LOGGING = {
         #     "propagate": False,
         # },
         "fiwano_bot": {
+            "handlers": ["console"],
+            "level": "INFO",
+            "propagate": False,
+        },
+        "messenger_direct": {
             "handlers": ["console"],
             "level": "INFO",
             "propagate": False,
