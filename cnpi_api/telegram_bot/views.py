@@ -164,7 +164,7 @@ def _call_rag_api(question: str, session_id: str = None, query_source: str = "te
         resp = requests.post(
             rag_api_url,
             json=payload,
-            timeout=60,  # RAG processing can take time
+            timeout=180,  # ← Increased to 180 seconds (3 minutes) for complex RAG processing
         )
         if resp.ok:
             return resp.json()
@@ -173,7 +173,10 @@ def _call_rag_api(question: str, session_id: str = None, query_source: str = "te
             return {"error": f"RAG API returned {resp.status_code}"}
     except requests.Timeout:
         logger.error("RAG API timeout for question: %s", question[:50])
-        return {"error": "RAG API timeout"}
+        return {"error": "RAG API timeout - processing took too long"}
+    except requests.ConnectionError:
+        logger.error("RAG API connection error - is the API server running?")
+        return {"error": "Cannot connect to RAG API - server may be down"}
     except Exception as e:
         logger.error("RAG API exception: %s", e)
         return {"error": str(e)}
