@@ -26,8 +26,78 @@ from utils.llm_utils import get_llm, extract_content
 from langchain_core.prompts import ChatPromptTemplate
 
 
-_RESPONSE_PROMPT = ChatPromptTemplate.from_messages([
-    ("system", """You are a friendly senior student at CNPI helping juniors. Answer naturally in Bengali.
+# =============================================================================
+# CLASS ROUTINE FORMAT TEMPLATES
+# =============================================================================
+
+# Default/Web Format - Markdown Table
+_CLASS_ROUTINE_FORMAT_DEFAULT = """
+CLASS ROUTINES (CRITICAL):
+IF user asks for routine/timetable/schedule, present as Markdown table:
+
+📅 **CST Department - Day Shift - 5th Semester Class Routine**
+
+| দিন    | সময়       | বিষয়               | শিক্ষক              | রুম    |
+| ------ | ---------- | ------------------- | ------------------- | ------ |
+| রবিবার | 8:00-9:00  | Data Structures     | Md. Kamal Sir       | Lab-1  |
+| সোমবার | 9:00-10:00 | Database Management | Md. Jewel Rana Sir  | Room-5 |
+
+MULTI-DAY ROUTINES:
+- Check context for EVERY requested day (Sunday-Thursday)
+- Don't stop after finding one match
+- Include partial information if complete routine unavailable
+- Never mix different Departments/Semesters/Shifts
+"""
+
+# Telegram Format - Plain Text (Mobile Optimized)
+_CLASS_ROUTINE_FORMAT_TELEGRAM = """
+CLASS ROUTINES FOR TELEGRAM (CRITICAL):
+IF user asks for routine/timetable/schedule from Telegram, use SIMPLE TEXT format:
+
+📅 *CST Department - Day Shift - 5th Semester*
+
+*রবিবার:*
+• 8:00-9:00 - Data Structures (Md. Kamal Sir) - Lab-1
+• 9:00-10:00 - Database Management (Md. Jewel Rana Sir) - Room-5
+
+*সোমবার:*
+• 8:00-9:00 - Computer Networks (Rejuanul Arefin Sir) - Lab-2
+
+Format Rules:
+- Use bold (*text*) for headers
+- Use bullet points (•) for each class
+- One line per class: Time - Subject (Teacher) - Room
+- Group by day
+- NO Markdown tables (not mobile-friendly)
+- Keep compact and easy to read on phone
+
+MULTI-DAY ROUTINES:
+- Check context for EVERY requested day (Sunday-Thursday)
+- Don't stop after finding one match
+- Include partial information if complete routine unavailable
+- Never mix different Departments/Semesters/Shifts
+"""
+
+
+def _get_system_prompt(source: str = "default") -> str:
+    """
+    Generate system prompt based on query source.
+    
+    Args:
+        source: Query source - "telegram", "web", or "default"
+    
+    Returns:
+        Complete system prompt with appropriate class routine formatting
+    """
+    
+    # Select appropriate class routine format based on source
+    if source.lower() == "telegram":
+        routine_format = _CLASS_ROUTINE_FORMAT_TELEGRAM
+    else:
+        routine_format = _CLASS_ROUTINE_FORMAT_DEFAULT
+    
+    # Build the complete system prompt
+    system_prompt = f"""You are a friendly senior student at CNPI helping juniors. Answer naturally in Bengali.
 
 TONE: Casual, warm, like texting a friend. NO formal phrases. Use emojis naturally (🎓, 👨🏫, 📞, ✅, 📅).
 
@@ -48,21 +118,7 @@ HONORIFICS (CRITICAL):
 - Male teachers: Add "Sir" (e.g., "Md. Jewel Rana Sir")
 - Female teachers: Add "ম্যাডাম"
 
-CLASS ROUTINES (CRITICAL):
-IF user asks for routine/timetable/schedule, present as Markdown table:
-
-📅 **CST Department - Day Shift - 5th Semester Class Routine**
-
-| দিন    | সময়       | বিষয়               | শিক্ষক              | রুম    |
-| ------ | ---------- | ------------------- | ------------------- | ------ |
-| রবিবার | 8:00-9:00  | Data Structures     | Md. Kamal Sir       | Lab-1  |
-| সোমবার | 9:00-10:00 | Database Management | Md. Jewel Rana Sir  | Room-5 |
-
-MULTI-DAY ROUTINES:
-- Check context for EVERY requested day (Sunday-Thursday)
-- Don't stop after finding one match
-- Include partial information if complete routine unavailable
-- Never mix different Departments/Semesters/Shifts
+{routine_format}
 
 ENTITY MATCHING:
 - CST ≠ ENT, 3rd Semester ≠ 5th Semester, 1st Shift ≠ 2nd Shift
@@ -70,7 +126,7 @@ ENTITY MATCHING:
 
 TEMPORAL RULES:
 - Notice published date ≠ Event date
-- "আজ/আগামীকাল" → use current date: {current_datetime}
+- "আজ/আগামীকাল" → use current date: {{current_datetime}}
 - scheduled ≠ completed, announced ≠ done
 
 VERIFIED EVIDENCE:
@@ -795,8 +851,14 @@ conditions, exceptions, or uncertainty.
 Never make the user infer the answer from a general summary.
 
 Answer:
+"""
+    
+    return system_prompt
 
-"""),
+
+# Create default prompt template (will be replaced dynamically)
+_RESPONSE_PROMPT = ChatPromptTemplate.from_messages([
+    ("system", _get_system_prompt("default")),
     ("human", "User Query: {user_query}\n\nCurrent Date & Time: {current_datetime}\n\nVerified Evidence:\n{verified_evidence}\n\nRaw Retrieved Context:\n{context}")
 ])
 
@@ -806,17 +868,32 @@ def sql_retrieve_response_node(state: RAGState) -> Dict[str, Any]:
     
     ★ NEW: Now uses verified evidence from evidence_verification_node.
     Sets skip_support_check=True when there's no context to skip validation.
+    ★ DYNAMIC PROMPT: Uses query_source from state to select appropriate prompt format.
     """
     
     # Get the shared LLM instance
     llm = get_llm()
-    chain = _RESPONSE_PROMPT | llm
-
+    
     sql_retrieve_state = state.get("sql_retrieve", {})
     # Use normalized query instead of raw user input
     user_query = state.get("normalized_query") or state.get("rewritten_query") or state.get("user_input", "")
     context = sql_retrieve_state.get("context_with_meta", "")
     verified_evidence = sql_retrieve_state.get("verified_evidence", "")
+    
+    # ★ NEW: Detect query source and select appropriate prompt
+    query_source = state.get("query_source", "default")  # "telegram", "web", or "default"
+    
+    # ★ DEBUG: Log query_source being used
+    print(f"[OPTIMIZED sql_retrieve_response_node] query_source from state: '{query_source}'")
+    print(f"[OPTIMIZED sql_retrieve_response_node] Using prompt format for: {query_source}")
+    
+    # Create dynamic prompt based on source
+    dynamic_prompt = ChatPromptTemplate.from_messages([
+        ("system", _get_system_prompt(query_source)),
+        ("human", "User Query: {user_query}\n\nCurrent Date & Time: {current_datetime}\n\nVerified Evidence:\n{verified_evidence}\n\nRaw Retrieved Context:\n{context}")
+    ])
+    
+    chain = dynamic_prompt | llm
 
     try:
         # Send to LLM even without context (for no_path queries)
