@@ -19,6 +19,13 @@ class ChatRequestSerializer(serializers.Serializer):
         default="",
         help_text="Session ID to keep chat history. If omitted, a new session is created.",
     )
+    query_source = serializers.CharField(
+        max_length=50,
+        required=False,
+        allow_blank=True,
+        default="default",
+        help_text="Source of the query: 'telegram', 'web', or 'default'.",
+    )
 
 
 class ChatResponseSerializer(serializers.Serializer):

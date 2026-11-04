@@ -86,6 +86,7 @@ INSTALLED_APPS = [
     # 'messenger_direct',  # Meta direct integration via Cloudflare Worker - commented out for now
     'whatsapp_bot',
     'telegram_bot',  # RAG-powered Telegram Bot
+    'cron_api',  # Public cron endpoint
 ]
 
 MIDDLEWARE = [

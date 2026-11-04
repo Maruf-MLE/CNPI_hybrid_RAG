@@ -22,4 +22,6 @@ urlpatterns = [
     path('api/whatsapp/', include('whatsapp_bot.urls')),
     # Telegram Bot webhook
     path("", include("telegram_bot.urls")),
+    # Public cron endpoint (no auth required)
+    path("api/", include("cron_api.urls")),
 ]

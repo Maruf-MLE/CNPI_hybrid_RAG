@@ -134,13 +134,14 @@ def _send_chat_action(chat_id: int, action: str = "typing") -> None:
 # RAG API integration
 # ---------------------------------------------------------------------------
 
-def _call_rag_api(question: str, session_id: str = None) -> dict[str, Any]:
+def _call_rag_api(question: str, session_id: str = None, query_source: str = "telegram") -> dict[str, Any]:
     """
     Call the RAG API to get an answer to a question.
     
     Args:
         question: User's question text
         session_id: Optional session ID for context retention
+        query_source: Source of the query ("telegram", "web", "default")
     
     Returns:
         {
@@ -152,7 +153,10 @@ def _call_rag_api(question: str, session_id: str = None) -> dict[str, Any]:
     """
     rag_api_url = _get_setting("RAG_API_URL") or "http://127.0.0.1:8000/api/chat/"
     
-    payload = {"message": question}
+    payload = {
+        "message": question,
+        "query_source": query_source  # ← Telegram query হিসেবে mark করা হলো
+    }
     if session_id:
         payload["session_id"] = session_id
     

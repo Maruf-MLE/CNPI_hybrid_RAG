@@ -247,6 +247,9 @@ class RAGState(TypedDict, total=False):
     # ---- Sub-query context ----
     is_sub_query_call: Annotated[bool, replace_reducer]
     parent_sub_query: Annotated[Optional[str], replace_reducer]
+    
+    # ---- Query source (telegram, web, default) ----
+    query_source: Annotated[str, replace_reducer]
 
     # ---- Per-path nested state -----------------------------------------------
     hybrid: Annotated[HybridPathState, merge_hybrid_path_state]
@@ -320,7 +323,7 @@ def new_web_search_state() -> WebSearchPathState:
     )
 
 
-def new_rag_state(user_input: str, messages: list[BaseMessage] | None = None) -> RAGState:
+def new_rag_state(user_input: str, messages: list[BaseMessage] | None = None, query_source: str = "default") -> RAGState:
     """Entry point: call this ONCE per incoming user question,
     e.g. inside your Django view before graph.invoke(...).
 
@@ -330,6 +333,7 @@ def new_rag_state(user_input: str, messages: list[BaseMessage] | None = None) ->
                     (list of HumanMessage / AIMessage).  Pass [] or None
                     for the first turn; pass the growing history list
                     for subsequent turns so the LLM can see prior context.
+        query_source: source of the query ("telegram", "web", "default")
     """
     from langchain_core.messages import HumanMessage
     history = list(messages) if messages else []
@@ -342,6 +346,7 @@ def new_rag_state(user_input: str, messages: list[BaseMessage] | None = None) ->
         confidence_score=0.0,
         is_sub_query_call=False,
         parent_sub_query=None,
+        query_source=query_source,     # ← Add query_source to state
         hybrid=new_hybrid_state(),
         sql_query=new_sql_query_state(),
         sql_retrieve=new_sql_retrieve_state(),

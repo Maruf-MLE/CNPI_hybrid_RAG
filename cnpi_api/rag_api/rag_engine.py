@@ -32,7 +32,7 @@ def _get_compiled_graph():
     return _compiled_graph
 
 
-def run_rag(user_input: str, chat_history: list | None = None) -> dict:
+def run_rag(user_input: str, chat_history: list | None = None, query_source: str = "default") -> dict:
     """Run the full RAG pipeline for a single user question.
 
     Parameters:
@@ -40,6 +40,7 @@ def run_rag(user_input: str, chat_history: list | None = None) -> dict:
         chat_history:  list of langchain BaseMessage objects from prior turns
                        (HumanMessage / AIMessage). Pass [] or None for the
                        first turn.
+        query_source:  source of the query ("telegram", "web", "default")
 
     Returns:
         dict with keys:
@@ -57,6 +58,7 @@ def run_rag(user_input: str, chat_history: list | None = None) -> dict:
     initial_state = new_rag_state(
         user_input=user_input,
         messages=chat_history or [],
+        query_source=query_source,  # ← Pass query_source to state
     )
 
     logger.info("Invoking graph for user_input: %s", user_input[:80])

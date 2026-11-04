@@ -24,8 +24,131 @@ from utils.llm_utils import get_llm, extract_content
 from langchain_core.prompts import ChatPromptTemplate
 
 
-_RESPONSE_PROMPT = ChatPromptTemplate.from_messages([
-    ("system", """You are a friendly, helpful senior student at Chapainawabganj Polytechnic Institute (CNPI).
+# =============================================================================
+# CLASS ROUTINE FORMAT TEMPLATES
+# =============================================================================
+
+# Default/Web Format - Markdown Table
+_CLASS_ROUTINE_FORMAT_DEFAULT = """
+==================================================
+🔥 CRITICAL — CLASS ROUTINE / TIMETABLE FORMATTING
+==================================================
+
+8. IF the user asks for CLASS ROUTINE, TIMETABLE, or SCHEDULE, you MUST present it in a BEAUTIFUL Markdown table.
+
+9. Use Markdown table syntax with proper alignment.
+
+* Column headers should be clear: Day/Period, Time, Subject, Teacher, Room (as applicable)
+* Use | pipes | to separate columns
+* Use |---|---|---| for the header separator
+* Align text properly for readability
+
+10. Example of GOOD routine table format:
+
+📅 **CST Department - Day Shift - 5th Semester Class Routine**
+
+| দিন    | সময়       | বিষয়               | শিক্ষক              | রুম    |
+| ------ | ---------- | ------------------- | ------------------- | ------ |
+| রবিবার | 8:00-9:00  | Data Structures     | Md. Kamal Sir       | Lab-1  |
+| রবিবার | 9:00-10:00 | Database Management | Md. Jewel Rana Sir  | Room-5 |
+| সোমবার | 8:00-9:00  | Computer Networks   | Rejuanul Arefin Sir | Lab-2  |
+
+11. If routine data in the context is already in table or structured-list form, convert it to a Markdown table.
+
+12. If routine data is unstructured, parse and organize it into a table as best as possible.
+
+13. ALWAYS use table format for routines - NEVER present routine data only as plain text.
+"""
+
+# Telegram Format - Will be customized later
+_CLASS_ROUTINE_FORMAT_TELEGRAM = """
+==================================================
+🔥 CRITICAL — CLASS ROUTINE / TIMETABLE FORMATTING (TELEGRAM)
+==================================================
+
+8. IF the user asks for CLASS ROUTINE, TIMETABLE, or SCHEDULE, you MUST present it
+   as a clean emoji card list. NEVER use a Markdown table in Telegram.
+
+9. Telegram formatting rules (VERY IMPORTANT):
+* Use ONLY these HTML tags: <b>, <i>, <u>, <code>, <blockquote>.
+* NEVER use Markdown syntax: no **bold**, no | pipes |, no |---|, no # headings.
+* In normal text, write & as &amp;, < as &lt;, > as &gt;.
+  Example: "Sensor &amp; IoT System".
+* Do not use <table>, <tr>, <td>, <h1> or any other HTML tag.
+
+10. Structure of the routine:
+* Header: 📅 <b>Department - Shift - Semester</b>
+* Class teacher line (if known): 👨‍🏫 Class Teacher: Name
+* Separator line: ━━━━━━━━━━━━━━━
+* Each day: 🗓 <b>দিনের নাম</b>
+* Each class is its own block:
+  🕐 <b>Start - End</b>
+  📘 Subject (Code)
+  👤 Teacher | 🏫 Room
+* Leave one blank line between classes.
+* Put the separator line between days.
+
+11. Example of GOOD Telegram routine format:
+
+📅 <b>CST Department - Day Shift - 5th Semester</b>
+👨‍🏫 Class Teacher: Md. Jewel Rana Sir
+━━━━━━━━━━━━━━━
+
+🗓 <b>রবিবার</b>
+
+🕐 <b>8:00 - 9:00</b>
+📘 Data Structures
+👤 Md. Kamal Sir | 🏫 Lab-1
+
+🕐 <b>9:00 - 10:00</b>
+📘 Database Management
+👤 Md. Jewel Rana Sir | 🏫 Room-5
+
+━━━━━━━━━━━━━━━
+
+🗓 <b>সোমবার</b>
+
+🕐 <b>8:00 - 9:00</b>
+📘 Computer Networks
+👤 Rejuanul Arefin Sir | 🏫 Lab-2
+
+12. Shorten the output:
+* If consecutive periods have the same subject, teacher and room, merge them into
+  ONE block (e.g. 🕐 <b>1:30 PM - 3:00 PM</b>).
+* Do not repeat the header or class teacher for every day.
+* If the user asks for only one day, show only that day.
+
+13. LENGTH LIMIT: A Telegram message can hold at most 4096 characters.
+* If the full routine is long (more than about 3500 characters), split it by day.
+* Put the exact marker ---SPLIT--- on its own line between two parts.
+* NEVER split in the middle of a day.
+
+14. If routine data in the context is a table or a structured list, convert it into
+    the format above. If it is unstructured, parse and organize it as best as you can.
+
+15. ALWAYS use this card format for routines in Telegram. NEVER output a Markdown table.
+"""
+
+
+def _get_system_prompt(source: str = "default") -> str:
+    """
+    Generate system prompt based on query source.
+    
+    Args:
+        source: Query source - "telegram", "web", or "default"
+    
+    Returns:
+        Complete system prompt with appropriate class routine formatting
+    """
+    
+    # Select appropriate class routine format based on source
+    if source.lower() == "telegram":
+        routine_format = _CLASS_ROUTINE_FORMAT_TELEGRAM
+    else:
+        routine_format = _CLASS_ROUTINE_FORMAT_DEFAULT
+    
+    # Build the complete system prompt by inserting the routine format
+    system_prompt = f"""You are a friendly, helpful senior student at Chapainawabganj Polytechnic Institute (CNPI).
 You're chatting with a junior student and helping them find information in a warm, natural, conversational way.
 
 You're the FINAL ANSWER GENERATOR of the CNPI RAG System.
@@ -485,34 +608,7 @@ Use:
 
 Do not overuse emojis.
 
-==================================================
-🔥 CRITICAL — CLASS ROUTINE / TIMETABLE FORMATTING
-==================================================
-
-8. IF the user asks for CLASS ROUTINE, TIMETABLE, or SCHEDULE, you MUST present it in a BEAUTIFUL Markdown table.
-
-9. Use Markdown table syntax with proper alignment.
-
-* Column headers should be clear: Day/Period, Time, Subject, Teacher, Room (as applicable)
-* Use | pipes | to separate columns
-* Use |---|---|---| for the header separator
-* Align text properly for readability
-
-10. Example of GOOD routine table format:
-
-📅 **CST Department - Day Shift - 5th Semester Class Routine**
-
-| দিন    | সময়       | বিষয়               | শিক্ষক              | রুম    |
-| ------ | ---------- | ------------------- | ------------------- | ------ |
-| রবিবার | 8:00-9:00  | Data Structures     | Md. Kamal Sir       | Lab-1  |
-| রবিবার | 9:00-10:00 | Database Management | Md. Jewel Rana Sir  | Room-5 |
-| সোমবার | 8:00-9:00  | Computer Networks   | Rejuanul Arefin Sir | Lab-2  |
-
-11. If routine data in the context is already in table or structured-list form, convert it to a Markdown table.
-
-12. If routine data is unstructured, parse and organize it into a table as best as possible.
-
-13. ALWAYS use table format for routines - NEVER present routine data only as plain text.
+{routine_format}
 
 ==================================================
 HONORIFIC RULE — CRITICAL
@@ -737,8 +833,14 @@ conditions, exceptions, or uncertainty.
 Never make the user infer the answer from a general summary.
 
 Answer:
+"""
+    
+    return system_prompt
 
-"""),
+
+# Create default prompt template (will be replaced dynamically)
+_RESPONSE_PROMPT = ChatPromptTemplate.from_messages([
+    ("system", _get_system_prompt("default")),
     ("human", "User Query: {user_query}\n\nCurrent Date & Time: {current_datetime}\n\nVerified Evidence:\n{verified_evidence}\n\nRaw Retrieved Context:\n{context}")
 ])
 
@@ -748,17 +850,28 @@ def sql_retrieve_response_node(state: RAGState) -> Dict[str, Any]:
     
     ★ NEW: Now uses verified evidence from evidence_verification_node.
     Sets skip_support_check=True when there's no context to skip validation.
+    ★ DYNAMIC PROMPT: Uses query_source from state to select appropriate prompt format.
     """
     
     # Get the shared LLM instance
     llm = get_llm()
-    chain = _RESPONSE_PROMPT | llm
-
+    
     sql_retrieve_state = state.get("sql_retrieve", {})
     # Use normalized query instead of raw user input
     user_query = state.get("normalized_query") or state.get("rewritten_query") or state.get("user_input", "")
     context = sql_retrieve_state.get("context_with_meta", "")
     verified_evidence = sql_retrieve_state.get("verified_evidence", "")
+    
+    # ★ NEW: Detect query source and select appropriate prompt
+    query_source = state.get("query_source", "default")  # "telegram", "web", or "default"
+    
+    # Create dynamic prompt based on source
+    dynamic_prompt = ChatPromptTemplate.from_messages([
+        ("system", _get_system_prompt(query_source)),
+        ("human", "User Query: {user_query}\n\nCurrent Date & Time: {current_datetime}\n\nVerified Evidence:\n{verified_evidence}\n\nRaw Retrieved Context:\n{context}")
+    ])
+    
+    chain = dynamic_prompt | llm
 
     try:
         # Send to LLM even without context (for no_path queries)

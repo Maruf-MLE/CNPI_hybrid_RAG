@@ -64,7 +64,8 @@ def chat_view(request):
     Request body (JSON):
         {
             "message": "CST department er CI ke?",
-            "session_id": "abc123"          // optional
+            "session_id": "abc123",         // optional
+            "query_source": "telegram"      // optional: "telegram", "web", "default"
         }
 
     Response (JSON):
@@ -83,6 +84,7 @@ def chat_view(request):
 
     message = serializer.validated_data["message"].strip()
     session_id = serializer.validated_data.get("session_id", "").strip()
+    query_source = serializer.validated_data.get("query_source", "default").strip()
 
     if not message:
         return Response(
@@ -100,7 +102,11 @@ def chat_view(request):
     try:
         from .rag_engine import run_rag
 
-        result = run_rag(user_input=message, chat_history=chat_history)
+        result = run_rag(
+            user_input=message, 
+            chat_history=chat_history,
+            query_source=query_source  # ← Pass query_source to RAG engine
+        )
 
         # Persist updated chat history
         chat_store.set_history(session_id, result["messages"])
