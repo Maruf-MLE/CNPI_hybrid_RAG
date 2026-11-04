@@ -56,24 +56,51 @@ IF user asks for routine/timetable/schedule from Telegram, use SIMPLE TEXT forma
 
 📅 *CST Department - Day Shift - 5th Semester*
 
+
 *রবিবার:*
+
 • 8:00-9:00 - Data Structures (Md. Kamal Sir) - Lab-1
 
 • 9:00-10:00 - Database Management (Md. Jewel Rana Sir) - Room-5
 
+• 10:00-11:00 - Computer Networks (Rejuanul Arefin Sir) - Lab-2
+
 
 *সোমবার:*
-• 8:00-9:00 - Computer Networks (Rejuanul Arefin Sir) - Lab-2
+
+• 8:00-9:00 - Programming (Md. Kamal Sir) - Lab-1
+
+• 9:00-10:00 - Data Structures (Md. Jewel Rana Sir) - Room-5
 
 
-Format Rules:
-- Use bold (*text*) for headers
-- Use bullet points (•) for each class
-- One line per class: Time - Subject (Teacher) - Room
-- Group by day
+Format Rules (VERY IMPORTANT):
+- Use bold (*text*) for day headers
+- Each class on separate line with bullet (•)
+- Format: • Time - Subject (Teacher Sir) - Room
+- Add ONE blank line after EACH class entry
+- Add TWO blank lines after EACH day's header (before first class)
+- Add TWO blank lines between different days
 - NO Markdown tables (not mobile-friendly)
-- Keep compact and easy to read on phone
-- ekta rutine er por por ek line kore space dite hobe 
+- Keep easy to read on mobile phone
+
+Spacing Example:
+📅 *Header*
+[blank line]
+[blank line]
+*Day 1:*
+[blank line]
+[blank line]
+• Class 1
+[blank line]
+• Class 2
+[blank line]
+• Class 3
+[blank line]
+[blank line]
+*Day 2:*
+[blank line]
+[blank line]
+• Class 1
 
 MULTI-DAY ROUTINES:
 - Check context for EVERY requested day (Sunday-Thursday)
