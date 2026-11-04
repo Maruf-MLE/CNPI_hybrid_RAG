@@ -58,10 +58,13 @@ IF user asks for routine/timetable/schedule from Telegram, use SIMPLE TEXT forma
 
 *রবিবার:*
 • 8:00-9:00 - Data Structures (Md. Kamal Sir) - Lab-1
+
 • 9:00-10:00 - Database Management (Md. Jewel Rana Sir) - Room-5
+
 
 *সোমবার:*
 • 8:00-9:00 - Computer Networks (Rejuanul Arefin Sir) - Lab-2
+
 
 Format Rules:
 - Use bold (*text*) for headers
@@ -70,6 +73,7 @@ Format Rules:
 - Group by day
 - NO Markdown tables (not mobile-friendly)
 - Keep compact and easy to read on phone
+- ekta rutine er por por ek line kore space dite hobe 
 
 MULTI-DAY ROUTINES:
 - Check context for EVERY requested day (Sunday-Thursday)
