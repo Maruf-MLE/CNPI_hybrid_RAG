@@ -61,7 +61,7 @@ def run_rag(user_input: str, chat_history: list | None = None, query_source: str
         query_source=query_source,  # ← Pass query_source to state
     )
 
-    logger.info("Invoking graph for user_input: %s", user_input[:80])
+    logger.info("Invoking graph for user_input: %s with query_source: %s", user_input[:80], query_source)
     result_state = compiled.invoke(initial_state)
 
     # ---- Extract final_answer (top-level or nested) ----

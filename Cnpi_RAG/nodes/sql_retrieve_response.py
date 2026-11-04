@@ -865,6 +865,10 @@ def sql_retrieve_response_node(state: RAGState) -> Dict[str, Any]:
     # ★ NEW: Detect query source and select appropriate prompt
     query_source = state.get("query_source", "default")  # "telegram", "web", or "default"
     
+    # ★ DEBUG: Log query_source being used
+    print(f"[sql_retrieve_response_node] query_source from state: '{query_source}'")
+    print(f"[sql_retrieve_response_node] Using prompt format for: {query_source}")
+    
     # Create dynamic prompt based on source
     dynamic_prompt = ChatPromptTemplate.from_messages([
         ("system", _get_system_prompt(query_source)),

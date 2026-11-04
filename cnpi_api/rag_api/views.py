@@ -85,6 +85,9 @@ def chat_view(request):
     message = serializer.validated_data["message"].strip()
     session_id = serializer.validated_data.get("session_id", "").strip()
     query_source = serializer.validated_data.get("query_source", "default").strip()
+    
+    # ★ DEBUG: Log query_source
+    logger.info("Received query_source: '%s' for message: %s", query_source, message[:50])
 
     if not message:
         return Response(
