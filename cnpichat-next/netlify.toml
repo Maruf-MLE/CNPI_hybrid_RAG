@@ -8,6 +8,14 @@
 [[plugins]]
   package = "@netlify/plugin-nextjs"
 
+# Redirect .netlify.app domain → custom domain (301 Permanent)
+# Must come FIRST so it takes priority over all other rules
+[[redirects]]
+  from = "https://cnpichat.netlify.app/*"
+  to = "https://cnpichat.diplomabazar.com/:splat"
+  status = 301
+  force = true
+
 # /admin-panel → backend admin panel login (production)
 # This Netlify-level redirect runs BEFORE Next.js,
 # so it works even if Next.js redirects can't reach external URLs.
