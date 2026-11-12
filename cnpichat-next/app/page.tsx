@@ -129,14 +129,8 @@ export default function Home() {
       <header className="chat-header">
         <div className="bot-info">
           <div className="bot-avatar">
-            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M5 10C5 8.89543 5.89543 8 7 8H17C18.1046 8 19 8.89543 19 10V16C19 17.1046 18.1046 18 17 18H7C5.89543 18 5 17.1046 5 16V10Z" fill="#A662C6" />
-              <circle cx="9" cy="12" r="1.5" fill="white" />
-              <circle cx="15" cy="12" r="1.5" fill="white" />
-              <path d="M10 15H14" stroke="white" strokeWidth="1.5" strokeLinecap="round" />
-              <path d="M12 4V8" stroke="#A662C6" strokeWidth="2" strokeLinecap="round" />
-              <circle cx="12" cy="4" r="1.5" fill="#A662C6" />
-            </svg>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/CNPI_chat_remove_bg.png" alt="CNPI Chat Logo" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
           </div>
           <div className="bot-details">
             <h1 className="bot-name">CNPIchat</h1>
@@ -206,14 +200,8 @@ export default function Home() {
               {showSender && (
                 <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
                   <div className="message-avatar">
-                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M5 10C5 8.89543 5.89543 8 7 8H17C18.1046 8 19 8.89543 19 10V16C19 17.1046 18.1046 18 17 18H7C5.89543 18 5 17.1046 5 16V10Z" fill="#A662C6" />
-                      <circle cx="9" cy="12" r="1.5" fill="white" />
-                      <circle cx="15" cy="12" r="1.5" fill="white" />
-                      <path d="M10 15H14" stroke="white" strokeWidth="1.5" strokeLinecap="round" />
-                      <path d="M12 4V8" stroke="#A662C6" strokeWidth="2" strokeLinecap="round" />
-                      <circle cx="12" cy="4" r="1.5" fill="#A662C6" />
-                    </svg>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src="/CNPI_chat_remove_bg.png" alt="CNPI Chat" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
                   </div>
                   <span className="message-sender">CNPIchat</span>
                 </div>
@@ -416,14 +404,8 @@ export default function Home() {
           <div className="message-group bot">
             <div className="message-row">
               <div className="message-avatar">
-                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M5 10C5 8.89543 5.89543 8 7 8H17C18.1046 8 19 8.89543 19 10V16C19 17.1046 18.1046 18 17 18H7C5.89543 18 5 17.1046 5 16V10Z" fill="#A662C6" />
-                  <circle cx="9" cy="12" r="1.5" fill="white" />
-                  <circle cx="15" cy="12" r="1.5" fill="white" />
-                  <path d="M10 15H14" stroke="white" strokeWidth="1.5" strokeLinecap="round" />
-                  <path d="M12 4V8" stroke="#A662C6" strokeWidth="2" strokeLinecap="round" />
-                  <circle cx="12" cy="4" r="1.5" fill="#A662C6" />
-                </svg>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/CNPI_chat_remove_bg.png" alt="CNPI Chat" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
               </div>
               <div className="typing-indicator" style={{ marginLeft: 0 }}>
                 <div className="dot"></div><div className="dot"></div><div className="dot"></div>

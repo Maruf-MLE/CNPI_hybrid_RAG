@@ -6,6 +6,7 @@ import {
   organizationStructuredData,
   faqStructuredData,
 } from "../lib/structured-data";
+import ServiceWorkerRegistrar from "./sw-register";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -98,9 +99,14 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <head>
-        <link rel="icon" href="/favicon.ico" sizes="any" />
-        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        <link rel="icon" href="/CNPI_chat_remove_bg.png" type="image/png" />
+        <link rel="apple-touch-icon" href="/CNPI_chat_remove_bg.png" />
         <meta name="theme-color" content="#0f172a" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="apple-mobile-web-app-title" content="CNPI Chat" />
+        <link rel="manifest" href="/manifest.webmanifest" />
         {/* JSON-LD Structured Data for rich search results */}
         <script
           type="application/ld+json"
@@ -116,6 +122,7 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-full flex flex-col" suppressHydrationWarning>
+        <ServiceWorkerRegistrar />
         {children}
       </body>
     </html>
