@@ -371,8 +371,8 @@ def create_document(
 
     # Prepare timestamp header for LLM extraction (Step 3.5)
     timestamp_header = (
-        f"[context_added_date: {context_added_date} | "
-        f"context_added_time: {context_added_time} BST]\n"
+        f"Notice Publication Date: {context_added_date}\n"
+        f"Notice Publication Time: {context_added_time} BST\n"
     )
     
     # Add Doc Type, Department, and Topic metadata
@@ -481,8 +481,8 @@ def create_document(
     except (json.JSONDecodeError, TypeError):
         existing_meta = {}
 
-    existing_meta["context_added_date"] = context_added_date
-    existing_meta["context_added_time"] = context_added_time
+    existing_meta["notice_publication_date"] = context_added_date
+    existing_meta["notice_publication_time"] = context_added_time
     existing_meta["translation_performed"] = translation_performed
     existing_meta["metadata_extraction_success"] = metadata_extraction_success
     if translation_performed:
@@ -616,8 +616,8 @@ def create_document(
                 "translation_performed": translation_performed,
                 "temporal_analysis_performed": temporal_analysis_json is not None,
                 "metadata_extraction_success": metadata_extraction_success,
-                "context_added_date": context_added_date,
-                "context_added_time": context_added_time,
+                "notice_publication_date": context_added_date,
+                "notice_publication_time": context_added_time,
                 "document": doc,
                 "embedding_content": embedding_content,  # Content used for embedding
                 "stored_content": new_content,  # Content stored in database
@@ -763,8 +763,8 @@ def create_document(
                 "translation_performed": translation_performed,
                 "temporal_analysis_performed": temporal_analysis_json is not None,
                 "metadata_extraction_success": metadata_extraction_success,
-                "context_added_date": context_added_date,
-                "context_added_time": context_added_time,
+                "notice_publication_date": context_added_date,
+                "notice_publication_time": context_added_time,
                 "document": doc,
                 "embedding_content": embedding_content,
                 "stored_content": new_content,
@@ -857,8 +857,8 @@ def create_document(
             "temporal_analysis_performed": temporal_analysis_json is not None,
             "metadata_extraction_success": metadata_extraction_success,
             "image_text_extracted": image_text_extracted,  # New field
-            "context_added_date": context_added_date,
-            "context_added_time": context_added_time,
+            "notice_publication_date": context_added_date,
+            "notice_publication_time": context_added_time,
             "document": doc,
             "embedding_content": embedding_content,  # Content used for embedding
             "stored_content": new_content,  # Content stored in database

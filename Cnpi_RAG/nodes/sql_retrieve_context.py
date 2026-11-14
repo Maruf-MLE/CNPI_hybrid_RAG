@@ -40,7 +40,7 @@ def _format_result(rank: int, row: dict) -> str:
         except Exception:
             meta = {}
 
-    date_str = meta.get("date", "তারিখ অজানা")
+    date_str = meta.get("notice_publication_date", meta.get("date", "তারিখ অজানা"))
     author = meta.get("author", "")
     priority = meta.get("priority", "")
     score = row.get("rrf_score", 0.0)
@@ -112,8 +112,8 @@ def sql_retrieve_context_node(state: RAGState) -> Dict[str, Any]:
             contexts_list.append({
                 "rank": i + 1,
                 "content": r.get("content", "").strip(),
-                "date": meta.get("context_added_date", meta.get("date", "")),
-                "time": meta.get("context_added_time", ""),
+                "date": meta.get("notice_publication_date", meta.get("date", "")),
+                "time": meta.get("notice_publication_time", ""),
                 "score": r.get("rrf_score", 0.0),
                 "doc_type": meta.get("doc_type", ""),
                 "topic": meta.get("topic", ""),

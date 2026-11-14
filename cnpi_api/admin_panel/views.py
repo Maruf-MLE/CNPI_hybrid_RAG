@@ -1005,14 +1005,14 @@ async function doCreate(){
       body: JSON.stringify(body)});
     if(!ok) return toast(d.error||"Create failed", "err");
     const xlat = d.translation_performed ? " · translated Bengali→English" : "";
-    const dateInfo = d.context_added_date ? ` · ${d.context_added_date} ${d.context_added_time} BST` : "";
+    const dateInfo = d.notice_publication_date ? ` · Published: ${d.notice_publication_date} ${d.notice_publication_time} BST` : "";
     const noticeInfo = d.inserted_into_notices ? ` · notice_id=${d.notice_id}` : "";
     toast(`Created doc_id=${d.doc_id}${xlat}${dateInfo}${noticeInfo}`, "ok");
     const xlBadge = d.translation_performed
       ? `<span class="tag" style="color:var(--ok);border-color:var(--ok)">translated Bengali→EN</span>`
       : `<span class="tag">no translation needed</span>`;
-    const dateBadge = d.context_added_date
-      ? `<span class="tag">added: ${esc(d.context_added_date)} ${esc(d.context_added_time)} BST</span>`
+    const dateBadge = d.notice_publication_date
+      ? `<span class="tag">Published: ${esc(d.notice_publication_date)} ${esc(d.notice_publication_time)} BST</span>`
       : "";
     const noticeBadge = d.inserted_into_notices
       ? `<span class="tag" style="color:var(--accent);border-color:var(--accent)">✓ inserted into notices table (notice_id: ${d.notice_id})</span>`
