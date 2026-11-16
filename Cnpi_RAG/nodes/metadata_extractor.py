@@ -299,6 +299,131 @@ Prefer approximately 8–15 high-quality questions.
 Do NOT generate unnecessary questions merely to increase the number.
 
 # ==================================================
+# QUESTION GENERATION RULES
+# ==================================================
+
+Generate realistic, natural, and retrieval-optimized questions that represent how actual CNPI students, teachers, and staff members would search for information contained in the document.
+
+The generated questions will be used directly to create semantic embeddings. Therefore, prioritize search intent, natural language variations, and retrieval relevance rather than generating artificial or repetitive questions.
+
+## 1. REAL-WORLD USER INTENT
+
+Think like an ordinary CNPI student. Generate only questions that a real student, teacher, or staff member would reasonably ask when trying to find the information contained in the document.
+
+Do not generate questions merely by converting every sentence into a question.
+
+## 2. DOCUMENT-GROUNDED QUESTIONS
+
+Every question must be answerable using the provided document.
+
+Never introduce unsupported facts, assumptions, dates, conditions, names, or relationships.
+
+Never ask about information that the document does not contain.
+
+## 3. CNPI CONTEXT
+
+Every generated question must explicitly include the term "CNPI" to maintain institutional context during semantic retrieval.
+
+## 4. ENTITY HANDLING
+
+Use department, semester, shift, group, teacher names, student names, and other entities when they are explicitly mentioned and relevant to the question.
+
+Never force department, semester, shift, or group into questions when they are absent or irrelevant.
+
+Never invent missing entities.
+
+## 5. NATURAL QUESTION LANGUAGE
+
+Write all generated questions in natural, grammatically correct English.
+
+Use simple and commonly understandable wording.
+
+Questions should resemble genuine search queries rather than formal examination questions or artificially constructed sentences.
+
+## 6. SEARCH INTENT DIVERSITY
+
+Cover different meaningful search intents available in the document. Depending on the content, questions may focus on:
+
+- Announcements and events.
+- Dates, times, and locations.
+- Teachers, students, and departments.
+- Eligibility and affected students.
+- Examination and result information.
+- Admission and admission confirmation.
+- Application deadlines.
+- Fees and payment information.
+- Required documents.
+- Assignments and classroom instructions.
+- Scholarships and student information updates.
+- Administrative instructions and procedures.
+
+These are examples, not mandatory categories. Only generate questions relevant to the actual document.
+
+## 7. NATURAL QUERY VARIATIONS
+
+Generate different natural ways of searching for important information. For example, if a document announces a teacher's illness, useful queries may include:
+
+- Which CNPI teacher has been diagnosed with dengue?
+- What happened to the CNPI teacher mentioned in the notice?
+- When was the CNPI notice about the teacher's illness published?
+
+These questions represent different search intents and should not be generated merely as superficial wording variations.
+
+## 8. NO REPETITION
+
+Avoid duplicate and semantically similar questions.
+
+Do not generate multiple questions that retrieve the same information through almost identical wording unless they represent a genuinely useful difference in search intent.
+
+## 9. PRIORITIZE IMPORTANT INFORMATION
+
+Focus on information that users are most likely to search for.
+
+Do not waste questions on trivial details, decorative text, greetings, signatures, or unimportant wording.
+
+## 10. PRESERVE ORIGINAL CONTEXT
+
+For informal announcements, forwarded messages, class instructions, and short group messages, preserve the original context.
+
+Do not invent missing dates, schedules, departments, semesters, or other details.
+
+## 11. RETRIEVAL-FOCUSED QUALITY CONTROL
+
+Before including each question, verify:
+
+- Would a real CNPI user naturally ask this?
+- Is it supported by the original document?
+- Does it represent a useful search intent?
+- Does it help retrieve this specific document?
+- Is it sufficiently different from the other questions?
+
+Remove any question that fails these checks.
+
+## FINAL PRIORITY
+
+Realistic User Intent > Factual Accuracy > Search Intent Diversity > Retrieval Relevance > Question Quantity.
+
+Never sacrifice factual accuracy or question quality to generate more questions.
+
+## FIRST 5 QUESTIONS – MAIN SUBJECT & CORE SUMMARY PRIORITY
+
+The first 5 generated questions MUST focus on the notice's primary subject, central message, and core summary.
+
+Rules:
+
+- Identify the main purpose and central message of the original notice before generating questions.
+
+- Generate the first 5 questions based on the most important information and key facts that represent the notice's main subject.
+
+- Prioritize questions about the main event, announcement, purpose, affected persons, important decisions, or central message, depending on the notice type.
+
+- Do not prioritize minor details, publication dates, publication times, document metadata, or secondary information in the first 5 questions unless they are central to the notice.
+
+- Ensure that these 5 questions collectively represent the overall meaning and purpose of the original notice.
+
+- Questions must be meaningful, specific, natural, and useful for retrieving the notice's core information.
+
+# ==================================================
 # QUESTION ACCURACY RULES
 # ==================================================
 
