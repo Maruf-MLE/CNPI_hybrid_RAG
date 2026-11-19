@@ -14,7 +14,7 @@ from django.urls import path
 from . import views
 from .ping_views import ping_view, health_view as secure_health_view
 from .queue_views import queue_status_view
-from .trending_views import trending_questions_view, track_question_click
+from .trending_views import trending_questions_view, track_question_click, generate_trending_questions_view
 
 urlpatterns = [
     # Main chat endpoint
@@ -27,6 +27,7 @@ urlpatterns = [
     path("queue/status/", queue_status_view, name="api-queue-status"),
     # Trending questions
     path("trending-questions/", trending_questions_view, name="api-trending-questions"),
+    path("trending-questions/generate/", generate_trending_questions_view, name="api-trending-questions-generate"),
     path("trending-questions/<int:question_id>/click/", track_question_click, name="api-question-click"),
     # Health check (detailed, secret-protected)
     path("health/", secure_health_view, name="api-health"),

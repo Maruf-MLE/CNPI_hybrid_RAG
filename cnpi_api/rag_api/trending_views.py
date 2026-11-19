@@ -10,6 +10,10 @@ import psycopg2
 from psycopg2.extras import RealDictCursor
 from django.conf import settings
 import os
+import sys
+
+# RAG node path
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'Cnpi_RAG'))
 
 logger = logging.getLogger(__name__)
 
@@ -129,5 +133,32 @@ def track_question_click(request, question_id):
         logger.exception(f"Error tracking question click: {question_id}")
         return Response(
             {'error': 'Failed to track click', 'detail': str(e)},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+
+
+@api_view(["POST"])
+def generate_trending_questions_view(request):
+    """POST /api/trending-questions/generate/
+
+    Triggers LLM-based trending question generation and saves to DB.
+
+    Response (success):
+        {
+            "success": true,
+            "message": "Trending questions generated successfully."
+        }
+    """
+    try:
+        from nodes.trending_questions_generator import generate_and_save_trending_questions
+        generate_and_save_trending_questions()
+        return Response(
+            {'success': True, 'message': 'Trending questions generated successfully.'},
+            status=status.HTTP_200_OK
+        )
+    except Exception as e:
+        logger.exception("Error generating trending questions")
+        return Response(
+            {'error': 'Failed to generate trending questions', 'detail': str(e)},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
