@@ -51,6 +51,11 @@ SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", os.getenv("SECRET_KEY", "django-inse
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("DEBUG", "True").lower() in ("true", "1", "yes")
 
+# Disable Django's automatic trailing-slash redirect.
+# Next.js proxy strips trailing slashes before forwarding — if Django then
+# redirects back to the slash version the browser sees an infinite loop.
+APPEND_SLASH = False
+
 # ALLOWED_HOSTS — production
 ALLOWED_HOSTS = ["*"]
 # ALLOWED_HOSTS = ["*"] if DEBUG else [

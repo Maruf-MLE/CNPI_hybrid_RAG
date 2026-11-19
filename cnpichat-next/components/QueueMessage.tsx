@@ -3,7 +3,7 @@
  * Shows countdown timer below user's message (minimal design)
  */
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 interface QueueMessageProps {
   queuePosition: number;
@@ -15,20 +15,37 @@ export default function QueueMessage({
   estimatedWaitSeconds 
 }: QueueMessageProps) {
   const [countdown, setCountdown] = useState(estimatedWaitSeconds);
+  // Track whether the initial value has been seeded so we only reset
+  // when the prop jumps significantly (e.g. a fresh queue entry) rather
+  // than on every server-poll update.
+  const initializedRef = useRef(false);
 
   useEffect(() => {
-    setCountdown(estimatedWaitSeconds);
-  }, [estimatedWaitSeconds]);
+    if (!initializedRef.current) {
+      // First render — seed the countdown from the prop
+      setCountdown(estimatedWaitSeconds);
+      initializedRef.current = true;
+    }
+    // Subsequent prop changes are intentionally ignored so the local countdown
+    // counts down smoothly without being reset every 3 s by the server poll.
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Use a single stable interval; it never depends on `countdown` itself.
   useEffect(() => {
     if (countdown <= 0) return;
 
     const timer = setInterval(() => {
-      setCountdown((prev) => Math.max(0, prev - 1));
+      setCountdown((prev) => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          return 0;
+        }
+        return prev - 1;
+      });
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [countdown]);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const formatTime = (seconds: number): string => {
     const mins = Math.floor(seconds / 60);

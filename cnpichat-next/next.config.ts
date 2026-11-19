@@ -1,37 +1,29 @@
 import type { NextConfig } from "next";
+import path from "path";
 
-// Backend URL from environment variable
-// Dev:        http://localhost:8000   (from .env.local)
-// Production: https://cnpi-hybrid-rag-7hvz.onrender.com  (from netlify.toml / Vercel env)
 const BACKEND_URL =
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+  process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
 const nextConfig: NextConfig = {
+  turbopack: {
+    // Point to this package's directory so Turbopack doesn't pick up
+    // the parent G:\CNPI_Hybrid_RAG\package-lock.json as workspace root
+    root: path.resolve(__dirname),
+  },
+
   async redirects() {
     return [
-      // /admin-panel  →  backend admin panel login page
       {
         source: "/admin-panel",
         destination: `${BACKEND_URL}/admin-panel/login/`,
-        permanent: false, // 307 Temporary – survives backend URL changes
+        permanent: false,
         basePath: false,
       },
-      // /admin-panel/ (trailing slash) →  same
       {
         source: "/admin-panel/",
         destination: `${BACKEND_URL}/admin-panel/login/`,
         permanent: false,
         basePath: false,
-      },
-    ];
-  },
-
-  async rewrites() {
-    return [
-      // Proxy /api/* → Django /api/*  (chat endpoint only)
-      {
-        source: "/api/:path*",
-        destination: `${BACKEND_URL}/api/:path*`,
       },
     ];
   },

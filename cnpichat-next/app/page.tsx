@@ -4,8 +4,9 @@ import React, { useState, useRef, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import QueueMessage from "../components/QueueMessage";
+import TrendingQuestions from "../components/TrendingQuestions";
 
-// API base URL — local dev uses localhost, production uses HuggingFace Space URL
+// API base URL — reads from env var set in .env.local (dev) or Netlify (prod)
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
 // Types
@@ -51,7 +52,17 @@ export default function Home() {
   const [isInQueue, setIsInQueue] = useState(false);
   const [queuePosition, setQueuePosition] = useState<number | null>(null);
   const [estimatedWaitSeconds, setEstimatedWaitSeconds] = useState<number | null>(null);
+  const [pendingMessage, setPendingMessage] = useState<string | null>(null);
   const pollIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  // Refs so the polling closure always reads the latest values without being a dep
+  const pendingMessageRef = useRef<string | null>(null);
+  const sessionIdRef = useRef<string>("");
+  const pollStartTimeRef = useRef<number | null>(null);
+  // Max time (ms) to poll before giving up and showing an error
+  const MAX_POLL_DURATION_MS = 5 * 60 * 1000; // 5 minutes
+
+  // ✨ Trending questions dismissed state
+  const [trendingDismissed, setTrendingDismissed] = useState(false);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -65,79 +76,159 @@ export default function Home() {
     scrollToBottom();
   }, [messages, isTyping]);
 
-  // ✨ Poll queue status and auto-retry when ready
+  // Keep refs in sync with state so polling closure always reads latest
   useEffect(() => {
-    if (!isInQueue || !sessionId) {
+    pendingMessageRef.current = pendingMessage;
+  }, [pendingMessage]);
+
+  useEffect(() => {
+    sessionIdRef.current = sessionId;
+  }, [sessionId]);
+
+  // ✨ Poll queue status and auto-retry when ready
+  // Dependencies: only isInQueue — pendingMessage and sessionId are read via refs
+  // to avoid restarting the interval on every state change.
+  useEffect(() => {
+    if (!isInQueue) {
       if (pollIntervalRef.current) {
         clearInterval(pollIntervalRef.current);
         pollIntervalRef.current = null;
       }
+      pollStartTimeRef.current = null;
       return;
     }
 
-    const checkQueue = async () => {
+    // Record when we started polling so we can enforce a max duration
+    pollStartTimeRef.current = Date.now();
+
+    const stopPolling = () => {
+      if (pollIntervalRef.current) {
+        clearInterval(pollIntervalRef.current);
+        pollIntervalRef.current = null;
+      }
+    };
+
+    const retryPendingMessage = async (messageToRetry: string) => {
       try {
-        const res = await fetch(`${API_BASE_URL}/api/queue/status/?session_id=${sessionId}`);
-        if (res.ok) {
-          const data = await res.json();
-          
-          if (!data.in_queue && !data.is_active) {
-            // Not in queue anymore - can proceed, auto-retry the last message
-            setIsInQueue(false);
-            setQueuePosition(null);
-            setEstimatedWaitSeconds(null);
-            
-            // Remove queue message from chat
-            setMessages(prev => {
-              const filtered = prev.filter(m => !m.isQueueMessage);
-              
-              // Find the last user message and resend
-              const lastUserMessage = filtered.filter(m => m.role === 'human').pop();
-              if (lastUserMessage) {
-                // Trigger resend after state update
-                setTimeout(() => handleSend(lastUserMessage.content), 100);
-              }
-              
-              return filtered;
-            });
-          } else if (data.in_queue) {
-            // Update queue position
-            setQueuePosition(data.queue_position || null);
-            setEstimatedWaitSeconds(data.estimated_wait_seconds || null);
-            
-            // Update queue message in chat
-            setMessages(prev => prev.map(m => 
-              m.isQueueMessage && m.queueData 
-                ? { 
-                    ...m, 
-                    queueData: { 
-                      position: data.queue_position || m.queueData.position,
-                      estimatedWait: data.estimated_wait_seconds || m.queueData.estimatedWait 
-                    } 
-                  }
-                : m
-            ));
+        setIsTyping(true);
+        const retryRes = await fetch(`${API_BASE_URL}/api/chat/`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            message: messageToRetry,
+            session_id: sessionIdRef.current,
+          }),
+        });
+
+        if (retryRes.ok) {
+          const retryData = await retryRes.json();
+          setMessages(prev => [...prev, {
+            role: "ai",
+            content: retryData.answer || "Sorry, I couldn't process that.",
+            contexts: retryData.contexts || []
+          }]);
+        } else if (retryRes.status === 429) {
+          // Still throttled — re-enter queue state instead of silently failing
+          const queueData = await retryRes.json();
+          setPendingMessage(messageToRetry);
+          pendingMessageRef.current = messageToRetry;
+          setIsInQueue(true);
+          setQueuePosition(queueData.queue_position || 1);
+          setEstimatedWaitSeconds(queueData.estimated_wait_seconds || 30);
+          const queueMsg: Message = {
+            role: "ai",
+            content: "",
+            isQueueMessage: true,
+            queueData: {
+              position: queueData.queue_position || 1,
+              estimatedWait: queueData.estimated_wait_seconds || 30,
+            }
+          };
+          setMessages(prev => [...prev.filter(m => !m.isQueueMessage), queueMsg]);
+        } else {
+          throw new Error("Retry failed");
+        }
+      } catch (error) {
+        console.error("Retry error:", error);
+        setMessages(prev => [...prev, {
+          role: "ai",
+          content: "দুঃখিত, সার্ভারে সংযোগ করতে সমস্যা হয়েছে।"
+        }]);
+      } finally {
+        setIsTyping(false);
+      }
+    };
+
+    const checkQueue = async () => {
+      // Enforce max poll duration to prevent infinite loading
+      if (
+        pollStartTimeRef.current !== null &&
+        Date.now() - pollStartTimeRef.current > MAX_POLL_DURATION_MS
+      ) {
+        stopPolling();
+        setIsInQueue(false);
+        setQueuePosition(null);
+        setEstimatedWaitSeconds(null);
+        setPendingMessage(null);
+        pendingMessageRef.current = null;
+        setMessages(prev => [
+          ...prev.filter(m => !m.isQueueMessage),
+          { role: "ai", content: "দুঃখিত, অনেকক্ষণ অপেক্ষা করতে হলো। অনুগ্রহ করে আবার চেষ্টা করুন।" }
+        ]);
+        return;
+      }
+
+      const currentSession = sessionIdRef.current;
+      if (!currentSession) return;
+
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/queue/status/?session_id=${currentSession}`);
+        if (!res.ok) return;
+        const data = await res.json();
+
+        if (!data.in_queue) {
+          // Dequeued — stop polling first, then retry
+          stopPolling();
+          setIsInQueue(false);
+          setQueuePosition(null);
+          setEstimatedWaitSeconds(null);
+          setMessages(prev => prev.filter(m => !m.isQueueMessage));
+
+          const messageToRetry = pendingMessageRef.current;
+          setPendingMessage(null);
+          pendingMessageRef.current = null;
+
+          if (messageToRetry) {
+            await retryPendingMessage(messageToRetry);
           }
+        } else {
+          // Still queued — update position only (do NOT reset estimatedWait so countdown continues)
+          setQueuePosition(data.queue_position || null);
+          setMessages(prev => prev.map(m =>
+            m.isQueueMessage && m.queueData
+              ? { ...m, queueData: { ...m.queueData, position: data.queue_position || m.queueData.position } }
+              : m
+          ));
         }
       } catch (error) {
         console.error('Queue check error:', error);
       }
     };
 
-    // Poll every 3 seconds
+    // Initial check immediately, then every 3 seconds
+    checkQueue();
     pollIntervalRef.current = setInterval(checkQueue, 3000);
 
     return () => {
-      if (pollIntervalRef.current) {
-        clearInterval(pollIntervalRef.current);
-      }
+      stopPolling();
     };
-  }, [isInQueue, sessionId]); // ← Removed 'messages' from dependencies
+  }, [isInQueue]); // ← Only isInQueue; pendingMessage/sessionId read via refs
 
   const resetQueue = () => {
     setIsInQueue(false);
     setQueuePosition(null);
     setEstimatedWaitSeconds(null);
+    setPendingMessage(null); // ← Clear pending message
     if (pollIntervalRef.current) {
       clearInterval(pollIntervalRef.current);
       pollIntervalRef.current = null;
@@ -184,6 +275,9 @@ export default function Home() {
           setSessionId(queueData.session_id);
         }
         
+        // Store the message for retry when slot is available
+        setPendingMessage(text);
+        
         // Show queue UI inline in chat
         setIsInQueue(true);
         setQueuePosition(queueData.queue_position || 1);
@@ -202,7 +296,7 @@ export default function Home() {
         setMessages([...newMessages, queueMessage]);
         setIsTyping(false);
         
-        return;
+        return; // Don't process further
       }
 
       if (!res.ok) {
@@ -551,12 +645,29 @@ export default function Home() {
 
       {/* FOOTER */}
       <div className="chat-input-area" onClick={() => showMenu && setShowMenu(false)}>
+        {/* ✨ Trending Questions */}
+        <TrendingQuestions 
+          apiBaseUrl={API_BASE_URL}
+          dismissed={trendingDismissed}
+          onDismiss={() => setTrendingDismissed(true)}
+          onQuestionClick={(question, questionId) => {
+            setTrendingDismissed(true);
+            handleSend(question);
+          }}
+        />
+        
         <div className="input-wrapper">
           <input
             type="text"
             placeholder="Reply to CNPIchat..."
             value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
+            onChange={(e) => {
+              setInputValue(e.target.value);
+              // Auto-dismiss trending questions when user starts typing
+              if (e.target.value.length > 0 && !trendingDismissed) {
+                setTrendingDismissed(true);
+              }
+            }}
             onKeyDown={handleKeyDown}
           />
           <button 
