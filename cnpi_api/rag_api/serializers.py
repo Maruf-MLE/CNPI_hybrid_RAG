@@ -67,3 +67,15 @@ class HealthResponseSerializer(serializers.Serializer):
     status = serializers.CharField()
     graph_compiled = serializers.BooleanField()
     active_sessions = serializers.IntegerField()
+
+
+class QueueStatusSerializer(serializers.Serializer):
+    """Serializer for GET /api/queue/status/ response."""
+
+    is_active = serializers.BooleanField()
+    in_queue = serializers.BooleanField()
+    queue_position = serializers.IntegerField(required=False, allow_null=True)
+    estimated_wait_seconds = serializers.IntegerField(required=False, allow_null=True)
+    active_count = serializers.IntegerField()
+    queue_length = serializers.IntegerField()
+    max_active = serializers.IntegerField()

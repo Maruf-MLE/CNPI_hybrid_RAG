@@ -13,6 +13,7 @@ from django.urls import path
 
 from . import views
 from .ping_views import ping_view, health_view as secure_health_view
+from .queue_views import queue_status_view
 
 urlpatterns = [
     # Main chat endpoint
@@ -21,6 +22,8 @@ urlpatterns = [
     path("sessions/", views.session_list_view, name="api-session-list"),
     path("sessions/<str:session_id>/", views.session_history_view, name="api-session-history"),
     path("sessions/<str:session_id>/delete/", views.session_delete_view, name="api-session-delete"),
+    # Queue status
+    path("queue/status/", queue_status_view, name="api-queue-status"),
     # Health check (detailed, secret-protected)
     path("health/", secure_health_view, name="api-health"),
     # Public keep-alive ping (used by external cron/monitoring services)

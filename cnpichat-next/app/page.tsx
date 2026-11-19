@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import QueueMessage from "../components/QueueMessage";
 
 // API base URL — local dev uses localhost, production uses HuggingFace Space URL
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
@@ -24,6 +25,11 @@ interface Message {
   role: Role;
   content: string;
   contexts?: Context[];
+  isQueueMessage?: boolean;  // ← New flag for queue messages
+  queueData?: {              // ← Queue data
+    position: number;
+    estimatedWait: number;
+  };
 }
 
 const initialMessages: Message[] = [
@@ -41,6 +47,12 @@ export default function Home() {
   const [isMounted, setIsMounted] = useState(false);
   const [showContextsModal, setShowContextsModal] = useState<number | null>(null);
 
+  // ✨ Queue management state
+  const [isInQueue, setIsInQueue] = useState(false);
+  const [queuePosition, setQueuePosition] = useState<number | null>(null);
+  const [estimatedWaitSeconds, setEstimatedWaitSeconds] = useState<number | null>(null);
+  const pollIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
@@ -53,11 +65,91 @@ export default function Home() {
     scrollToBottom();
   }, [messages, isTyping]);
 
+  // ✨ Poll queue status and auto-retry when ready
+  useEffect(() => {
+    if (!isInQueue || !sessionId) {
+      if (pollIntervalRef.current) {
+        clearInterval(pollIntervalRef.current);
+        pollIntervalRef.current = null;
+      }
+      return;
+    }
+
+    const checkQueue = async () => {
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/queue/status/?session_id=${sessionId}`);
+        if (res.ok) {
+          const data = await res.json();
+          
+          if (!data.in_queue && !data.is_active) {
+            // Not in queue anymore - can proceed, auto-retry the last message
+            setIsInQueue(false);
+            setQueuePosition(null);
+            setEstimatedWaitSeconds(null);
+            
+            // Remove queue message from chat
+            setMessages(prev => {
+              const filtered = prev.filter(m => !m.isQueueMessage);
+              
+              // Find the last user message and resend
+              const lastUserMessage = filtered.filter(m => m.role === 'human').pop();
+              if (lastUserMessage) {
+                // Trigger resend after state update
+                setTimeout(() => handleSend(lastUserMessage.content), 100);
+              }
+              
+              return filtered;
+            });
+          } else if (data.in_queue) {
+            // Update queue position
+            setQueuePosition(data.queue_position || null);
+            setEstimatedWaitSeconds(data.estimated_wait_seconds || null);
+            
+            // Update queue message in chat
+            setMessages(prev => prev.map(m => 
+              m.isQueueMessage && m.queueData 
+                ? { 
+                    ...m, 
+                    queueData: { 
+                      position: data.queue_position || m.queueData.position,
+                      estimatedWait: data.estimated_wait_seconds || m.queueData.estimatedWait 
+                    } 
+                  }
+                : m
+            ));
+          }
+        }
+      } catch (error) {
+        console.error('Queue check error:', error);
+      }
+    };
+
+    // Poll every 3 seconds
+    pollIntervalRef.current = setInterval(checkQueue, 3000);
+
+    return () => {
+      if (pollIntervalRef.current) {
+        clearInterval(pollIntervalRef.current);
+      }
+    };
+  }, [isInQueue, sessionId]); // ← Removed 'messages' from dependencies
+
+  const resetQueue = () => {
+    setIsInQueue(false);
+    setQueuePosition(null);
+    setEstimatedWaitSeconds(null);
+    if (pollIntervalRef.current) {
+      clearInterval(pollIntervalRef.current);
+      pollIntervalRef.current = null;
+    }
+  };
+
   const handleNewSession = () => {
     setMessages(initialMessages);
     setSessionId("");
     setShowOptions(true);
     setShowMenu(false);
+    resetQueue();
   };
 
   const handleSend = async (text: string) => {
@@ -83,6 +175,35 @@ export default function Home() {
           session_id: sessionId || undefined,
         }),
       });
+
+      // ✨ Handle queue response (HTTP 429)
+      if (res.status === 429) {
+        const queueData = await res.json();
+        
+        if (queueData.session_id) {
+          setSessionId(queueData.session_id);
+        }
+        
+        // Show queue UI inline in chat
+        setIsInQueue(true);
+        setQueuePosition(queueData.queue_position || 1);
+        setEstimatedWaitSeconds(queueData.estimated_wait_seconds || 30);
+        
+        // Add queue message to chat
+        const queueMessage: Message = {
+          role: "ai",
+          content: "", // Empty content, will show QueueMessage component
+          isQueueMessage: true,
+          queueData: {
+            position: queueData.queue_position || 1,
+            estimatedWait: queueData.estimated_wait_seconds || 30,
+          }
+        };
+        setMessages([...newMessages, queueMessage]);
+        setIsTyping(false);
+        
+        return;
+      }
 
       if (!res.ok) {
         throw new Error("Failed to fetch");
@@ -194,6 +315,18 @@ export default function Home() {
         {messages.map((msg, idx) => {
           const isBot = msg.role === "ai" || msg.role === "system";
           const showSender = isBot && (idx === 0 || messages[idx - 1].role !== "ai");
+
+          // ✨ Show queue message component for queue messages
+          if (msg.isQueueMessage && msg.queueData) {
+            return (
+              <div key={idx} className="message-group bot">
+                <QueueMessage 
+                  queuePosition={msg.queueData.position}
+                  estimatedWaitSeconds={msg.queueData.estimatedWait}
+                />
+              </div>
+            );
+          }
 
           return (
             <div key={idx} className={`message-group ${isBot ? "bot" : "user"}`}>
