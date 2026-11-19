@@ -137,9 +137,9 @@ def track_question_click(request, question_id):
         )
 
 
-@api_view(["POST"])
+@api_view(["GET", "POST"])
 def generate_trending_questions_view(request):
-    """POST /api/trending-questions/generate/
+    """GET|POST /api/trending-questions/generate/
 
     Triggers LLM-based trending question generation and saves to DB.
 
