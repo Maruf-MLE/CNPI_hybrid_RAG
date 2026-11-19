@@ -43,7 +43,7 @@ ANSWER_BOT_VERIFY_TOKEN=your_unique_verify_token_here
 ANSWER_BOT_APP_SECRET=your_facebook_app_secret_here
 ANSWER_BOT_PAGE_ACCESS_TOKEN=your_page_access_token_here
 ANSWER_BOT_ALLOWED_PSIDS=  # Leave empty to allow ALL users (no whitelist)
-RAG_API_URL=https://cnpi-hybrid-rag-1.onrender.com/api/chat/
+RAG_API_URL=https://cnpi-hybrid-rag-7hvz.onrender.com/api/chat/
 ```
 
 **Generate verify token:**
@@ -65,7 +65,7 @@ ngrok http 8000
 
 #### Production (Render)
 ```
-Webhook URL: https://cnpi-hybrid-rag-1.onrender.com/answer-webhook/
+Webhook URL: https://cnpi-hybrid-rag-7hvz.onrender.com/answer-webhook/
 ```
 
 #### Meta Webhook Configuration
@@ -172,7 +172,7 @@ ANSWER_BOT_VERIFY_TOKEN=...
 ANSWER_BOT_APP_SECRET=...
 ANSWER_BOT_PAGE_ACCESS_TOKEN=...
 ANSWER_BOT_ALLOWED_PSIDS=
-RAG_API_URL=https://cnpi-hybrid-rag-1.onrender.com/api/chat/
+RAG_API_URL=https://cnpi-hybrid-rag-7hvz.onrender.com/api/chat/
 ```
 
 ### Database Migration
@@ -183,7 +183,7 @@ python manage.py migrate answer_bot
 
 ### Test Webhook
 ```bash
-curl -X GET "https://cnpi-hybrid-rag-1.onrender.com/answer-webhook/?hub.mode=subscribe&hub.verify_token=YOUR_TOKEN&hub.challenge=123"
+curl -X GET "https://cnpi-hybrid-rag-7hvz.onrender.com/answer-webhook/?hub.mode=subscribe&hub.verify_token=YOUR_TOKEN&hub.challenge=123"
 # Should return: 123
 ```
 

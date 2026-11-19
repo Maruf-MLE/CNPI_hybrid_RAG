@@ -2,7 +2,7 @@ import type { NextConfig } from "next";
 
 // Backend URL from environment variable
 // Dev:        http://localhost:8000   (from .env.local)
-// Production: https://cnpi-hybrid-rag-1.onrender.com  (from netlify.toml / Vercel env)
+// Production: https://cnpi-hybrid-rag-7hvz.onrender.com  (from netlify.toml / Vercel env)
 const BACKEND_URL =
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 

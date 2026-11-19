@@ -12,7 +12,7 @@ ANSWER_BOT_VERIFY_TOKEN=cnpi_bot_Xk29fLq7
 ANSWER_BOT_APP_SECRET=c305f2981fc7d328db653e91d93ba5fe
 ANSWER_BOT_PAGE_ACCESS_TOKEN=EAAWc3pczaFIBSgpwIVgq2zCmSZCfSqyRJjSYnDiRCcOP55bcxTv2mKSZB7EZBZCp1dciZBsU70hQslPdrcAOtBYCz4cUxRS5GmrcpYvcMB7bxcBwlSC9sSZAGTIDE66B939FMKry2wJjtr7wF7dvZA3ZBwh9qPRNOkozuZCqbDXa6EGZCPRhUWhAZCQBycMllZAWZBpHSDmTBUw3dKwZDZD
 ANSWER_BOT_ALLOWED_PSIDS=
-RAG_API_URL=https://cnpi-hybrid-rag-1.onrender.com/api/chat/
+RAG_API_URL=https://cnpi-hybrid-rag-7hvz.onrender.com/api/chat/
 
 # ============================================================
 # After adding, click "Save Changes" — service will restart

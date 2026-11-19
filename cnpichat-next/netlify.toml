@@ -3,7 +3,7 @@
   publish = ".next"
 
 [build.environment]
-  NEXT_PUBLIC_API_URL = "https://cnpi-hybrid-rag-1.onrender.com"
+  NEXT_PUBLIC_API_URL = "https://cnpi-hybrid-rag-7hvz.onrender.com"
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
@@ -21,13 +21,13 @@
 # so it works even if Next.js redirects can't reach external URLs.
 [[redirects]]
   from = "/admin-panel"
-  to = "https://cnpi-hybrid-rag-1.onrender.com/admin-panel/login/"
+  to = "https://cnpi-hybrid-rag-7hvz.onrender.com/admin-panel/login/"
   status = 307
   force = true
 
 [[redirects]]
   from = "/admin-panel/"
-  to = "https://cnpi-hybrid-rag-1.onrender.com/admin-panel/login/"
+  to = "https://cnpi-hybrid-rag-7hvz.onrender.com/admin-panel/login/"
   status = 307
   force = true
 

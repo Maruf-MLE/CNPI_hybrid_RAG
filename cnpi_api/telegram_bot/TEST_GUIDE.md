@@ -340,7 +340,7 @@ Bot: CST Department-এর Chief Instructor হলেন মোঃ আব্দ�
 
 **Production Deployment:**
 - Render-এ deploy করার পর উপরের webhook commands-এ ngrok URL-এর জায়গায় Render URL ব্যবহার করুন
-- Example: `https://cnpi-hybrid-rag-1.onrender.com/telegram-webhook/SGxoL0knDxVPxRXsp1_63Wdf92qblAwxxgMcLkb5Ijw/`
+- Example: `https://cnpi-hybrid-rag-7hvz.onrender.com/telegram-webhook/SGxoL0knDxVPxRXsp1_63Wdf92qblAwxxgMcLkb5Ijw/`
 
 ---
 

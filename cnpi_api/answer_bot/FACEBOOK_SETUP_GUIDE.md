@@ -155,7 +155,7 @@ ANSWER_BOT_VERIFY_TOKEN=cnpi_answer_Xk29fLq7
 ANSWER_BOT_APP_SECRET=7c3a6f1c5ee1ca42569fa51cc526fc84
 ANSWER_BOT_PAGE_ACCESS_TOKEN=EAAW426IeNhIBSsgUuVXrwXA23oVpgtqyP3V00AcQuKMidGZAJnMMavcUTcblvKT2xEYfY17N8JmaqDWlStpZBQ3j0TMMhpR3fsEZACeL5lDD2uDq3yRdaED9VBcgMyA12C8l7EDrFhAotVmfY6ViTzXQ76xjXeVPMyf3VHOuHQdNeMVzco5fx6XSkoj4UqHSVNuGBZATXAZDZD
 ANSWER_BOT_ALLOWED_PSIDS=
-RAG_API_URL=https://cnpi-hybrid-rag-1.onrender.com/api/chat/
+RAG_API_URL=https://cnpi-hybrid-rag-7hvz.onrender.com/api/chat/
 ```
 
 ⚠️ **Note:** উপরের values শুধু example — আপনার actual credentials ব্যবহার করবেন!
@@ -198,11 +198,11 @@ Credentials পাওয়ার পর, webhook configure করতে হব�
    ANSWER_BOT_APP_SECRET=7c3a6f1c5ee1ca42569fa51cc526fc84
    ANSWER_BOT_PAGE_ACCESS_TOKEN=EAAWc3p...
    ANSWER_BOT_ALLOWED_PSIDS=
-   RAG_API_URL=https://cnpi-hybrid-rag-1.onrender.com/api/chat/
+   RAG_API_URL=https://cnpi-hybrid-rag-7hvz.onrender.com/api/chat/
    ```
 
 2. **Meta Dashboard > Webhooks:**
-   - **Callback URL:** `https://cnpi-hybrid-rag-1.onrender.com/answer-webhook/`
+   - **Callback URL:** `https://cnpi-hybrid-rag-7hvz.onrender.com/answer-webhook/`
    - **Verify Token:** `cnpi_answer_Xk29fLq7`
    - Click **Verify and Save**
 

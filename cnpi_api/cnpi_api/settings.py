@@ -59,7 +59,7 @@ ALLOWED_HOSTS = ["*"]
 #     ".onrender.com",
 #     ".hf.space",
 #     ".netlify.app",
-#     "cnpi-hybrid-rag-1.onrender.com",
+#     "cnpi-hybrid-rag-7hvz.onrender.com",
 #     "warm-fenglisu-e6e0f6.netlify.app",
 #     "cnpichat.netlify.app",
 # ]

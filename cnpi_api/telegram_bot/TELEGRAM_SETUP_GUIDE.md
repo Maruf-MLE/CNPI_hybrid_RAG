@@ -374,7 +374,7 @@ Render Dashboard → Your Service → Environment:
 TELEGRAM_BOT_TOKEN=123456789:ABCdefGHIjklMNOpqrsTUVwxyz
 TELEGRAM_WEBHOOK_SECRET_TOKEN=Xk29fLq7tN8pRv5Yw3Qz2Hm6Jc4Ub9Kg1Fa7
 TELEGRAM_BOT_ALLOWED_USERS=
-RAG_API_URL=https://cnpi-hybrid-rag-1.onrender.com/api/chat/
+RAG_API_URL=https://cnpi-hybrid-rag-7hvz.onrender.com/api/chat/
 ```
 
 ### 8.2 Deploy করুন
@@ -386,7 +386,7 @@ Render automatically deploy করবে।
 ```powershell
 $botToken = "123456789:ABCdefGHIjklMNOpqrsTUVwxyz"
 $secretToken = "Xk29fLq7tN8pRv5Yw3Qz2Hm6Jc4Ub9Kg1Fa7"
-$productionUrl = "https://cnpi-hybrid-rag-1.onrender.com"
+$productionUrl = "https://cnpi-hybrid-rag-7hvz.onrender.com"
 $webhookUrl = "$productionUrl/telegram-webhook/$secretToken/"
 
 Invoke-RestMethod -Uri "https://api.telegram.org/bot$botToken/setWebhook" `

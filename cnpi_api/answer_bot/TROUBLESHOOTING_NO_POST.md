@@ -29,7 +29,7 @@ Meta Dashboard → CNGPIchat App → Messenger → Settings → Webhooks
 
 You should see:
 ```
-✅ Callback URL: https://cnpi-hybrid-rag-1.onrender.com/answer-webhook/
+✅ Callback URL: https://cnpi-hybrid-rag-7hvz.onrender.com/answer-webhook/
 ✅ Verify Token: Verified
 ⚠️ No pages subscribed OR wrong page subscribed
 ```
@@ -119,8 +119,8 @@ Check these:
 ```
 Meta Dashboard → Messenger → Settings → Webhooks → Callback URL
 
-Should be: https://cnpi-hybrid-rag-1.onrender.com/answer-webhook/
-NOT: https://cnpi-hybrid-rag-1.onrender.com/webhook/
+Should be: https://cnpi-hybrid-rag-7hvz.onrender.com/answer-webhook/
+NOT: https://cnpi-hybrid-rag-7hvz.onrender.com/webhook/
 ```
 
 #### B. Page Subscribed to OLD Webhook?
@@ -223,7 +223,7 @@ Test webhook directly from command line:
 
 ### Test GET (Verification) - Should work ✅
 ```bash
-curl "https://cnpi-hybrid-rag-1.onrender.com/answer-webhook/?hub.mode=subscribe&hub.verify_token=cnpi_bot_Xk29fLq7&hub.challenge=test123"
+curl "https://cnpi-hybrid-rag-7hvz.onrender.com/answer-webhook/?hub.mode=subscribe&hub.verify_token=cnpi_bot_Xk29fLq7&hub.challenge=test123"
 ```
 
 **Expected:** Returns `test123`

@@ -3,7 +3,7 @@
 ## 📋 Prerequisites
 
 - ✅ Render account আছে
-- ✅ Project already deployed: `https://cnpi-hybrid-rag-1.onrender.com`
+- ✅ Project already deployed: `https://cnpi-hybrid-rag-7hvz.onrender.com`
 - ✅ Bot token আছে: `8639620113:AAEDo2ZIO0z88le3EMvwa1T_njSDR_V3acY`
 - ✅ Secret token আছে: `SGxoL0knDxVPxRXsp1_63Wdf92qblAwxxgMcLkb5Ijw`
 
@@ -42,7 +42,7 @@ Value: (leave empty to allow all users)
 
 ```
 Key: RAG_API_URL
-Value: https://cnpi-hybrid-rag-1.onrender.com/api/chat/
+Value: https://cnpi-hybrid-rag-7hvz.onrender.com/api/chat/
 ```
 
 ### 1.4 Save করুন
@@ -69,7 +69,7 @@ Render Dashboard-এ **"Logs"** tab-এ যান এবং দেখুন:
 
 Browser-এ খুলুন:
 ```
-https://cnpi-hybrid-rag-1.onrender.com/
+https://cnpi-hybrid-rag-7hvz.onrender.com/
 ```
 
 যদি page load হয়, তাহলে service live আছে।
@@ -82,12 +82,12 @@ https://cnpi-hybrid-rag-1.onrender.com/
 
 **Format:**
 ```
-https://cnpi-hybrid-rag-1.onrender.com/telegram-webhook/<SECRET_TOKEN>/
+https://cnpi-hybrid-rag-7hvz.onrender.com/telegram-webhook/<SECRET_TOKEN>/
 ```
 
 **আপনার URL:**
 ```
-https://cnpi-hybrid-rag-1.onrender.com/telegram-webhook/SGxoL0knDxVPxRXsp1_63Wdf92qblAwxxgMcLkb5Ijw/
+https://cnpi-hybrid-rag-7hvz.onrender.com/telegram-webhook/SGxoL0knDxVPxRXsp1_63Wdf92qblAwxxgMcLkb5Ijw/
 ```
 
 ### 3.2 PowerShell দিয়ে Webhook সেট করুন
@@ -98,7 +98,7 @@ https://cnpi-hybrid-rag-1.onrender.com/telegram-webhook/SGxoL0knDxVPxRXsp1_63Wdf
 # Variables সেট করুন
 $botToken = "8639620113:AAEDo2ZIO0z88le3EMvwa1T_njSDR_V3acY"
 $secretToken = "SGxoL0knDxVPxRXsp1_63Wdf92qblAwxxgMcLkb5Ijw"
-$productionUrl = "https://cnpi-hybrid-rag-1.onrender.com"
+$productionUrl = "https://cnpi-hybrid-rag-7hvz.onrender.com"
 $webhookUrl = "$productionUrl/telegram-webhook/$secretToken/"
 
 Write-Host "Setting webhook to: $webhookUrl" -ForegroundColor Cyan
@@ -133,7 +133,7 @@ if ($response.ok) {
 
 Browser-এ এই URL খুলুন:
 ```
-https://api.telegram.org/bot8639620113:AAEDo2ZIO0z88le3EMvwa1T_njSDR_V3acY/setWebhook?url=https://cnpi-hybrid-rag-1.onrender.com/telegram-webhook/SGxoL0knDxVPxRXsp1_63Wdf92qblAwxxgMcLkb5Ijw/
+https://api.telegram.org/bot8639620113:AAEDo2ZIO0z88le3EMvwa1T_njSDR_V3acY/setWebhook?url=https://cnpi-hybrid-rag-7hvz.onrender.com/telegram-webhook/SGxoL0knDxVPxRXsp1_63Wdf92qblAwxxgMcLkb5Ijw/
 ```
 
 ---
@@ -158,7 +158,7 @@ if ($webhookInfo.result.url -ne "") {
 
 **Expected Output:**
 ```
-url                      : https://cnpi-hybrid-rag-1.onrender.com/telegram-webhook/SGxoL0knDxVPxRXsp1_63Wdf92qblAwxxgMcLkb5Ijw/
+url                      : https://cnpi-hybrid-rag-7hvz.onrender.com/telegram-webhook/SGxoL0knDxVPxRXsp1_63Wdf92qblAwxxgMcLkb5Ijw/
 has_custom_certificate   : False
 pending_update_count     : 0
 max_connections          : 40
@@ -275,7 +275,7 @@ Invoke-RestMethod -Uri "https://api.telegram.org/bot$botToken/deleteWebhook"
 Start-Sleep -Seconds 30
 
 # আবার সেট করুন
-$webhookUrl = "https://cnpi-hybrid-rag-1.onrender.com/telegram-webhook/SGxoL0knDxVPxRXsp1_63Wdf92qblAwxxgMcLkb5Ijw/"
+$webhookUrl = "https://cnpi-hybrid-rag-7hvz.onrender.com/telegram-webhook/SGxoL0knDxVPxRXsp1_63Wdf92qblAwxxgMcLkb5Ijw/"
 Invoke-RestMethod -Uri "https://api.telegram.org/bot$botToken/setWebhook" `
   -Method Post -ContentType "application/json" `
   -Body (@{url=$webhookUrl} | ConvertTo-Json)
@@ -287,7 +287,7 @@ Invoke-RestMethod -Uri "https://api.telegram.org/bot$botToken/setWebhook" `
 
 1. **Service live আছে কিনা:**
    ```powershell
-   curl https://cnpi-hybrid-rag-1.onrender.com/
+   curl https://cnpi-hybrid-rag-7hvz.onrender.com/
    ```
 
 2. **Webhook active আছে কিনা:**
@@ -314,13 +314,13 @@ Render free tier-এ service 15 minutes inactive থাকলে sleep হয়
 
 1. **Service wake up করুন:**
    ```powershell
-   curl https://cnpi-hybrid-rag-1.onrender.com/
+   curl https://cnpi-hybrid-rag-7hvz.onrender.com/
    ```
 
 2. **Webhook আবার সেট করুন:**
    ```powershell
    $botToken = "8639620113:AAEDo2ZIO0z88le3EMvwa1T_njSDR_V3acY"
-   $webhookUrl = "https://cnpi-hybrid-rag-1.onrender.com/telegram-webhook/SGxoL0knDxVPxRXsp1_63Wdf92qblAwxxgMcLkb5Ijw/"
+   $webhookUrl = "https://cnpi-hybrid-rag-7hvz.onrender.com/telegram-webhook/SGxoL0knDxVPxRXsp1_63Wdf92qblAwxxgMcLkb5Ijw/"
    Invoke-RestMethod -Uri "https://api.telegram.org/bot$botToken/setWebhook" `
      -Method Post -ContentType "application/json" `
      -Body (@{url=$webhookUrl} | ConvertTo-Json)
@@ -366,7 +366,7 @@ Render free tier-এ service 15 minutes inactive থাকলে sleep হয়
 # Variables
 $botToken = "8639620113:AAEDo2ZIO0z88le3EMvwa1T_njSDR_V3acY"
 $secretToken = "SGxoL0knDxVPxRXsp1_63Wdf92qblAwxxgMcLkb5Ijw"
-$productionUrl = "https://cnpi-hybrid-rag-1.onrender.com"
+$productionUrl = "https://cnpi-hybrid-rag-7hvz.onrender.com"
 $webhookUrl = "$productionUrl/telegram-webhook/$secretToken/"
 
 Write-Host "=== Telegram Bot Production Setup ===" -ForegroundColor Cyan
@@ -463,6 +463,6 @@ CNPI সম্পর্কিত যেকোনো প্রশ্নের উ
 **Production deployment complete!** 🚀
 
 **Created:** 2026-10-18  
-**Service:** https://cnpi-hybrid-rag-1.onrender.com  
+**Service:** https://cnpi-hybrid-rag-7hvz.onrender.com  
 **Bot:** @cngpiBot  
 **Status:** ✅ LIVE

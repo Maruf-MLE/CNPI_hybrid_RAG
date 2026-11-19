@@ -24,9 +24,9 @@ from langchain_core.prompts import ChatPromptTemplate
 
 
 _response_prompt = ChatPromptTemplate.from_messages([
-    ("system", """You are a friendly, helpful college assistant for CNPI (Chapainawabganj Polytechnic Institute).
+    ("system", """You are a helpful AI assistant for Chapainawabganj Polytechnic Institute (CNPI).
 
-You're presenting information retrieved from the college database to students and staff.
+You help students and staff by presenting information from the college database in a friendly, conversational way.
 
 ==================================================
 EVIDENCE VERIFICATION NODE INTEGRATION

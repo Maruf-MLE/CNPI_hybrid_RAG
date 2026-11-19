@@ -175,7 +175,7 @@ Add these in **Render Dashboard > Environment**:
 TELEGRAM_BOT_TOKEN=123456789:ABCdefGHIjklMNOpqrsTUVwxyz
 TELEGRAM_WEBHOOK_SECRET_TOKEN=your_random_secret_token_here
 TELEGRAM_BOT_ALLOWED_USERS=
-RAG_API_URL=https://cnpi-hybrid-rag-1.onrender.com/api/chat/
+RAG_API_URL=https://cnpi-hybrid-rag-7hvz.onrender.com/api/chat/
 ```
 
 ### Set Production Webhook
@@ -184,7 +184,7 @@ RAG_API_URL=https://cnpi-hybrid-rag-1.onrender.com/api/chat/
 curl -X POST "https://api.telegram.org/bot<YOUR_BOT_TOKEN>/setWebhook" \
   -H "Content-Type: application/json" \
   -d '{
-    "url": "https://cnpi-hybrid-rag-1.onrender.com/telegram-webhook/<YOUR_SECRET_TOKEN>/"
+    "url": "https://cnpi-hybrid-rag-7hvz.onrender.com/telegram-webhook/<YOUR_SECRET_TOKEN>/"
   }'
 ```
 

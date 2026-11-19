@@ -7,7 +7,7 @@ ANSWER_BOT_VERIFY_TOKEN=cnpi_bot_Xk29fLq7
 ANSWER_BOT_APP_SECRET=c305f2981fc7d328db653e91d93ba5fe
 ANSWER_BOT_PAGE_ACCESS_TOKEN=EAAWc3pczaFIBSgpwIVgq2zCmSZCfSqyRJjSYnDiRCcOP55bcxTv2mKSZB7EZBZCp1dciZBsU70hQslPdrcAOtBYCz4cUxRS5GmrcpYvcMB7bxcBwlSC9sSZAGTIDE66B939FMKry2wJjtr7wF7dvZA3ZBwh9qPRNOkozuZCqbDXa6EGZCPRhUWhAZCQBycMllZAWZBpHSDmTBUw3dKwZDZD
 ANSWER_BOT_ALLOWED_PSIDS=
-RAG_API_URL=https://cnpi-hybrid-rag-1.onrender.com/api/chat/
+RAG_API_URL=https://cnpi-hybrid-rag-7hvz.onrender.com/api/chat/
 
 # IMPORTANT: Same page will ONLY work with ONE webhook URL at a time!
 # Either use /webhook/ (messenger_bot) OR /answer-webhook/ (answer_bot), not both.
@@ -27,8 +27,8 @@ Steps:
 
 # In CNGPIchat App Dashboard → Messenger → Settings → Webhooks:
 # Which URL is configured?
-# A) https://cnpi-hybrid-rag-1.onrender.com/webhook/  (messenger_bot)
-# B) https://cnpi-hybrid-rag-1.onrender.com/answer-webhook/  (answer_bot)
+# A) https://cnpi-hybrid-rag-7hvz.onrender.com/webhook/  (messenger_bot)
+# B) https://cnpi-hybrid-rag-7hvz.onrender.com/answer-webhook/  (answer_bot)
 
 # Log shows: Answer Bot Webhook GET verification successful
 # This means /answer-webhook/ is configured ✅

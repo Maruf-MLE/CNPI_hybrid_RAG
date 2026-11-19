@@ -11,7 +11,7 @@ import uuid
 import requests
 
 # ── Config ───────────────────────────────────────────────────────────────────
-BASE_URL       = "https://cnpi-hybrid-rag-1.onrender.com"
+BASE_URL       = "https://cnpi-hybrid-rag-7hvz.onrender.com"
 API_ENDPOINT   = f"{BASE_URL}/admin-panel/api/create/"
 JSON_FILE      = r"G:\CNPI_Hybrid_RAG\cnpi_api\Document\class_routine_2nd_shift.json"
 RESULTS_FILE   = r"G:\CNPI_Hybrid_RAG\upload_results.json"
