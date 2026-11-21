@@ -28,6 +28,7 @@ if str(project_root) not in sys.path:
 
 from state import RAGState
 from utils.llm_utils import get_llm
+from langchain_core.messages import SystemMessage
 from langchain_core.prompts import ChatPromptTemplate
 
 
@@ -48,26 +49,94 @@ class WebQueryRewriteOutput(BaseModel):
 
 
 # ---------------------------------------------------------------------------
-# Prompt
+# Prompt Components
 # ---------------------------------------------------------------------------
 
+CORE_INSTRUCTIONS = """==================================================
+LAYER 1: CORE INSTRUCTIONS (IMMUTABLE)
+==================================================
+
+ROLE:
+You are an expert at reformulating user questions into effective web search queries.
+
+TASK:
+Convert the user's original question into a short, keyword-rich English search query optimized for web search engines.
+
+PROCESSING RULES:
+1. Accept the original question in Bengali/Bangla or English.
+2. Identify the core information need.
+3. Remove conversational filler and unnecessary words.
+4. Rewrite the question using concise, relevant English keywords.
+5. Add relevant context keywords when they help narrow or improve search relevance.
+6. Keep the rewritten query between 3 and 10 words maximum.
+
+OUTPUT RULES:
+- Return ONLY valid JSON.
+- Do not include Markdown, code fences, explanations, or text outside the JSON.
+- The JSON must contain exactly these keys:
+  - "rewritten_query": The optimized English web search query.
+  - "reasoning": A one-sentence explanation of the changes made.
+
+OUTPUT FORMAT:
+{
+  "rewritten_query": "Optimized English search query",
+  "reasoning": "One-sentence explanation of the changes made."
+}"""
+
+PROJECT_CONFIGURATION = """==================================================
+LAYER 2: PROJECT CONFIGURATION (CONFIGURABLE)
+==================================================
+
+PROJECT IDENTITY:
+- Institution: Chapainawabganj Polytechnic Institute (CNPI).
+- Country: Bangladesh.
+- Domain: Educational and institutional information.
+- Search purpose: Find relevant information about CNPI and its educational or institutional context.
+
+SEARCH CONTEXT:
+When relevant to the user's question, consider adding context keywords such as:
+- Bangladesh
+- CNPI college
+- government college
+
+Use only context keywords that genuinely help narrow the search. Do not add irrelevant keywords."""
+
+EXAMPLES_REFERENCE = """==================================================
+LAYER 3: EXAMPLES & REFERENCE (CONFIGURABLE)
+==================================================
+
+A. INPUT LANGUAGE REFERENCE
+The original user question may be written in:
+- Bengali
+- Bangla
+- English
+
+Regardless of the input language, the rewritten search query must be in English.
+
+B. QUERY OPTIMIZATION REFERENCE
+
+Original question:
+"Who is the principal of CNPI?"
+
+Optimized query:
+"CNPI current principal Bangladesh"
+
+Reasoning:
+"Removed conversational wording and added relevant location context to narrow the search."
+
+C. CONTEXT KEYWORD REFERENCE
+
+Possible context keywords:
+- Bangladesh
+- CNPI college
+- government college
+
+These are examples, not mandatory keywords. Include them only when relevant."""
+
+WEB_SEARCH_REWRITE_SYSTEM_PROMPT = f"{CORE_INSTRUCTIONS}\n\n{PROJECT_CONFIGURATION}\n\n{EXAMPLES_REFERENCE}"
+
 _WEB_REWRITE_PROMPT = ChatPromptTemplate.from_messages([
-    (
-        "system",
-        """You are an expert at reformulating questions into effective web search queries.
-
-Your task:
-- Take the user's original question (possibly in Bengali/Bangla or English).
-- Rewrite it into a SHORT, KEYWORD-RICH English query suitable for web search engines.
-- Focus on the core information need; remove conversational filler.
-- Add relevant context keywords (e.g. "Bangladesh", "CNPI college", "government college") if they help narrow the search.
-- The query should be 3–10 words maximum.
-
-Return ONLY valid JSON with keys:
-- "rewritten_query": the optimized web search string
-- "reasoning": one-sentence explanation of changes made
-""",
-    ),
+    SystemMessage(content=WEB_SEARCH_REWRITE_SYSTEM_PROMPT),
     ("human", "Original query: {original_query}"),
 ])
 
@@ -108,6 +177,7 @@ def web_search_rewrite_node(state: RAGState) -> Dict[str, Any]:
             rewritten = original_query
 
         return {
+            "decided_path": "web_search",
             "web_search": {
                 **web_search_state,
                 "rewritten_query": rewritten,
@@ -117,6 +187,7 @@ def web_search_rewrite_node(state: RAGState) -> Dict[str, Any]:
     except Exception as e:
         print(f"[web_search_rewrite] LLM error: {e} — using original query as fallback.")
         return {
+            "decided_path": "web_search",
             "web_search": {
                 **web_search_state,
                 "rewritten_query": original_query,

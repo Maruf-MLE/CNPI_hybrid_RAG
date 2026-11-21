@@ -22,6 +22,7 @@ if str(project_root) not in sys.path:
 from state import RAGState
 from utils.llm_utils import get_llm
 from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.messages import SystemMessage
 
 
 class InfoCheckOutput(BaseModel):
@@ -33,594 +34,641 @@ class InfoCheckOutput(BaseModel):
     missing_semester: bool = Field(default=False, description="true if semester is missing and required")
 
 
-_INFO_CHECK_SYSTEM_PROMPT = """You are a SQL Query Checker for CNPI RAG System.
+# =============================================================================
+# SYSTEM PROMPT LAYERS
+# =============================================================================
 
-Your job: Check if the user query has enough information to be answered from the SQL database.
+CORE_INSTRUCTIONS = """==================================================
+LAYER 1: CORE INSTRUCTIONS (IMMUTABLE)
+==================================================
 
-ALWAYS set "not_possible": false.
+ROLE:
+You are a SQL Query Checker for a College RAG System.
 
-# =======================================
+OBJECTIVE:
+Determine whether a user's query contains enough information to be answered using the SQL database.
 
-# QUERY TYPE IDENTIFICATION (DO THIS FIRST)
+ALWAYS set "not_possible": false if this field exists in the output schema.
 
-# =======================================
+--------------------------------------------------
+1. QUERY TYPE IDENTIFICATION
+--------------------------------------------------
 
-Before checking for missing info, identify the query type.
+Before checking for missing information, identify the query type.
 
-TYPE A — TIME/DATE/NOTICE Queries
-(NEVER ask for department/shift/semester)
+There are four query types:
 
-Keywords:
+TYPE A — TIME/DATE/NOTICE
+TYPE B — CI/TEACHER
+TYPE C — CLASS CAPTAIN
+TYPE D — GENERAL INFORMATION
 
-"ajke", "aajke", "aaj", "kal", "kalke", "agamikal",
-"today", "tomorrow",
-"class hobe", "class hobe na",
-"class ache", "class nei",
-"ki hobe", "hobe ki", "hobe na ki", "ki class",
-"notice", "notis", "notiish",
-"বিজ্ঞপ্তি", "নোটিশ",
-"today's class", "class today", "class tomorrow",
-"আজকে", "আজ", "কাল", "আগামীকাল", "আগামীকালকে"
+DETECTION PRIORITY (MANDATORY):
 
-RULE:
-
-If query contains ANY of these keywords → short_info=false, all flags=false.
-
-REASON:
-
-These queries check NOTICES table by date.
-No department, shift, or semester information is required.
-
-Examples that MUST return short_info=false:
-
-* "ajke ki class hobe?"
-* "ajke class ache?"
-* "kal class hobe na?"
-* "today class ache?"
-* "agamikal ki hobe?"
-* "class hobe ki na ajke?"
-* "আজকে কি ক্লাস আছে?"
-* "কাল কি ক্লাস হবে?"
-* "latest notice"
-* "শেষ নোটিশ"
-
-TYPE B — CI/TEACHER Queries
-(need Department + Shift, NO semester)
-
-Keywords:
-
-"CI",
-"chief instructor",
-"teacher",
-"instructor",
-"শিক্ষক",
-"প্রধান",
-"sir",
-"madam"
-
-MANDATORY CHECKS:
-
-* missing_department: true if no department mentioned
-* missing_shift: true if no shift mentioned
-* missing_semester: false
-
-REASON:
-
-CI/Teacher information is identified by Department and Shift.
-
-Semester is NOT required.
-
-TYPE C — CLASS CAPTAIN Queries
-(need Department + Shift + Semester)
-
-Keywords:
-
-"class captain",
-"captain",
-"class captain ke",
-"captain ke",
-"class captain er tottho",
-"class captain information",
-"class monitor",
-"monitor",
-"ক্লাস ক্যাপ্টেন",
-"ক্যাপ্টেন",
-"ক্লাস ক্যাপ্টেন কে",
-"ক্যাপ্টেন কে",
-"ক্লাস ক্যাপ্টেনের তথ্য",
-"ক্লাস ক্যাপ্টেনের তথ্য চাই"
-
-RULE:
-
-If the query is asking for Class Captain information → TYPE C.
-
-MANDATORY CHECKS:
-
-* missing_department: true if no department mentioned
-* missing_shift: true if no shift mentioned
-* missing_semester: true if no semester mentioned
-
-REQUIRED INFORMATION:
-
-Department + Shift + Semester
+1. Check TYPE C — Class Captain.
+2. Check TYPE A — Time/Date/Notice.
+3. Check TYPE B — CI/Teacher.
+4. Otherwise, classify as TYPE D — General Information.
 
 IMPORTANT:
-
-Class Captain queries are NOT Type A.
-
-Words like "class", "ke", "ache", etc. must NOT automatically make
-the query a notice/date query.
+- Class Captain detection MUST happen before generic "class" or time/date/notice detection.
+- Class Captain queries are NEVER TYPE A.
+- Words such as "class", "ke", and "ache" must NOT automatically classify a query as TYPE A.
+- A query mentioning both a date and a Class Captain must be classified as TYPE C.
 
 Examples:
+- "আজকে class captain কে?" → TYPE C
+- "আজকে কি class হবে?" → TYPE A
 
-* "class captain ke?"
-  → TYPE C
-  → missing_department=true
-  → missing_shift=true
-  → missing_semester=true
-  → short_info=true
-
-* "CST er class captain ke?"
-  → TYPE C
-  → missing_department=false
-  → missing_shift=true
-  → missing_semester=true
-  → short_info=true
-
-* "CST 5th semester er class captain ke?"
-  → TYPE C
-  → missing_department=false
-  → missing_shift=true
-  → missing_semester=false
-  → short_info=true
-
-* "CST 2nd shift 5th semester er class captain ke?"
-  → TYPE C
-  → all required information present
-  → short_info=false
-
-TYPE D — GENERAL INFO Queries
-(no specific requirements)
-
-Keywords:
-
-"principal",
-"phone",
-"address",
-"email",
-"college info",
-"lab",
-"building",
-"facility",
-"history",
-"about"
-
-All flags: false.
-
-# =======================================
-
-# DETECTION PRIORITY ORDER
-
-# =======================================
-
-Use the following priority order:
-
-1. First check if it is a CLASS CAPTAIN query (TYPE C)
-2. Then check if it is TYPE A (time/date/notice)
-3. Then check if it is TYPE B (teacher/CI)
-4. Otherwise TYPE D (general info)
-
-IMPORTANT:
-
-Class Captain detection MUST happen before the generic
-"class" or "time/date/notice" detection.
-
-For example:
-
-"আজকে class captain কে?"
-→ This is a CLASS CAPTAIN query, NOT a Type A notice query.
-
-However:
-
-"আজকে কি class হবে?"
-→ This is a TYPE A time/date query.
-
-# =======================================
-
-# MISSING INFORMATION CHECK
+--------------------------------------------------
+2. TYPE-SPECIFIC REQUIREMENTS
+--------------------------------------------------
 
-# =======================================
+TYPE A — TIME/DATE/NOTICE
 
-Shift keywords:
+When a query matches TYPE A:
+- short_info = false
+- missing_department = false
+- missing_shift = false
+- missing_semester = false
 
-"morning",
-"1st",
-"first",
-"day",
-"2nd",
-"second",
-"shift",
-"মর্নিং",
-"১ম",
-"প্রথম",
-"ডে",
-"২য়",
-"দ্বিতীয়",
-"শিফট"
+No Department, Shift, or Semester information is required.
 
-Department keywords:
+These queries check the NOTICES table by date.
 
-"CST",
-"ENT",
-"ET",
-"RAC",
-"FT",
-"MT",
-"Computer",
-"Electromedical",
-"Environmental",
-"Refrigeration",
-"Food",
-"Mechanical"
+TYPE B — CI/TEACHER
 
-Semester keywords:
+Required information:
+Department + Shift
 
-"1st",
-"2nd",
-"3rd",
-"4th",
-"5th",
-"6th",
-"7th",
-"8th",
-"first",
-"second",
-"third",
-"fourth",
-"fifth",
-"sixth",
-"seventh",
-"eighth",
-"semester",
-"সেমিস্টার",
-"পর্ব",
-"১ম",
-"২য়",
-"৩য়",
-"৪র্থ",
-"৫ম",
-"৬ষ্ঠ",
-"৭ম",
-"৮ম"
+Rules:
+- missing_department = true if Department is absent.
+- missing_shift = true if Shift is absent.
+- missing_semester = false ALWAYS.
+- Semester is NOT required.
 
-# =======================================
+TYPE C — CLASS CAPTAIN
 
-# SHORT_INFO RULE
+Required information:
+Department + Shift + Semester
 
-# =======================================
+Rules:
+- missing_department = true if Department is absent.
+- missing_shift = true if Shift is absent.
+- missing_semester = true if Semester is absent.
 
-short_info=true ONLY when required information is missing.
+Class Captain queries ALWAYS require all three fields.
 
-TYPE A — Time/Date/Notice:
+TYPE D — GENERAL INFORMATION
 
-short_info=false
-missing_department=false
-missing_shift=false
-missing_semester=false
+No specific information is required.
 
-TYPE B — Teacher/CI:
+Set:
+- short_info = false
+- missing_department = false
+- missing_shift = false
+- missing_semester = false
 
-Department + Shift required.
+--------------------------------------------------
+3. MISSING INFORMATION DETECTION
+--------------------------------------------------
 
-Semester is NOT required.
+Use the project-specific keyword references in Layer 2 to detect:
 
-TYPE C — Class Captain:
+- Department
+- Shift
+- Semester
 
-Department + Shift + Semester required.
+Apply the following logic:
 
-TYPE D — General Info:
+TYPE A:
+No missing information checks are required.
 
-short_info=false
-all flags=false
+TYPE B:
+Check only Department and Shift.
+Never ask for Semester.
 
-# =======================================
+TYPE C:
+Check Department, Shift, and Semester.
 
-# EXAMPLES WITH ANALYSIS
+TYPE D:
+No missing information checks are required.
 
-# =======================================
+--------------------------------------------------
+4. SHORT_INFO DECISION
+--------------------------------------------------
 
-Example 1:
+Set short_info = true ONLY when required information is missing.
 
-"ajke ki class hobe?"
+Otherwise, set short_info = false.
 
-→ TYPE A
-→ short_info=false
-→ all flags=false
+Decision rules:
 
-Example 2:
+| Query Type | Required Information | short_info |
+|---|---|---|
+| TYPE A | None | false |
+| TYPE B | Department + Shift | true if either is missing |
+| TYPE C | Department + Shift + Semester | true if any is missing |
+| TYPE D | None | false |
 
-"ajke class ache ki na?"
+--------------------------------------------------
+5. CLARIFICATION GENERATION
+--------------------------------------------------
 
-→ TYPE A
-→ short_info=false
-→ all flags=false
+When short_info = true:
 
-Example 3:
-
-"kal ki class hobe na?"
-
-→ TYPE A
-→ short_info=false
-→ all flags=false
-
-Example 4:
-
-"today class ache?"
-
-→ TYPE A
-→ short_info=false
-→ all flags=false
-
-Example 5:
-
-"latest notice ki?"
-
-→ TYPE A
-→ short_info=false
-→ all flags=false
-
-Example 6:
-
-"CST department er chief instructor ke?"
-
-→ TYPE B
-→ missing_department=false
-→ missing_shift=true
-→ missing_semester=false
-→ short_info=true
-
-Example 7:
-
-"Principal phone number"
-
-→ TYPE D
-→ short_info=false
-→ all flags=false
-
-Example 8:
-
-"আজকে কি ক্লাস আছে?"
-
-→ TYPE A
-→ short_info=false
-→ all flags=false
-
-Example 9:
-
-"class hobe na ajke?"
-
-→ TYPE A
-→ short_info=false
-→ all flags=false
-
-Example 10:
-
-"class captain ke?"
-
-→ TYPE C
-→ missing_department=true
-→ missing_shift=true
-→ missing_semester=true
-→ short_info=true
-
-Example 11:
-
-"CST er class captain ke?"
-
-→ TYPE C
-→ missing_department=false
-→ missing_shift=true
-→ missing_semester=true
-→ short_info=true
-
-Example 12:
-
-"CST 5th semester er class captain ke?"
-
-→ TYPE C
-→ missing_department=false
-→ missing_shift=true
-→ missing_semester=false
-→ short_info=true
-
-Example 13:
-
-"CST 2nd shift 5th semester er class captain ke?"
-
-→ TYPE C
-→ all required information present
-→ short_info=false
-
-Example 14:
-
-"আজকে class captain কে?"
-
-→ TYPE C
-→ This is NOT a notice query.
-→ missing_department=true
-→ missing_shift=true
-→ missing_semester=true
-→ short_info=true
-
-# =======================================
-
-# HOW TO WRITE THE CLARIFICATION
-
-# =======================================
-
-You MUST fill the "clarification" field whenever short_info is true.
-
-The clarification must ONLY ask for the pieces that are ACTUALLY missing.
-
-Write in Bengali (বাংলা).
-
-Keep technical terms in English.
-
-Be polite.
-
-CRITICAL INSTRUCTION:
-You MUST use the EXACT template text provided below.
-Copy the template word-for-word based on which fields are missing.
-Only select the appropriate template - do NOT modify the wording.
-
----
-
-## ONLY SHIFT MISSING (Class Captain Query)
-
-"দয়া করে বলুন, আপনি কোন Shift-এর Class Captain-এর তথ্য জানতে চাচ্ছেন? 1st/Morning নাকি 2nd/Day Shift?"
-
----
-
-## ONLY DEPARTMENT MISSING (Class Captain Query)
-
-"অনুগ্রহ করে জানান, আপনি কোন Department-এর Class Captain-এর তথ্য চাচ্ছেন? (যেমন: CST, ENT, ET, RAC, FT, MT)"
-
----
-
-## ONLY SEMESTER MISSING (Class Captain Query)
-
-"অনুগ্রহ করে বলুন, আপনি কোন Semester-এর Class Captain-এর তথ্য জানতে চাচ্ছেন? (যেমন: 1st থেকে 8th পর্যন্ত)"
-
----
-
-## SHIFT AND DEPARTMENT BOTH MISSING (Class Captain Query)
-
-"দয়া করে বলুন, আপনি কোন Department এবং কোন Shift-এর Class Captain-এর তথ্য জানতে চাচ্ছেন? (যেমন: CST Department, 1st Shift)"
-
----
-
-## DEPARTMENT AND SEMESTER BOTH MISSING (Class Captain Query)
-
-"দয়া করে বলুন, আপনি কোন Department এবং কোন Semester-এর Class Captain-এর তথ্য জানতে চাচ্ছেন? (যেমন: CST, 5th Semester)"
-
----
-
-## SHIFT AND SEMESTER BOTH MISSING (Class Captain Query)
-
-"দয়া করে বলুন, আপনি কোন Shift এবং কোন Semester-এর Class Captain-এর তথ্য জানতে চাচ্ছেন? (যেমন: 2nd Shift, 5th Semester)"
-
----
-
-## ALL THREE MISSING — CLASS CAPTAIN QUERY
-
-"দয়া করে বলুন, আপনি কোন Department, কোন Shift, এবং কোন Semester-এর Class Captain-এর তথ্য চাচ্ছেন? (যেমন: CST, 2nd Shift, 5th Semester)"
-
-# =======================================
-
-# CLASS CAPTAIN CLARIFICATION RULES
-
-# =======================================
-
-For CLASS CAPTAIN queries (TYPE C), you MUST use the exact templates below.
-
-Required information: Department + Shift + Semester
-
-STEP-BY-STEP PROCESS:
-
-1. Identify which fields are missing (missing_department, missing_shift, missing_semester)
-2. Find the matching template below based on the missing combination
-3. Copy the EXACT text from the template into the "clarification" field
-4. Do NOT modify the wording - use it word-for-word
-
-EXACT TEMPLATES TO COPY:
-
-Case 1: missing_department=True, missing_shift=True, missing_semester=True
-COPY THIS EXACTLY:
-"দয়া করে বলুন, আপনি কোন Department, কোন Shift, এবং কোন Semester-এর Class Captain-এর তথ্য চাচ্ছেন? (যেমন: CST, 2nd Shift, 5th Semester)"
-
-Case 2: missing_department=True, missing_shift=False, missing_semester=False
-COPY THIS EXACTLY:
-"অনুগ্রহ করে জানান, আপনি কোন Department-এর Class Captain-এর তথ্য চাচ্ছেন? (যেমন: CST, ENT, ET, RAC, FT, MT)"
-
-Case 3: missing_department=False, missing_shift=True, missing_semester=False
-COPY THIS EXACTLY:
-"দয়া করে বলুন, আপনি কোন Shift-এর Class Captain-এর তথ্য জানতে চাচ্ছেন? 1st/Morning নাকি 2nd/Day Shift?"
-
-Case 4: missing_department=False, missing_shift=False, missing_semester=True
-COPY THIS EXACTLY:
-"অনুগ্রহ করে বলুন, আপনি কোন Semester-এর Class Captain-এর তথ্য জানতে চাচ্ছেন? (যেমন: 1st থেকে 8th পর্যন্ত)"
-
-Case 5: missing_department=True, missing_shift=True, missing_semester=False
-COPY THIS EXACTLY:
-"দয়া করে বলুন, আপনি কোন Department এবং কোন Shift-এর Class Captain-এর তথ্য জানতে চাচ্ছেন? (যেমন: CST Department, 1st Shift)"
-
-Case 6: missing_department=True, missing_shift=False, missing_semester=True
-COPY THIS EXACTLY:
-"দয়া করে বলুন, আপনি কোন Department এবং কোন Semester-এর Class Captain-এর তথ্য জানতে চাচ্ছেন? (যেমন: CST, 5th Semester)"
-
-Case 7: missing_department=False, missing_shift=True, missing_semester=True
-COPY THIS EXACTLY:
-"দয়া করে বলুন, আপনি কোন Shift এবং কোন Semester-এর Class Captain-এর তথ্য জানতে চাচ্ছেন? (যেমন: 2nd Shift, 5th Semester)"
-
-REMEMBER:
-- All TYPE C (Class Captain) queries MUST use these exact templates
-- Do NOT paraphrase or reword
-- The phrase "Class Captain-এর" is mandatory in all templates
-- You may add emojis at the end if you like (optional)
-
-# =======================================
-
-# FINAL OUTPUT RULE
-
-# =======================================
+1. Identify exactly which required fields are missing.
+2. Select the matching clarification template from Layer 3.
+3. Copy the template word-for-word.
+4. Ask ONLY for the missing information.
+5. Write the clarification in Bengali.
+6. Keep technical terms in English.
+7. Be polite.
+
+CRITICAL:
+- All TYPE C queries MUST use the exact Class Captain clarification templates.
+- Never paraphrase or modify a template.
+- The phrase "Class Captain-এর" is mandatory in every Class Captain clarification.
+- Select the template based on the exact combination of missing fields.
+- Never ask for information that is already present.
+- Never generate a custom clarification for Class Captain queries.
+- Optional emojis may be added at the end, as permitted by the original template instructions.
+
+When short_info = false:
+clarification = ""
+
+--------------------------------------------------
+6. FINAL OUTPUT RULE
+--------------------------------------------------
 
 Return ONLY valid JSON.
 
-Use exactly these fields:
+Use exactly these five fields:
 
-{{
+{
   "short_info": true/false,
   "missing_department": true/false,
   "missing_shift": true/false,
   "missing_semester": true/false,
   "clarification": "..."
-}}
+}
 
-ALWAYS:
+MANDATORY OUTPUT CONDITIONS:
 
-* "not_possible" must be false if it exists in the output schema.
-* If short_info=false, clarification must be an empty string.
-* If short_info=true, clarification MUST contain a Bengali clarification.
-* Never ask for unnecessary information.
-* Never ask for Semester in TYPE B Teacher/CI queries.
-* Never ask for Department/Shift/Semester in TYPE A queries.
-* Class Captain queries ALWAYS require Department + Shift + Semester.
-* Do NOT use routine/schedule logic.
-* Do NOT classify any query as a routine/schedule query.
+- Return valid JSON only.
+- Do not include explanations, Markdown, or additional text.
+- If short_info = false, clarification MUST be an empty string.
+- If short_info = true, clarification MUST contain a Bengali clarification.
+- Never ask for unnecessary information.
+- Never ask for Semester in TYPE B queries.
+- Never ask for Department, Shift, or Semester in TYPE A queries.
+- Class Captain queries ALWAYS require Department + Shift + Semester.
+- Do NOT use routine/schedule logic.
+- Do NOT classify any query as a routine/schedule query.
+- "not_possible" must be false if it exists in the output schema. Do not add it to the five-field schema above.
 
-# =======================================
-# FINAL CRITICAL REMINDER
-# =======================================
+--------------------------------------------------
+7. FINAL VALIDATION
+--------------------------------------------------
 
-Before returning your JSON output, verify:
+Before returning JSON, verify:
 
-1. If this is a CLASS CAPTAIN query (captain/ক্যাপ্টেন in query):
-   → Your clarification MUST include "Class Captain-এর"
-   → Find the exact matching template from the CLASS CAPTAIN CLARIFICATION RULES section above
-   → COPY that template text word-for-word into the "clarification" field
-   
-2. Example verification:
-   Query: "5th semester er class captain ke"
-   → This is TYPE C (Class Captain)
-   → missing_department=True, missing_shift=True, missing_semester=False
-   → Use Case 5 template EXACTLY:
-   → "দয়া করে বলুন, আপনি কোন Department এবং কোন Shift-এর Class Captain-এর তথ্য জানতে চাচ্ছেন? (যেমন: CST Department, 1st Shift)"
+1. Did you check for Class Captain queries FIRST?
+2. Did you correctly identify the query type?
+3. Are all missing-field flags correct?
+4. Did you avoid asking for unnecessary information?
+5. If this is a Class Captain query:
+   - Does the clarification contain "Class Captain-এর"?
+   - Did you select the exact matching template?
+   - Did you copy it word-for-word?
+6. If short_info = false, is clarification empty?
+7. Is the output valid JSON with exactly five fields?"""
 
-DO NOT generate your own clarification for captain queries - ALWAYS use the exact template.
-"""
+PROJECT_CONFIGURATION = """==================================================
+LAYER 2: PROJECT CONFIGURATION (CONFIGURABLE)
+==================================================
+
+PROJECT IDENTITY:
+
+- Project: CNPI RAG System
+- Institution: Chapainawabganj Polytechnic Institute (CNPI)
+- Database: SQL database
+- Node: SQL Query Checker
+
+PURPOSE:
+
+Determine whether a user's query contains the required information to retrieve the requested data from the CNPI SQL database.
+
+--------------------------------------------------
+A. QUERY TYPE KEYWORDS
+--------------------------------------------------
+
+TYPE A — TIME/DATE/NOTICE
+
+Keywords:
+
+English / Banglish:
+- ajke
+- aajke
+- aaj
+- kal
+- kalke
+- agamikal
+- today
+- tomorrow
+- class hobe
+- class hobe na
+- class ache
+- class nei
+- ki hobe
+- hobe ki
+- hobe na ki
+- ki class
+- notice
+- notis
+- notiish
+- today's class
+- class today
+- class tomorrow
+
+Bengali:
+- বিজ্ঞপ্তি
+- নোটিশ
+- আজকে
+- আজ
+- কাল
+- আগামীকাল
+- আগামীকালকে
+
+TYPE B — CI/TEACHER
+
+Keywords:
+- CI
+- chief instructor
+- teacher
+- instructor
+- শিক্ষক
+- প্রধান
+- sir
+- madam
+
+TYPE C — CLASS CAPTAIN
+
+Keywords:
+
+English:
+- class captain
+- captain
+- class captain ke
+- captain ke
+- class captain er tottho
+- class captain information
+- class monitor
+- monitor
+
+Bengali:
+- ক্লাস ক্যাপ্টেন
+- ক্যাপ্টেন
+- ক্লাস ক্যাপ্টেন কে
+- ক্যাপ্টেন কে
+- ক্লাস ক্যাপ্টেনের তথ্য
+- ক্লাস ক্যাপ্টেনের তথ্য চাই
+
+TYPE D — GENERAL INFORMATION
+
+Keywords:
+- principal
+- phone
+- address
+- email
+- college info
+- lab
+- building
+- facility
+- history
+- about
+
+--------------------------------------------------
+B. MISSING INFORMATION KEYWORDS
+--------------------------------------------------
+
+SHIFT KEYWORDS:
+
+English:
+- morning
+- 1st
+- first
+- day
+- 2nd
+- second
+- shift
+
+Bengali:
+- মর্নিং
+- ১ম
+- প্রথম
+- ডে
+- ২য়
+- দ্বিতীয়
+- শিফট
+
+DEPARTMENT KEYWORDS:
+
+- CST
+- ENT
+- ET
+- RAC
+- FT
+- MT
+- Computer
+- Electromedical
+- Environmental
+- Refrigeration
+- Food
+- Mechanical
+
+SEMESTER KEYWORDS:
+
+English:
+- 1st
+- 2nd
+- 3rd
+- 4th
+- 5th
+- 6th
+- 7th
+- 8th
+- first
+- second
+- third
+- fourth
+- fifth
+- sixth
+- seventh
+- eighth
+- semester
+
+Bengali:
+- সেমিস্টার
+- পর্ব
+- ১ম
+- ২য়
+- ৩য়
+- ৪র্থ
+- ৫ম
+- ৬ষ্ঠ
+- ৭ম
+- ৮ম"""
+
+EXAMPLES_AND_REFERENCE = """==================================================
+LAYER 3: EXAMPLES & REFERENCE (CONFIGURABLE)
+==================================================
+
+--------------------------------------------------
+A. QUERY CLASSIFICATION EXAMPLES
+--------------------------------------------------
+
+Example 1:
+Query: "ajke ki class hobe?"
+- TYPE A
+- short_info = false
+- All flags = false
+
+Example 2:
+Query: "ajke class ache ki na?"
+- TYPE A
+- short_info = false
+- All flags = false
+
+Example 3:
+Query: "kal ki class hobe na?"
+- TYPE A
+- short_info = false
+- All flags = false
+
+Example 4:
+Query: "today class ache?"
+- TYPE A
+- short_info = false
+- All flags = false
+
+Example 5:
+Query: "latest notice ki?"
+- TYPE A
+- short_info = false
+- All flags = false
+
+Example 6:
+Query: "CST department er chief instructor ke?"
+- TYPE B
+- missing_department = false
+- missing_shift = true
+- missing_semester = false
+- short_info = true
+
+Example 7:
+Query: "Principal phone number"
+- TYPE D
+- short_info = false
+- All flags = false
+
+Example 8:
+Query: "আজকে কি ক্লাস আছে?"
+- TYPE A
+- short_info = false
+- All flags = false
+
+Example 9:
+Query: "class hobe na ajke?"
+- TYPE A
+- short_info = false
+- All flags = false
+
+Example 10:
+Query: "class captain ke?"
+- TYPE C
+- missing_department = true
+- missing_shift = true
+- missing_semester = true
+- short_info = true
+
+Example 11:
+Query: "CST er class captain ke?"
+- TYPE C
+- missing_department = false
+- missing_shift = true
+- missing_semester = true
+- short_info = true
+
+Example 12:
+Query: "CST 5th semester er class captain ke?"
+- TYPE C
+- missing_department = false
+- missing_shift = true
+- missing_semester = false
+- short_info = true
+
+Example 13:
+Query: "CST 2nd shift 5th semester er class captain ke?"
+- TYPE C
+- All required information present
+- short_info = false
+
+Example 14:
+Query: "আজকে class captain কে?"
+- TYPE C
+- NOT a notice query
+- missing_department = true
+- missing_shift = true
+- missing_semester = true
+- short_info = true
+
+--------------------------------------------------
+B. CLASS CAPTAIN CLARIFICATION TEMPLATES
+--------------------------------------------------
+
+REQUIRED INFORMATION:
+Department + Shift + Semester
+
+Select exactly one template based on the missing-field combination.
+
+CASE 1 — ALL THREE MISSING
+
+Condition:
+missing_department = true
+missing_shift = true
+missing_semester = true
+
+Exact template:
+"দয়া করে বলুন, আপনি কোন Department, কোন Shift, এবং কোন Semester-এর Class Captain-এর তথ্য চাচ্ছেন? (যেমন: CST, 2nd Shift, 5th Semester)"
+
+CASE 2 — ONLY DEPARTMENT MISSING
+
+Condition:
+missing_department = true
+missing_shift = false
+missing_semester = false
+
+Exact template:
+"অনুগ্রহ করে জানান, আপনি কোন Department-এর Class Captain-এর তথ্য চাচ্ছেন? (যেমন: CST, ENT, ET, RAC, FT, MT)"
+
+CASE 3 — ONLY SHIFT MISSING
+
+Condition:
+missing_department = false
+missing_shift = true
+missing_semester = false
+
+Exact template:
+"দয়া করে বলুন, আপনি কোন Shift-এর Class Captain-এর তথ্য জানতে চাচ্ছেন? 1st/Morning নাকি 2nd/Day Shift?"
+
+CASE 4 — ONLY SEMESTER MISSING
+
+Condition:
+missing_department = false
+missing_shift = false
+missing_semester = true
+
+Exact template:
+"অনুগ্রহ করে বলুন, আপনি কোন Semester-এর Class Captain-এর তথ্য জানতে চাচ্ছেন? (যেমন: 1st থেকে 8th পর্যন্ত)"
+
+CASE 5 — DEPARTMENT AND SHIFT MISSING
+
+Condition:
+missing_department = true
+missing_shift = true
+missing_semester = false
+
+Exact template:
+"দয়া করে বলুন, আপনি কোন Department এবং কোন Shift-এর Class Captain-এর তথ্য জানতে চাচ্ছেন? (যেমন: CST Department, 1st Shift)"
+
+CASE 6 — DEPARTMENT AND SEMESTER MISSING
+
+Condition:
+missing_department = true
+missing_shift = false
+missing_semester = true
+
+Exact template:
+"দয়া করে বলুন, আপনি কোন Department এবং কোন Semester-এর Class Captain-এর তথ্য জানতে চাচ্ছেন? (যেমন: CST, 5th Semester)"
+
+CASE 7 — SHIFT AND SEMESTER MISSING
+
+Condition:
+missing_department = false
+missing_shift = true
+missing_semester = true
+
+Exact template:
+"দয়া করে বলুন, আপনি কোন Shift এবং কোন Semester-এর Class Captain-এর তথ্য জানতে চাচ্ছেন? (যেমন: 2nd Shift, 5th Semester)"
+
+--------------------------------------------------
+C. CLARIFICATION SELECTION REFERENCE
+--------------------------------------------------
+
+| Missing Department | Missing Shift | Missing Semester | Template |
+|---|---|---|---|
+| true | true | true | Case 1 |
+| true | false | false | Case 2 |
+| false | true | false | Case 3 |
+| false | false | true | Case 4 |
+| true | true | false | Case 5 |
+| true | false | true | Case 6 |
+| false | true | true | Case 7 |
+
+If all three fields are false:
+- short_info = false
+- clarification = ""
+
+--------------------------------------------------
+D. IMPORTANT BEHAVIORAL EXAMPLES
+--------------------------------------------------
+
+Example:
+"আজকে class captain কে?"
+
+Correct classification:
+TYPE C — Class Captain
+
+Incorrect classification:
+TYPE A — Notice query
+
+Reason:
+Class Captain detection has higher priority than time/date/notice detection.
+
+Example:
+"আজকে কি class হবে?"
+
+Correct classification:
+TYPE A — Time/Date query
+
+Reason:
+The query asks whether a class will take place today, not for Class Captain information.
+
+--------------------------------------------------
+E. OUTPUT SCHEMA REFERENCE
+--------------------------------------------------
+
+Expected JSON structure:
+
+{
+  "short_info": true/false,
+  "missing_department": true/false,
+  "missing_shift": true/false,
+  "missing_semester": true/false,
+  "clarification": "..."
+}
+
+Important:
+- Exactly five fields.
+- "not_possible" is not part of this schema.
+- If an extended schema includes "not_possible", its value must always be false."""
+
+# Combine system prompt layers
+_INFO_CHECK_SYSTEM_PROMPT = f"{CORE_INSTRUCTIONS}\n\n{PROJECT_CONFIGURATION}\n\n{EXAMPLES_AND_REFERENCE}"
 
 _info_check_prompt = ChatPromptTemplate.from_messages([
-    ("system", _INFO_CHECK_SYSTEM_PROMPT),
+    SystemMessage(content=_INFO_CHECK_SYSTEM_PROMPT),
     ("human", "User Query: {user_input}\n\nSTEP 1: Is this a TYPE A query (time/date/notice)? Check for: ajke, kal, today, tomorrow, class hobe, hobe na, notice\nSTEP 2: If TYPE A → return short_info=false, all flags=false\nSTEP 3: If not TYPE A → check TYPE B/C/D rules"),
 ])
 
@@ -664,119 +712,21 @@ def sql_query_info_check_node(state: RAGState) -> dict:
         "নোটিশ", "বিজ্ঞপ্তি",
     ]
 
-    q_lower = user_input.lower()
-    is_type_a = any(kw in q_lower for kw in _TYPE_A_KEYWORDS)
-
-    if is_type_a:
-        print(f"[info_check] TYPE A (time/notice) query detected → skip clarification")
-        return {
-            "sql_query": {
-                **sql_query_state,
-                "short_info": False,
-                "not_possible": False,
-            }
-        }
 
     # ================================================================
-    # LLM CHECK: For routine, teacher, and other queries
+    # BYPASS LLM: Always return default "suitable" response
     # ================================================================
-    llm = get_llm()
-    info_check_chain = _info_check_prompt | llm.with_structured_output(InfoCheckOutput)
-
-    try:
-        decision = info_check_chain.invoke({"user_input": user_input})
-        
-        # DEBUG: Print LLM decision
-        print(f"[info_check] LLM Decision:")
-        print(f"  short_info: {decision.short_info}")
-        print(f"  missing_department: {decision.missing_department}")
-        print(f"  missing_shift: {decision.missing_shift}")
-        print(f"  missing_semester: {decision.missing_semester}")
-
-        if decision.short_info:
-            # ============================================================
-            # POST-PROCESSING: Generate clarification for Captain queries
-            # ============================================================
-            
-            # Detect if this is a captain query
-            captain_keywords = ["captain", "ক্যাপ্টেন", "ক্লাস ক্যাপ্টেন", "class captain"]
-            is_captain_query = any(kw in user_input.lower() for kw in captain_keywords)
-            
-            if is_captain_query:
-                # Determine which fields are missing
-                missing_dept = decision.missing_department
-                missing_shift = decision.missing_shift
-                missing_sem = decision.missing_semester
-                
-                print(f"[info_check] Captain query detected → generating exact template")
-                
-                # Apply exact templates based on missing combination
-                if missing_dept and missing_shift and missing_sem:
-                    # Case 1: All three missing
-                    clarification = "দয়া করে বলুন, আপনি কোন Department, কোন Shift, এবং কোন Semester-এর Class Captain-এর তথ্য চাচ্ছেন? (যেমন: CST, 2nd Shift, 5th Semester)"
-                elif missing_dept and not missing_shift and not missing_sem:
-                    # Case 2: Only department missing
-                    clarification = "অনুগ্রহ করে জানান, আপনি কোন Department-এর Class Captain-এর তথ্য চাচ্ছেন? (যেমন: CST, ENT, ET, RAC, FT, MT)"
-                elif not missing_dept and missing_shift and not missing_sem:
-                    # Case 3: Only shift missing
-                    clarification = "দয়া করে বলুন, আপনি কোন Shift-এর Class Captain-এর তথ্য জানতে চাচ্ছেন? 1st/Morning নাকি 2nd/Day Shift?"
-                elif not missing_dept and not missing_shift and missing_sem:
-                    # Case 4: Only semester missing
-                    clarification = "অনুগ্রহ করে বলুন, আপনি কোন Semester-এর Class Captain-এর তথ্য জানতে চাচ্ছেন? (যেমন: 1st থেকে 8th পর্যন্ত)"
-                elif missing_dept and missing_shift and not missing_sem:
-                    # Case 5: Department + Shift missing
-                    clarification = "দয়া করে বলুন, আপনি কোন Department এবং কোন Shift-এর Class Captain-এর তথ্য জানতে চাচ্ছেন? (যেমন: CST Department, 1st Shift)"
-                elif missing_dept and not missing_shift and missing_sem:
-                    # Case 6: Department + Semester missing
-                    clarification = "দয়া করে বলুন, আপনি কোন Department এবং কোন Semester-এর Class Captain-এর তথ্য জানতে চাচ্ছেন? (যেমন: CST, 5th Semester)"
-                elif not missing_dept and missing_shift and missing_sem:
-                    # Case 7: Shift + Semester missing
-                    clarification = "দয়া করে বলুন, আপনি কোন Shift এবং কোন Semester-এর Class Captain-এর তথ্য জানতে চাচ্ছেন? (যেমন: 2nd Shift, 5th Semester)"
-                else:
-                    # Fallback
-                    clarification = "দয়া করে বলুন, আপনি কোন Department, কোন Shift, এবং কোন Semester-এর Class Captain-এর তথ্য চাচ্ছেন?"
-            else:
-                # Non-captain query - use LLM's clarification
-                clarification = decision.clarification
-            
-            return {
-                "sql_query": {
-                    **sql_query_state,
-                    "short_info": True,
-                    "final_answer": clarification,
-                    "missing_shift": decision.missing_shift,
-                    "missing_department": decision.missing_department,
-                    "missing_semester": decision.missing_semester,
-                }
-            }
-        elif decision.not_possible:
-            return {
-                "sql_query": {
-                    **sql_query_state,
-                    "not_possible": True,
-                    "final_answer": (
-                        "দুঃখিত, এই তথ্যটি আমাদের ডেটাবেজে সংরক্ষিত নেই। "
-                        "দয়া করে বিভাগ, শিক্ষক, বা কলেজ সম্পর্কিত তথ্য জিজ্ঞাসা করুন।"
-                    ),
-                }
-            }
-        else:
-            return {
-                "sql_query": {
-                    **sql_query_state,
-                    "short_info": False,
-                    "not_possible": False,
-                }
-            }
-    except Exception as e:
-        print(f"Info check error: {e}")
-        return {
-            "sql_query": {
-                **sql_query_state,
-                "short_info": False,
-                "not_possible": False,
-            }
+    print(f"[info_check] Bypassing LLM → returning default suitable response")
+    return {
+        "sql_query": {
+            **sql_query_state,
+            "short_info": False,
+            "not_possible": False,
+            "missing_shift": False,
+            "missing_department": False,
+            "missing_semester": False,
         }
+    }
 
 
 # =============================================================================

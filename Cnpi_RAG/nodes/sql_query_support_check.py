@@ -22,6 +22,7 @@ if str(project_root) not in sys.path:
 from state import RAGState
 from utils.llm_utils import get_llm
 from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.messages import SystemMessage
 
 
 class SupportCheckOutput(BaseModel):
@@ -29,17 +30,77 @@ class SupportCheckOutput(BaseModel):
     reason: str = Field(description="Reasoning for the determination")
 
 
+# =============================================================================
+# SYSTEM PROMPT LAYERS
+# =============================================================================
+
+CORE_INSTRUCTIONS = """==================================================
+LAYER 1: CORE INSTRUCTIONS (IMMUTABLE)
+==================================================
+
+ROLE:
+You are a validation expert responsible for checking whether a generated answer is supported by the provided database context.
+
+TASK:
+Compare the generated answer against the database context and determine whether its factual claims are supported.
+
+VALIDATION CRITERIA:
+
+1. Set "is_supported" to TRUE if:
+   - The answer contains facts, phone numbers, names, counts, or other information present in the database context.
+   - The factual information in the answer is supported by the available context.
+
+2. Set "is_supported" to FALSE if:
+   - The answer contains fabricated or unsupported facts.
+   - The answer includes information not found in the context.
+   - The answer says "information not found" even though the context contains the requested information.
+
+3. DATE EXCEPTION:
+   - Dates are NOT required for an answer to be considered supported.
+   - Only require dates when the user's question specifically asks for a date.
+
+OUTPUT RULES:
+- Return ONLY valid JSON.
+- Include exactly these two fields:
+  - "is_supported": boolean
+  - "reason": brief reasoning.
+- Do not include Markdown, explanations outside JSON, or additional fields."""
+
+PROJECT_CONFIGURATION = """==================================================
+LAYER 2: PROJECT CONFIGURATION (CONFIGURABLE)
+==================================================
+
+PROJECT:
+- System: College RAG System.
+- Institution: Chapainawabganj Polytechnic Institute (CNPI).
+- Data source: Institutional database context.
+- Validation purpose: Verify whether generated answers are factually grounded in the database context."""
+
+EXAMPLES_AND_REFERENCE = """==================================================
+LAYER 3: EXAMPLES & REFERENCE (CONFIGURABLE)
+==================================================
+
+EXPECTED OUTPUT STRUCTURE:
+
+{
+  "is_supported": true,
+  "reason": "The answer's factual information is present in the database context."
+}
+
+{
+  "is_supported": false,
+  "reason": "The answer contains information that is not supported by the database context."
+}
+
+DATE HANDLING:
+- If the answer omits a date that was not requested, this alone does not make the answer unsupported.
+- If the question specifically asks for a date, the date must be supported by the context."""
+
+# Combine system prompt layers
+SYSTEM_PROMPT = f"{CORE_INSTRUCTIONS}\n\n{PROJECT_CONFIGURATION}\n\n{EXAMPLES_AND_REFERENCE}"
+
 _SUPPORT_CHECK_PROMPT = ChatPromptTemplate.from_messages([
-    ("system", """You are a validation expert. Check if the generated answer is supported by the database context.
-
-Return ONLY JSON with:
-- "is_supported": boolean
-- "reason": brief reasoning
-
-Criteria:
-- is_supported = True if the answer contains facts, phone numbers, names, counts, or information present in the context.
-- is_supported = False if the answer hallucinates facts not found in the context or says 'information not found' when context had real data.
-- Note: Dates are NOT required unless the question specifically asked for a date."""),
+    SystemMessage(content=SYSTEM_PROMPT),
     ("human", "Context:\n{context}\n\nAnswer:\n{answer}")
 ])
 

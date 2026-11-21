@@ -58,23 +58,67 @@ class WebSupportCheckOutput(BaseModel):
 
 
 # ---------------------------------------------------------------------------
-# Prompt
+# Prompt Components
 # ---------------------------------------------------------------------------
+
+CORE_INSTRUCTIONS = """==================================================
+LAYER 1: CORE INSTRUCTIONS (IMMUTABLE)
+==================================================
+
+ROLE:
+You are a factual accuracy validator.
+
+TASK:
+Given a question, web-search context, and generated answer, determine whether the answer is ACTUALLY SUPPORTED by the provided context.
+
+SUPPORT STATUS DECISION RULES:
+
+1. yes
+Use when the answer's facts, dates, or names are present in the context.
+
+2. no_support
+Use when the web-search context contains NO relevant information to answer the question.
+
+3. hallucination
+Use when the context contains relevant information, but the generated answer is incorrect or contains made-up information.
+
+OUTPUT RULE:
+- Return ONLY valid JSON matching the specified schema.
+- Do not include explanations, Markdown, or text outside the JSON."""
+
+PROJECT_CONFIGURATION = """==================================================
+LAYER 2: PROJECT CONFIGURATION (CONFIGURABLE)
+==================================================
+
+INPUT SOURCES:
+- Question
+- Web-search context
+- Generated answer
+
+VALIDATION DOMAIN:
+Factual support verification using web-search context.
+
+OUTPUT SCHEMA:
+[Insert the required JSON schema here.]"""
+
+EXAMPLES_REFERENCE = """==================================================
+LAYER 3: EXAMPLES & REFERENCE (CONFIGURABLE)
+==================================================
+
+SUPPORT STATUS REFERENCE:
+
+| Status | Meaning |
+|---|---|
+| yes | The answer uses facts, dates, or names present in the context. |
+| no_support | The context has no relevant information to answer the question. |
+| hallucination | The context has relevant information, but the answer is wrong or made up. |"""
+
+WEB_SEARCH_SUPPORT_CHECK_SYSTEM_PROMPT = f"{CORE_INSTRUCTIONS}\n\n{PROJECT_CONFIGURATION}\n\n{EXAMPLES_REFERENCE}"
 
 _SUPPORT_CHECK_PROMPT = ChatPromptTemplate.from_messages([
     (
         "system",
-        """You are a factual accuracy validator.
-
-Given a question, a web-search context, and a generated answer, determine
-whether the answer is ACTUALLY SUPPORTED by the context.
-
-Return ONLY valid JSON matching the schema.
-Choose support_status:
-- 'yes': The answer uses facts, dates, or names present in the context.
-- 'no_support': The web context has NO relevant information to answer the question.
-- 'hallucination': The context has information, but the answer is wrong or made up.
-""",
+        WEB_SEARCH_SUPPORT_CHECK_SYSTEM_PROMPT,
     ),
     (
         "human",

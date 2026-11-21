@@ -23,6 +23,7 @@ if str(project_root) not in sys.path:
 
 from state import RAGState
 from utils.llm_utils import get_llm
+from langchain_core.messages import SystemMessage
 from langchain_core.prompts import ChatPromptTemplate
 
 
@@ -36,13 +37,20 @@ class RetrieveCheckOutput(BaseModel):
     missing_semester: bool = Field(default=False, description="true if semester is missing and required")
 
 
-_retrieve_check_prompt = ChatPromptTemplate.from_messages([
-    ("system", """You are the Retrieve Check Node for the CNPI RAG System.
+# System prompt components
+CORE_INSTRUCTIONS = """==================================================
+LAYER 1: CORE INSTRUCTIONS (IMMUTABLE)
+==================================================
 
-Analyze the user query to determine if it has sufficient information to be effectively searched.
+ROLE:
+You are the Retrieve Check Node of a RAG system.
 
-Return JSON with:
-{{
+TASK:
+Analyze the user's query and determine whether it contains sufficient information for effective retrieval.
+
+Return ONLY valid JSON using this exact schema:
+
+{
   "suitable": "yes" or "no",
   "needs_more_info": boolean,
   "clarification": "brief clarification text",
@@ -50,81 +58,171 @@ Return JSON with:
   "missing_shift": boolean,
   "missing_department": boolean,
   "missing_semester": boolean
-}}
+}
 
----------------------------------------
-RULE 1: Default suitable
----------------------------------------
-Always assume "suitable": "yes" for any college-related question.
+DECISION RULES:
 
----------------------------------------
-RULE 2: TIME/DATE/NOTICE Queries — NEVER ask for dept/shift/semester
----------------------------------------
-If the query is about TODAY, TOMORROW, or NOTICES, return immediately:
-  needs_more_info=false, all missing flags=false
+RULE 1 — DEFAULT SUITABILITY
+Always assume "suitable": "yes" for any project-related question.
 
-Type A keywords (any match → pass through immediately):
-  Banglish: ajke, aajke, aaj, kal, kalke, agamikal, today, tomorrow, yesterday
-  Phrases:  class hobe, class hobe na, class ache, class nei, class nai,
-            ki hobe, hobe ki, hobe na ki, ki class, class ki
-  Notice:   notice, notis, notiish
-  Bengali:  আজকে, আজ, কাল, আগামীকাল, ক্লাস হবে, ক্লাস নেই, ক্লাস আছে, নোটিশ
+RULE 2 — TIME, DATE & NOTICE QUERIES
+Never request Department, Shift, or Semester for queries about TODAY, TOMORROW, or NOTICES.
 
-Examples that MUST return needs_more_info=false:
-  - "cnpi te ajke ki class hobe"
-  - "ajke class ache?"
-  - "kal class hobe na?"
-  - "today class ache?"
-  - "আজকে কি ক্লাস আছে?"
-  - "latest notice"
+If any Type A keyword or phrase matches:
+- Return immediately.
+- Set needs_more_info=false.
+- Set all missing flags=false.
+- Do not ask for clarification.
 
----------------------------------------
-RULE 3: Missing Information Check (needs_more_info)
----------------------------------------
-ONLY for NON-time queries:
+RULE 3 — MISSING INFORMATION CHECK
+Apply this rule ONLY to non-time queries.
 
-1. ROUTINE/SCHEDULE Queries (need Department + Shift + Semester):
-   Keywords: "routine", "schedule", "class routine", "timetable", "ক্লাস রুটিন", "রুটিন"
-   - missing_department: true if no dept (CST, ENT, ET, RAC, FT, MT)
-   - missing_shift: true if no shift (1st/Morning, 2nd/Day)
-   - missing_semester: true if no semester (1st–8th)
+A. ROUTINE / SCHEDULE QUERIES
+These queries require Department, Shift, and Semester.
 
-2. CI/Teacher Queries (need Department + Shift, NO semester):
-   Keywords: "CI", "chief instructor", "teacher", "instructor", "শিক্ষক", "প্রধান"
-   - missing_department: true if no dept
-   - missing_shift: true if no shift
-   - missing_semester: false always
+Check:
+- missing_department = true if no Department is specified.
+- missing_shift = true if no Shift is specified.
+- missing_semester = true if no Semester is specified.
 
-3. General Info (no requirements):
-   Keywords: "principal", "phone", "address", "email", "college info", "lab", "history"
-   All flags: false
+B. CI / TEACHER QUERIES
+These queries require Department and Shift, but NOT Semester.
 
----------------------------------------
-RULE 4: GREETINGS & SMALLTALK
----------------------------------------
-If query is just greeting/smalltalk (hi, hello, salam, thanks):
-  suitable=no, needs_more_info=true, is_greeting=true, all missing flags=false
+Check:
+- missing_department = true if no Department is specified.
+- missing_shift = true if no Shift is specified.
+- missing_semester = false always.
 
----------------------------------------
-HOW TO WRITE CLARIFICATION
----------------------------------------
-Write in Bengali. Keep technical terms in English. Be polite.
+C. GENERAL INFORMATION QUERIES
+These queries have no additional information requirements.
+Set all missing flags=false.
 
-Only shift missing:
+RULE 4 — GREETINGS & SMALLTALK
+If the query contains only a greeting or smalltalk:
+- suitable = "no"
+- needs_more_info = true
+- is_greeting = true
+- All missing flags = false.
+
+RULE 5 — CLARIFICATION
+When information is missing:
+- Write clarification in Bengali.
+- Keep technical terms in English.
+- Use polite and concise language.
+- Select the appropriate clarification template from Layer 3.
+
+If no clarification is needed, return an empty string for "clarification".
+
+OUTPUT RESTRICTIONS:
+- Return ONLY valid JSON.
+- Do not include Markdown, explanations, or text outside JSON.
+- Use the exact JSON keys and value types specified above."""
+
+PROJECT_CONFIGURATION = """==================================================
+LAYER 2: PROJECT CONFIGURATION (CONFIGURABLE)
+==================================================
+
+PROJECT IDENTITY:
+CNPI RAG System.
+
+DOMAIN:
+A Bangladeshi polytechnic institute's academic and institutional information.
+
+DEPARTMENT IDENTIFIERS:
+CST, ENT, ET, RAC, FT, MT
+
+SHIFT IDENTIFIERS:
+- 1st Shift / Morning
+- 2nd Shift / Day
+
+SEMESTER RANGE:
+1st–8th Semester
+
+QUERY CATEGORIES:
+
+1. ROUTINE / SCHEDULE:
+   routine, schedule, class routine, timetable,
+   ক্লাস রুটিন, রুটিন
+
+2. CI / TEACHER:
+   CI, chief instructor, teacher, instructor,
+   শিক্ষক, প্রধান
+
+3. GENERAL INFORMATION:
+   principal, phone, address, email, college info,
+   lab, history"""
+
+EXAMPLES_REFERENCE = """==================================================
+LAYER 3: EXAMPLES & REFERENCE (CONFIGURABLE)
+==================================================
+
+A. TIME / DATE / NOTICE KEYWORDS
+
+Banglish:
+ajke, aajke, aaj, kal, kalke, agamikal
+
+English:
+today, tomorrow, yesterday
+
+Phrases:
+class hobe, class hobe na, class ache, class nei,
+class nai, ki hobe, hobe ki, hobe na ki,
+ki class, class ki
+
+Notice:
+notice, notis, notiish
+
+Bengali:
+আজকে, আজ, কাল, আগামীকাল, ক্লাস হবে,
+ক্লাস নেই, ক্লাস আছে, নোটিশ
+
+
+B. TIME / DATE / NOTICE EXAMPLES
+
+All examples below MUST return:
+needs_more_info=false
+All missing flags=false
+
+- "cnpi te ajke ki class hobe"
+- "ajke class ache?"
+- "kal class hobe na?"
+- "today class ache?"
+- "আজকে কি ক্লাস আছে?"
+- "latest notice"
+
+
+C. GREETING / SMALLTALK EXAMPLES
+
+Examples:
+- hi
+- hello
+- salam
+- thanks
+
+These must follow the greeting rule in Layer 1.
+
+
+D. CLARIFICATION TEMPLATES
+
+1. ONLY SHIFT MISSING:
 "দয়া করে বলুন, আপনি কোন Shift-এর তথ্য জানতে চাচ্ছেন? 1st/Morning নাকি 2nd/Day Shift?"
 
-Only department missing:
+2. ONLY DEPARTMENT MISSING:
 "অনুগ্রহ করে জানান, আপনি কোন Department-এর তথ্য চাচ্ছেন? (CST, ENT, ET, RAC, FT, MT)"
 
-Only semester missing:
+3. ONLY SEMESTER MISSING:
 "অনুগ্রহ করে বলুন, আপনি কোন Semester-এর তথ্য জানতে চাচ্ছেন? (1st থেকে 8th পর্যন্ত)"
 
-Dept + Shift missing:
+4. DEPARTMENT + SHIFT MISSING:
 "দয়া করে বলুন, আপনি কোন Department এবং কোন Shift-এর তথ্য জানতে চাচ্ছেন? (যেমন: CST Department, 1st Shift)"
 
-All three missing:
-"দয়া করে বলুন, আপনি কোন Department, কোন Shift, এবং কোন Semester-এর Class Routine চাচ্ছেন? (যেমন: CST, 2nd Shift, 5th Semester)"
-"""),
+5. ALL THREE MISSING:
+"দয়া করে বলুন, আপনি কোন Department, কোন Shift, এবং কোন Semester-এর Class Routine চাচ্ছেন? (যেমন: CST, 2nd Shift, 5th Semester)" """
+
+RETRIEVE_CHECK_SYSTEM_PROMPT = f"{CORE_INSTRUCTIONS}\n\n{PROJECT_CONFIGURATION}\n\n{EXAMPLES_REFERENCE}"
+
+_retrieve_check_prompt = ChatPromptTemplate.from_messages([
+    SystemMessage(content=RETRIEVE_CHECK_SYSTEM_PROMPT),
     ("human", "User Query: {user_input}")
 ])
 
@@ -168,89 +266,22 @@ def sql_retrieve_check_node(state: RAGState) -> Dict[str, Any]:
         "নোটিশ", "বিজ্ঞপ্তি",
     ]
 
-    q_lower = user_input.lower()
-    if any(kw in q_lower for kw in _TYPE_A_KEYWORDS):
-        print(f"[retrieve_check] TYPE A (time/notice) query → skip clarification")
-        return {
-            "sql_retrieve": {
-                **sql_retrieve_state,
-                "need_more_info": False,
-            }
-        }
-
     # ================================================================
-    # LLM CHECK: routine, teacher, general queries
+    # BYPASS LLM: Always return default "suitable" response
     # ================================================================
-    llm = get_llm()
-    check_chain = _retrieve_check_prompt | llm.with_structured_output(RetrieveCheckOutput)
-
-    try:
-        decision = check_chain.invoke({"user_input": user_input})
-
-        if decision.suitable == "no" or decision.needs_more_info:
-            # ============================================================
-            # POST-PROCESSING: Generate clarification if LLM didn't provide one
-            # ============================================================
-            clarification = decision.clarification
-            
-            # If LLM didn't generate good clarification, create one from flags
-            if not clarification or clarification.strip() == "":
-                print(f"[retrieve_check] No LLM clarification → generating from flags")
-                
-                parts = []
-                if decision.missing_department:
-                    parts.append("কোন Department")
-                if decision.missing_shift:
-                    parts.append("কোন Shift")
-                if decision.missing_semester:
-                    parts.append("কোন Semester")
-                
-                if parts:
-                    clarification = (
-                        f"দয়া করে বলুন, আপনি {' এবং '.join(parts)}-এর তথ্য জানতে চাচ্ছেন? "
-                        "তাহলে আমি আপনাকে সঠিক উত্তর দিতে পারব।"
-                    )
-                else:
-                    clarification = (
-                        "দয়া করে বলুন, আপনি আরও নির্দিষ্ট করে জানান — "
-                        "কোন Department, কোন Shift এবং কোন Semester-এর তথ্য জানতে চাচ্ছেন? "
-                        "তাহলে আমি আপনাকে সঠিক উত্তর দিতে পারব।"
-                    )
-            
-            return {
-                "sql_retrieve": {
-                    **sql_retrieve_state,
-                    "need_more_info": True,
-                    "final_answer": clarification,
-                },
-                "sql_query": {
-                    "short_info": True,
-                    "is_greeting": getattr(decision, "is_greeting", False),
-                    "missing_shift": decision.missing_shift,
-                    "missing_department": decision.missing_department,
-                    "missing_semester": decision.missing_semester,
-                },
-            }
-        else:
-            return {
-                "sql_retrieve": {
-                    **sql_retrieve_state,
-                    "need_more_info": False,
-                }
-            }
-    except Exception as e:
-        print(f"Retrieve check error: {e}")
-        return {
-            "sql_retrieve": {
-                **sql_retrieve_state,
-                "need_more_info": True,
-                "final_answer": (
-                    "দয়া করে বলুন, আপনি আরও নির্দিষ্ট করে জানান — "
-                    "কোন Department, কোন Shift এবং কোন Semester-এর তথ্য জানতে চাচ্ছেন? "
-                    "তাহলে আমি আপনাকে সঠিক উত্তর দিতে পারব।"
-                ),
-            }
+    print(f"[retrieve_check] Bypassing LLM → returning default suitable response")
+    return {
+        "sql_retrieve": {
+            **sql_retrieve_state,
+            "suitable": "yes",
+            "needs_more_info": False,
+            "clarification": "",
+            "is_greeting": False,
+            "missing_shift": False,
+            "missing_department": False,
+            "missing_semester": False,
         }
+    }
 
 
 # =============================================================================

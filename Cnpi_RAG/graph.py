@@ -122,9 +122,29 @@ def process_sub_query_wrapper_node(state: RAGState) -> dict:
             state = {**state, **sql_retrieve_create_node(state)}
             state = {**state, **sql_retrieve_context_node(state)}
             
+        context_found = state.get("sql_retrieve", {}).get("context_found", False)
+        if not context_found:
+            # Fallback to web search if SQL retrieval found no context
+            state["decided_path"] = "web_search"
+            state = {**state, **web_search_rewrite_node(state)}
+            state = {**state, **web_search_docs_node(state)}
+            
     elif decided_path == "web_search":
         state = {**state, **web_search_rewrite_node(state)}
         state = {**state, **web_search_docs_node(state)}
+        
+    else:
+        # Sub-queries cannot be nested hybrid or unknown; default to sql_retrieve with web fallback
+        state["decided_path"] = "sql_retrieve"
+        state = {**state, **sql_retrieve_check_node(state)}
+        if not state.get("sql_retrieve", {}).get("need_more_info"):
+            state = {**state, **sql_retrieve_create_node(state)}
+            state = {**state, **sql_retrieve_context_node(state)}
+        context_found = state.get("sql_retrieve", {}).get("context_found", False)
+        if not context_found:
+            state["decided_path"] = "web_search"
+            state = {**state, **web_search_rewrite_node(state)}
+            state = {**state, **web_search_docs_node(state)}
         
     # 4. Phase 5: Append answer (returns ONLY the hybrid channel update)
     return append_sub_answer_node(state)
@@ -420,12 +440,12 @@ def build_graph():
 
     # SQL Retrieve support_check: retry → sql_retrieve_RESPONSE (not create), max MAX_RETRIES
     def _route_retrieve_support_check(state: RAGState) -> Literal[
-        "__end__", "sql_retrieve_response", "no_answer_found"
+        "__end__", "sql_retrieve_response", "web_search_rewrite", "no_answer_found"
     ]:
         """If support check returns false (answer not good), retry the LLM response node.
 
         Retries sql_retrieve_response directly (same context, fresh LLM generation).
-        Maximum MAX_RETRIES attempts before giving up and going to no_answer_found.
+        Maximum MAX_RETRIES attempts before falling back to web search.
         """
         sql_retrieve_state = state.get("sql_retrieve", {})
         retry_count = sql_retrieve_state.get("retry_count", 0)
@@ -437,7 +457,8 @@ def build_graph():
         if retry_count < MAX_RETRIES:
             return "sql_retrieve_response"   # retry LLM with same context
 
-        return "no_answer_found"   # retries exhausted or no_support found
+        print("[sql_retrieve_support_check] Retries exhausted or no support. Falling back to web_search_rewrite.")
+        return "web_search_rewrite"   # retries exhausted or no_support found -> fallback to web search
 
     graph.add_conditional_edges(
         "sql_retrieve_support_check",
@@ -445,6 +466,7 @@ def build_graph():
         {
             "__end__": END,
             "sql_retrieve_response": "sql_retrieve_response",
+            "web_search_rewrite": "web_search_rewrite",
             "no_answer_found": "no_answer_found",
         },
     )
@@ -575,6 +597,7 @@ def build_graph():
         "append_sub_answer",
         "sql_retrieve_response",
         "web_search_response",
+        "web_search_rewrite",
         "fallback_dispatcher",
         "no_answer_found",
         "__end__",
@@ -587,7 +610,7 @@ def build_graph():
         Normal branch (is_sub_query_call=False), routed by decided_path:
             sql_query  : final_answer is already computed, just end
             sql_retrieve: context_found -> sql_retrieve_response
-                           no context   -> no_answer_found
+                           no context   -> web_search_rewrite (fallback)
             web_search : context found -> web_search_response
                          no context   -> no_answer_found
         """
@@ -612,7 +635,10 @@ def build_graph():
 
         elif decided_path == "sql_retrieve":
             context_found = state.get("sql_retrieve", {}).get("context_found", False)
-            return "sql_retrieve_response" if context_found else "no_answer_found"
+            if context_found:
+                return "sql_retrieve_response"
+            print("[sub_query_router_node] SQL Retrieve found no context. Falling back to web_search_rewrite.")
+            return "web_search_rewrite"
 
         elif decided_path == "web_search":
             context = state.get("web_search", {}).get("context", "").strip()
@@ -627,6 +653,7 @@ def build_graph():
             "append_sub_answer": "append_sub_answer",
             "sql_retrieve_response": "sql_retrieve_response",
             "web_search_response": "web_search_response",
+            "web_search_rewrite": "web_search_rewrite",
             "fallback_dispatcher": "fallback_dispatcher",
             "no_answer_found": "no_answer_found",
             "__end__": END,

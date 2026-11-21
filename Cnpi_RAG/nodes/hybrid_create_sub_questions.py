@@ -69,26 +69,111 @@ class SubQuestionDecompositionOutput(BaseModel):
 
 
 # ---------------------------------------------------------------------------
+# Prompt variables
+# ---------------------------------------------------------------------------
+
+CORE_INSTRUCTIONS = f'''==================================================
+LAYER 1: CORE INSTRUCTIONS (IMMUTABLE)
+==================================================
+
+ROLE:
+You are an expert at decomposing complex questions into simpler, independent sub-questions for an information retrieval system.
+
+YOUR TASK:
+Analyze the original user question and decompose it into simpler, independent sub-questions ONLY when it contains genuinely complex multiple intents.
+
+--------------------------------------------------
+1. DECOMPOSITION RULES
+--------------------------------------------------
+
+1. Generate a minimum of 2 and a maximum of {_MAX_SUB_QUESTIONS} sub-questions.
+2. Each sub-question MUST be SELF-CONTAINED.
+   - Do NOT use references such as "based on the above".
+   - Do NOT depend on another sub-question for context.
+3. Together, the sub-questions MUST fully cover the original question.
+4. Write all sub-questions in the SAME language as the original question (Bengali or English).
+5. Do NOT decompose a simple question into multiple sub-questions.
+6. Decompose ONLY genuinely complex multi-intent queries.
+
+--------------------------------------------------
+2. OUTPUT REQUIREMENTS
+--------------------------------------------------
+
+Return ONLY valid JSON.
+
+The JSON must contain:
+- "sub_questions": A list of sub-question strings.
+- "reasoning": A one-sentence explanation of the decomposition decision.
+
+Do NOT include:
+- Markdown code fences.
+- Explanations outside JSON.
+- Additional fields.
+- Comments.
+- Any text outside the JSON object.
+
+Follow the exact output structure defined in Layer 3.'''
+
+PROJECT_CONFIGURATION = '''==================================================
+LAYER 2: PROJECT CONFIGURATION (CONFIGURABLE)
+==================================================
+
+PROJECT IDENTITY:
+- Project: CNPI Information Retrieval System.
+- Institution: CNPI (Chapainawabganj Polytechnic Institute).
+- Domain: College and institutional information retrieval.
+
+DOMAIN CONTEXT:
+Questions may concern different aspects of the institution, including its departments, people, academic activities, facilities, services, notices, and other institutional information.
+
+Apply the Core Instructions to questions related to this project's domain.
+
+This configuration can be replaced when adapting the decomposition engine to another information retrieval project.'''
+
+EXAMPLES_REFERENCE = f'''==================================================
+LAYER 3: EXAMPLES & REFERENCE (CONFIGURABLE)
+==================================================
+
+--------------------------------------------------
+1. MAXIMUM SUB-QUESTION CONFIGURATION
+--------------------------------------------------
+
+Maximum allowed sub-questions:
+{_MAX_SUB_QUESTIONS}
+
+--------------------------------------------------
+2. REQUIRED JSON OUTPUT STRUCTURE
+--------------------------------------------------
+
+Return exactly this JSON structure:
+
+{{{{
+  "sub_questions": [
+    "Sub-question 1",
+    "Sub-question 2"
+  ],
+  "reasoning": "One-sentence explanation of why the original question required decomposition."
+}}}}
+
+--------------------------------------------------
+3. FIELD REFERENCE
+--------------------------------------------------
+
+sub_questions:
+A list of independent, self-contained sub-question strings. The list must contain 2 to {_MAX_SUB_QUESTIONS} items when decomposition is required.
+
+reasoning:
+A one-sentence explanation of the decomposition decision.'''
+
+
+# ---------------------------------------------------------------------------
 # Prompt
 # ---------------------------------------------------------------------------
 
 _DECOMPOSE_PROMPT = ChatPromptTemplate.from_messages([
     (
         "system",
-        f"""You are an expert at decomposing complex questions into simpler, independent sub-questions
-for a college information retrieval system (CNPI - Chapainawabganj Polytechnic Institute).
-
-Rules:
-1. Produce 2 to {_MAX_SUB_QUESTIONS} sub-questions maximum.
-2. Each sub-question must be SELF-CONTAINED (no "based on the above" references).
-3. Together the sub-questions must fully cover the original question.
-4. Sub-questions should be written in the SAME language as the original (Bengali or English).
-5. Do NOT rephrase a simple question into sub-questions — only decompose genuinely complex multi-intent queries.
-
-Return ONLY valid JSON with:
-- "sub_questions": list of strings
-- "reasoning": one-sentence explanation
-""",
+        CORE_INSTRUCTIONS + "\n\n" + PROJECT_CONFIGURATION + "\n\n" + EXAMPLES_REFERENCE,
     ),
     ("human", "Original question: {original_query}"),
 ])

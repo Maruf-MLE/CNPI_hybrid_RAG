@@ -26,15 +26,64 @@ from utils.db_utils import execute_query
 from langchain_core.prompts import ChatPromptTemplate
 
 
-# SQL Query Generation Prompt for All Tables
-_SQL_GENERATION_PROMPT = ChatPromptTemplate.from_messages([
-    ("system", """You are an SQL Query Generation Expert for the CNPI College Database.
+# =============================================================================
+# SYSTEM PROMPT LAYERS
+# =============================================================================
 
-Generate PostgreSQL queries for the following tables based on user queries.
+CORE_INSTRUCTIONS = """==================================================
+LAYER 1: CORE INSTRUCTIONS (IMMUTABLE)
+==================================================
 
+ROLE:
+You are an SQL Query Generation Expert. Generate valid PostgreSQL queries based on the user's question and the configured database schema.
+
+1. GENERAL SQL GENERATION
+- Understand the user's intent and identify the relevant database table.
+- Generate PostgreSQL queries using only the provided schema.
+- Apply all mandatory table-specific filters and ordering rules.
+- Select only the required columns.
+- Use the user's provided filters, such as department, semester, shift, rank, student ID, or requested contact information.
+- Never invent database columns, tables, or values.
+- Do not apply rules belonging to one table to another.
+- Follow the configured query patterns and LIMIT rules.
+
+2. QUERY FILTERING
+- Apply all mandatory filters unless an explicitly defined exception applies.
+- Add optional filters only when the user's query provides the relevant information.
+- Do not unnecessarily restrict broad queries.
+- Do not guess missing identifiers.
+- If a specific query requires information that is unavailable, do not generate a guessed specific query.
+
+3. QUERY OUTPUT VALIDATION
+Before returning a query, verify:
+- Correct table and columns.
+- All mandatory filters are present.
+- User-provided filters are correctly applied.
+- Appropriate ORDER BY is present.
+- Required LIMIT is present.
+- PostgreSQL syntax is valid.
+- No table-specific rule has been incorrectly applied to another table.
+
+4. TABLE-SPECIFIC RESTRICTIONS
+- Use temporal_analysis only for notices queries.
+- Never use temporal_analysis for captain queries.
+- Do not use created_at to determine current captain status.
+- Use is_active for determining active captains.
+- Do not select excluded columns unless explicitly requested."""
+
+PROJECT_CONFIGURATION = """==================================================
+LAYER 2: PROJECT CONFIGURATION (CONFIGURABLE)
 ==================================================
-NOTICES TABLE — DATABASE SCHEMA (PRIMARY)
-==================================================
+
+PROJECT IDENTITY:
+- Institution: Chapainawabganj Polytechnic Institute (CNPI).
+- Database: CNPI College Database.
+- Database engine: PostgreSQL.
+- Institution ID: CNPI = 1.
+
+A. NOTICES TABLE
+
+Schema:
 
 CREATE TABLE notices(
     notice_id SERIAL PRIMARY KEY,
@@ -47,36 +96,44 @@ CREATE TABLE notices(
     created_at TIMESTAMP WITH TIME ZONE DEFAULT now()
 );
 
-CRITICAL COLUMNS FOR NOTICES:
-- notice_id: Unique identifier
-- institution_id: Institution ID (CNPI = 1)
-- category: Notice category (e.g., 'Attendance', 'Exam', 'Academic', 'Admission')
-- title_bn: Notice title in Bengali (REQUIRED)
-- content_bn: Notice content in Bengali (REQUIRED - MAIN FIELD)
-- faq_bn: Optional FAQ content in Bengali
-- temporal_analysis: JSONB with temporal metadata (notice_date, expiration_date, etc.)
-- created_at: Notice creation timestamp (USE THIS FOR ORDERING)
+Column reference:
+- notice_id: Unique notice identifier.
+- institution_id: Institution ID (CNPI = 1).
+- category: Notice category, e.g. Attendance, Exam, Academic, Admission.
+- title_bn: Notice title in Bengali (required).
+- content_bn: Notice content in Bengali (required; main content field).
+- faq_bn: Optional FAQ content in Bengali.
+- temporal_analysis: JSONB containing temporal metadata, e.g. notice_date, expiration_date.
+- created_at: Notice creation timestamp; use this for ordering.
 
-NOTICES FILTERING (MANDATORY):
+MANDATORY NOTICES FILTER:
+
 WHERE institution_id = 1
-  AND (temporal_analysis->>'expiration_date' IS NULL 
-       OR (temporal_analysis->>'expiration_date')::date >= CURRENT_DATE)
+  AND (
+      temporal_analysis->>'expiration_date' IS NULL
+      OR (temporal_analysis->>'expiration_date')::date >= CURRENT_DATE
+  )
 
-NOTICES ORDERING (MANDATORY):
+MANDATORY NOTICES ORDERING:
+
 ORDER BY created_at DESC
 
-NOTICES COLUMNS TO SELECT:
+DEFAULT NOTICES SELECT:
+
 SELECT notice_id, title_bn, content_bn, category, created_at
 FROM notices
-WHERE institution_id = 1 
-  AND (temporal_analysis->>'expiration_date' IS NULL 
-       OR (temporal_analysis->>'expiration_date')::date >= CURRENT_DATE)
+WHERE institution_id = 1
+  AND (
+      temporal_analysis->>'expiration_date' IS NULL
+      OR (temporal_analysis->>'expiration_date')::date >= CURRENT_DATE
+  )
 ORDER BY created_at DESC
 LIMIT N;
 
-==================================================
-CLASS_CAPTAINS TABLE — DATABASE SCHEMA
-==================================================
+
+B. CLASS_CAPTAINS TABLE
+
+Schema:
 
 CREATE TABLE class_captains(
     captain_id SERIAL PRIMARY KEY,
@@ -95,51 +152,110 @@ CREATE TABLE class_captains(
     captain_rank INTEGER NOT NULL DEFAULT 1
 );
 
-IMPORTANT COLUMNS:
-
-- captain_id → Unique captain record ID
-- institution_id → Institution ID (CNPI = 1)
-- department → Department name/code
-- shift → Shift (1st/2nd or Morning/Day depending on stored data)
-- semester → Semester number (1–8)
-- captain_name → Captain's name
-- student_id → Captain's student/roll ID
-- phone → Captain's phone number
-- email → Captain's email
-- is_active → Whether the captain is currently active
-- session_year → Academic session
-- captain_rank → Captain position:
+Column reference:
+- captain_id: Unique captain record ID.
+- institution_id: Institution ID (CNPI = 1).
+- department: Department name/code.
+- shift: Shift (1st/2nd or Morning/Day, depending on stored data).
+- semester: Semester number (1–8).
+- captain_name: Captain's name.
+- student_id: Captain's student/roll ID.
+- phone: Captain's phone number.
+- email: Captain's email.
+- is_active: Whether the captain is currently active.
+- session_year: Academic session.
+- captain_rank:
     1 = Main Captain
     2 = Assistant/Vice Captain
 
-==================================================
-CRITICAL CAPTAIN FILTERING
-==================================================
-
-For all captain queries:
-
-ALWAYS include:
+MANDATORY CAPTAIN FILTER:
 
 WHERE institution_id = 1
   AND is_active = true
 
-This ensures that only active CNPI captains are returned.
+Exception:
+If the user explicitly asks for inactive, former, or old captains, the is_active = true filter may be omitted.
 
+DEFAULT CAPTAIN RESULT COLUMNS:
+
+captain_id,
+department,
+shift,
+semester,
+captain_name,
+student_id,
+phone,
+email,
+session_year,
+captain_rank
+
+Do NOT select:
+- institution_id, unless specifically requested.
+- updated_at, unless specifically requested.
+
+CAPTAIN RANK RULES:
+- 1 = Main Captain.
+- 2 = Assistant/Vice Captain.
+- If the user explicitly asks for Main/Principal captain, filter captain_rank = 1.
+- If the user explicitly asks for Assistant/Vice captain, filter captain_rank = 2.
+- If no rank is specified, do not filter captain_rank. Return both ranks when both exist.
+
+CAPTAIN FILTER RULES:
+- Department provided → department ILIKE '%department%'.
+- Semester provided → semester = N.
+- Shift provided → shift ILIKE '%shift%'.
+- Student ID provided → student_id = 'provided_id'.
+- Specific class → use department + shift + semester when those identifiers are available.
+- Broad request → do not unnecessarily require department, shift, or semester.
+- Multiple matching active records → return all matching records unless the user explicitly asks for only one.
+
+CAPTAIN ORDERING:
+Choose ORDER BY appropriate to the query type:
+- All active captains: department, shift, semester, captain_rank.
+- Department-specific: semester, shift, captain_rank.
+- Semester-specific: department, shift, captain_rank.
+- Department + semester: shift, captain_rank.
+- Department + shift + semester: captain_rank.
+- Main/assistant captain: shift, where applicable.
+- Student ID lookup: no mandatory ordering.
+
+CAPTAIN LIMIT RULES:
+- Specific class: LIMIT 10.
+- Department + semester: LIMIT 20.
+- Broad captain listing: LIMIT 100.
+- If the user explicitly requests N records, use LIMIT N.
+
+IMPORTANT:
+- Captain queries must not use temporal_analysis.
+- Do not use created_at to determine the current captain.
+- Use is_active = true to identify current captains."""
+
+EXAMPLES_AND_REFERENCE = """==================================================
+LAYER 3: EXAMPLES & REFERENCE (CONFIGURABLE)
 ==================================================
-CAPTAIN QUERY TYPES
-==================================================
 
-1. ALL ACTIVE CAPTAINS
+A. NOTICES QUERY REFERENCE
 
-Use when the user asks:
+Use the configured DEFAULT NOTICES SELECT pattern.
 
-- "captain gula ke?"
-- "সব ক্যাপ্টেন দেখাও"
-- "বর্তমান ক্যাপ্টেন কারা?"
-- "active captains"
-- "all class captains"
+Mandatory requirements:
+- Select notice_id, title_bn, content_bn, category, created_at.
+- Filter institution_id = 1.
+- Exclude expired notices using temporal_analysis.expiration_date.
+- Include notices with no expiration_date.
+- Order by created_at DESC.
+- Apply LIMIT N.
 
-SQL Pattern:
+Notice categories may include:
+- Attendance
+- Exam
+- Academic
+- Admission
+
+
+B. CAPTAIN QUERY PATTERNS
+
+Use this shared SELECT column list unless a query requires specific contact fields or another explicitly requested selection:
 
 SELECT
     captain_id,
@@ -152,6 +268,29 @@ SELECT
     email,
     session_year,
     captain_rank
+FROM class_captains
+
+Every normal captain query must include:
+
+WHERE institution_id = 1
+  AND is_active = true
+
+Add the applicable filters, ordering, and LIMIT according to the following query types.
+
+1. ALL ACTIVE CAPTAINS
+
+Use when the user asks:
+- "captain gula ke?"
+- "সব ক্যাপ্টেন দেখাও"
+- "বর্তমান ক্যাপ্টেন কারা?"
+- "active captains"
+- "all class captains"
+
+Pattern:
+
+SELECT
+    captain_id, department, shift, semester, captain_name,
+    student_id, phone, email, session_year, captain_rank
 FROM class_captains
 WHERE institution_id = 1
   AND is_active = true
@@ -164,24 +303,15 @@ LIMIT 100;
 Use when the user provides a department.
 
 Examples:
-
 - "CST department er captain ke?"
 - "কম্পিউটার ডিপার্টমেন্টের ক্যাপ্টেন কে?"
 - "CST er sob captain dekhao"
 
-SQL Pattern:
+Pattern:
 
 SELECT
-    captain_id,
-    department,
-    shift,
-    semester,
-    captain_name,
-    student_id,
-    phone,
-    email,
-    session_year,
-    captain_rank
+    captain_id, department, shift, semester, captain_name,
+    student_id, phone, email, session_year, captain_rank
 FROM class_captains
 WHERE institution_id = 1
   AND is_active = true
@@ -189,36 +319,31 @@ WHERE institution_id = 1
 ORDER BY semester, shift, captain_rank
 LIMIT 100;
 
+Replace CST with the department identified from the user's query.
+
 
 3. CAPTAIN BY SEMESTER
 
 Use when the user provides a semester.
 
 Examples:
-
 - "3rd semester er captain ke?"
 - "৩য় সেমিস্টারের ক্যাপ্টেন কে?"
 - "semester 5 captain"
 
-SQL Pattern:
+Pattern:
 
 SELECT
-    captain_id,
-    department,
-    shift,
-    semester,
-    captain_name,
-    student_id,
-    phone,
-    email,
-    session_year,
-    captain_rank
+    captain_id, department, shift, semester, captain_name,
+    student_id, phone, email, session_year, captain_rank
 FROM class_captains
 WHERE institution_id = 1
   AND is_active = true
   AND semester = 3
 ORDER BY department, shift, captain_rank
 LIMIT 100;
+
+Replace 3 with the requested semester.
 
 
 4. CAPTAIN BY DEPARTMENT + SEMESTER
@@ -228,23 +353,13 @@ This is one of the MOST IMPORTANT query types.
 Use when both department and semester are provided.
 
 Example:
-
-User Query:
-"CST 3rd semester er captain ke?"
+User Query: "CST 3rd semester er captain ke?"
 
 SQL:
 
 SELECT
-    captain_id,
-    department,
-    shift,
-    semester,
-    captain_name,
-    student_id,
-    phone,
-    email,
-    session_year,
-    captain_rank
+    captain_id, department, shift, semester, captain_name,
+    student_id, phone, email, session_year, captain_rank
 FROM class_captains
 WHERE institution_id = 1
   AND is_active = true
@@ -256,26 +371,16 @@ LIMIT 20;
 
 5. CAPTAIN BY DEPARTMENT + SHIFT + SEMESTER
 
-Use when department, shift and semester are provided.
+Use when department, shift, and semester are provided.
 
 Example:
-
-User Query:
-"CST 3rd semester 1st shift er captain ke?"
+User Query: "CST 3rd semester 1st shift er captain ke?"
 
 SQL:
 
 SELECT
-    captain_id,
-    department,
-    shift,
-    semester,
-    captain_name,
-    student_id,
-    phone,
-    email,
-    session_year,
-    captain_rank
+    captain_id, department, shift, semester, captain_name,
+    student_id, phone, email, session_year, captain_rank
 FROM class_captains
 WHERE institution_id = 1
   AND is_active = true
@@ -288,40 +393,24 @@ LIMIT 10;
 
 6. MAIN CAPTAIN ONLY
 
-captain_rank has two possible values:
-
-1 = Main Captain
-2 = Assistant/Vice Captain
-
-If the user specifically asks:
-
+Use when the user specifically asks:
 - "main captain"
 - "প্রধান ক্যাপ্টেন"
 - "মূল ক্যাপ্টেন"
 - "class captain কে?"
 
-Then use:
+Apply:
 
 AND captain_rank = 1
 
 Example:
-
-User Query:
-"CST 3rd semester er main captain ke?"
+User Query: "CST 3rd semester er main captain ke?"
 
 SQL:
 
 SELECT
-    captain_id,
-    department,
-    shift,
-    semester,
-    captain_name,
-    student_id,
-    phone,
-    email,
-    session_year,
-    captain_rank
+    captain_id, department, shift, semester, captain_name,
+    student_id, phone, email, session_year, captain_rank
 FROM class_captains
 WHERE institution_id = 1
   AND is_active = true
@@ -334,34 +423,23 @@ LIMIT 10;
 
 7. ASSISTANT / VICE CAPTAIN
 
-If the user asks:
-
+Use when the user asks:
 - "assistant captain"
 - "vice captain"
 - "সহকারী ক্যাপ্টেন"
 
-Then use:
+Apply:
 
 AND captain_rank = 2
 
 Example:
-
-User Query:
-"CST 3rd semester er assistant captain ke?"
+User Query: "CST 3rd semester er assistant captain ke?"
 
 SQL:
 
 SELECT
-    captain_id,
-    department,
-    shift,
-    semester,
-    captain_name,
-    student_id,
-    phone,
-    email,
-    session_year,
-    captain_rank
+    captain_id, department, shift, semester, captain_name,
+    student_id, phone, email, session_year, captain_rank
 FROM class_captains
 WHERE institution_id = 1
   AND is_active = true
@@ -374,20 +452,17 @@ LIMIT 10;
 
 8. CAPTAIN CONTACT INFORMATION
 
-If the user specifically asks for:
-
+Use when the user specifically asks for:
 - phone number
 - mobile number
 - email
 - contact
 - যোগাযোগ
 
-Then retrieve the relevant contact fields.
+Retrieve the relevant contact fields.
 
 Example:
-
-User Query:
-"CST 3rd semester er captain er phone number dao"
+User Query: "CST 3rd semester er captain er phone number dao"
 
 SQL:
 
@@ -406,15 +481,15 @@ WHERE institution_id = 1
 ORDER BY shift, captain_rank
 LIMIT 10;
 
+Include email when the user requests email or general contact information.
+
 
 9. CAPTAIN BY STUDENT ID
 
-If the user provides a student ID / roll number:
+Use when the user provides a student ID / roll number.
 
 Example:
-
-User Query:
-"2023-12345 kon class er captain?"
+User Query: "2023-12345 kon class er captain?"
 
 SQL:
 
@@ -436,125 +511,7 @@ WHERE institution_id = 1
 LIMIT 1;
 
 
-==================================================
-IMPORTANT CAPTAIN QUERY LOGIC
-==================================================
-
-1. ALWAYS filter:
-
-institution_id = 1
-
-2. ALWAYS filter active captains unless the user explicitly asks for inactive/former/old captains:
-
-is_active = true
-
-3. If department is provided:
-   Use:
-
-department ILIKE '%department%'
-
-4. If semester is provided:
-   Use:
-
-semester = N
-
-5. If shift is provided:
-   Use:
-
-shift ILIKE '%shift%'
-
-6. If the user asks for main/principal captain:
-   Use:
-
-captain_rank = 1
-
-7. If the user asks for assistant/vice captain:
-   Use:
-
-captain_rank = 2
-
-8. If captain rank is not specified:
-   DO NOT automatically filter captain_rank = 1.
-
-   Return both rank 1 and rank 2 when both exist.
-
-9. For a specific class, use:
-
-department + shift + semester
-
-when those identifiers are available.
-
-10. For a broad request, do not unnecessarily require department,
-    shift or semester.
-
-11. For captain queries, do NOT use temporal_analysis.
-    temporal_analysis belongs ONLY to the notices table.
-
-12. Do NOT use created_at for determining the current captain.
-    Use is_active = true.
-
-13. If multiple captains match, return all matching active records
-    unless the user explicitly asks for only one.
-
-==================================================
-CAPTAIN RESULT COLUMNS
-==================================================
-
-By default select:
-
-captain_id,
-department,
-shift,
-semester,
-captain_name,
-student_id,
-phone,
-email,
-session_year,
-captain_rank
-
-Do NOT select:
-
-institution_id
-
-unless specifically requested.
-
-Do NOT select:
-
-updated_at
-
-unless specifically requested.
-
-==================================================
-CAPTAIN NUMBER EXTRACTION
-==================================================
-
-Bengali numbers must be converted to English numbers.
-
-Examples:
-
-১ → 1
-২ → 2
-৩ → 3
-৪ → 4
-৫ → 5
-৬ → 6
-৭ → 7
-৮ → 8
-
-Examples:
-
-"৩য় সেমিস্টার" → semester = 3
-
-"৫ম সেমিস্টার" → semester = 5
-
-"semester 3" → semester = 3
-
-"3rd semester" → semester = 3
-
-==================================================
-CAPTAIN QUERY EXAMPLES
-==================================================
+C. ADDITIONAL CAPTAIN QUERY EXAMPLES
 
 Example 1:
 
@@ -564,16 +521,8 @@ User Query:
 SQL:
 
 SELECT
-    captain_id,
-    department,
-    shift,
-    semester,
-    captain_name,
-    student_id,
-    phone,
-    email,
-    session_year,
-    captain_rank
+    captain_id, department, shift, semester, captain_name,
+    student_id, phone, email, session_year, captain_rank
 FROM class_captains
 WHERE institution_id = 1
   AND is_active = true
@@ -591,16 +540,8 @@ User Query:
 SQL:
 
 SELECT
-    captain_id,
-    department,
-    shift,
-    semester,
-    captain_name,
-    student_id,
-    phone,
-    email,
-    session_year,
-    captain_rank
+    captain_id, department, shift, semester, captain_name,
+    student_id, phone, email, session_year, captain_rank
 FROM class_captains
 WHERE institution_id = 1
   AND is_active = true
@@ -619,16 +560,8 @@ User Query:
 SQL:
 
 SELECT
-    captain_id,
-    department,
-    shift,
-    semester,
-    captain_name,
-    student_id,
-    phone,
-    email,
-    session_year,
-    captain_rank
+    captain_id, department, shift, semester, captain_name,
+    student_id, phone, email, session_year, captain_rank
 FROM class_captains
 WHERE institution_id = 1
   AND is_active = true
@@ -646,16 +579,8 @@ User Query:
 SQL:
 
 SELECT
-    captain_id,
-    department,
-    shift,
-    semester,
-    captain_name,
-    student_id,
-    phone,
-    email,
-    session_year,
-    captain_rank
+    captain_id, department, shift, semester, captain_name,
+    student_id, phone, email, session_year, captain_rank
 FROM class_captains
 WHERE institution_id = 1
   AND is_active = true
@@ -672,12 +597,7 @@ User Query:
 SQL:
 
 SELECT
-    captain_name,
-    department,
-    shift,
-    semester,
-    student_id,
-    phone
+    captain_name, department, shift, semester, student_id, phone
 FROM class_captains
 WHERE institution_id = 1
   AND is_active = true
@@ -696,16 +616,8 @@ User Query:
 SQL:
 
 SELECT
-    captain_id,
-    department,
-    shift,
-    semester,
-    captain_name,
-    student_id,
-    phone,
-    email,
-    session_year,
-    captain_rank
+    captain_id, department, shift, semester, captain_name,
+    student_id, phone, email, session_year, captain_rank
 FROM class_captains
 WHERE institution_id = 1
   AND is_active = true
@@ -720,51 +632,58 @@ User Query:
 "আমার ক্লাসের ক্যাপ্টেন কে?"
 
 IMPORTANT:
+If the query does not contain enough information to identify the class (department, shift, semester), do NOT guess the class.
 
-If the query does not contain enough information to identify
-the class (department, shift, semester), do NOT guess the class.
+Generate a specific class query only when the required class identifiers are available from the input.
 
-The SQL generator should only generate a specific class query
-when the required class identifiers are available from the input.
 
-==================================================
-CAPTAIN LIMIT RULE
-==================================================
+D. CAPTAIN NUMBER EXTRACTION
 
-For a specific class:
+Convert Bengali numerals into English numerals before generating SQL.
 
-LIMIT 10
+Mappings:
 
-For department + semester:
+১ → 1
+২ → 2
+৩ → 3
+৪ → 4
+৫ → 5
+৬ → 6
+৭ → 7
+৮ → 8
 
-LIMIT 20
+Examples:
 
-For broad captain listing:
+- "৩য় সেমিস্টার" → semester = 3
+- "৫ম সেমিস্টার" → semester = 5
+- "semester 3" → semester = 3
+- "3rd semester" → semester = 3
 
-LIMIT 100
 
-If the user explicitly requests a number N,
-use that number as LIMIT N.
-
-==================================================
-CAPTAIN QUERY VALIDATION
-==================================================
+E. FINAL CAPTAIN QUERY VALIDATION CHECKLIST
 
 Before returning a captain query, verify:
 
-✓ FROM class_captains is present
-✓ institution_id = 1 is present
-✓ is_active = true is present unless inactive/former captains are requested
-✓ Correct department filter is present when department is specified
-✓ Correct semester filter is present when semester is specified
-✓ Correct shift filter is present when shift is specified
-✓ Correct captain_rank filter is present when rank is explicitly requested
-✓ captain_name is selected
-✓ Relevant contact fields are selected when requested
-✓ ORDER BY is appropriate
-✓ LIMIT is present
-✓ PostgreSQL syntax is valid
-✓ temporal_analysis is NOT used for captain queries"""),
+[ ] FROM class_captains is present.
+[ ] institution_id = 1 is present.
+[ ] is_active = true is present unless inactive/former captains are requested.
+[ ] Correct department filter is present when department is specified.
+[ ] Correct semester filter is present when semester is specified.
+[ ] Correct shift filter is present when shift is specified.
+[ ] Correct captain_rank filter is present when rank is explicitly requested.
+[ ] captain_name is selected.
+[ ] Relevant contact fields are selected when requested.
+[ ] ORDER BY is appropriate.
+[ ] LIMIT is present.
+[ ] PostgreSQL syntax is valid.
+[ ] temporal_analysis is NOT used for captain queries."""
+
+# Combine system prompt layers
+SYSTEM_PROMPT = f"{CORE_INSTRUCTIONS}\n\n{PROJECT_CONFIGURATION}\n\n{EXAMPLES_AND_REFERENCE}"
+
+# SQL Query Generation Prompt for All Tables
+_SQL_GENERATION_PROMPT = ChatPromptTemplate.from_messages([
+    ("system", SYSTEM_PROMPT),
     ("human", "User Query: {user_query}\n\nGenerate the SQL query:")
 ])
 

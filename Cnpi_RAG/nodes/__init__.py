@@ -19,7 +19,7 @@ from .fallback_dispatcher import fallback_dispatcher_node
 from .sql_retrieve_check import sql_retrieve_check_node
 from .sql_retrieve_create import sql_retrieve_create_node
 from .sql_retrieve_context import sql_retrieve_context_node
-from .sql_retrieve_response import sql_retrieve_response_node
+from .sql_retrieve_response_optimized import sql_retrieve_response_node
 from .sql_retrieve_support_check import sql_retrieve_support_check_node
 
 # Phase 4 - Web Search path nodes
